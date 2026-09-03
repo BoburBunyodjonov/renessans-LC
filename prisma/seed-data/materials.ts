@@ -1,0 +1,416 @@
+import { L } from './common';
+
+export const MATERIAL_GROUPS = [
+  {
+    key: 'student-books',
+    name: L('Student Books', 'Student Books', 'Student Books'),
+    type: 'PDF' as const,
+    order: 1,
+  },
+  {
+    key: 'work-books',
+    name: L('Work Books', 'Work Books', 'Work Books'),
+    type: 'PDF' as const,
+    order: 2,
+  },
+  {
+    key: 'listening-practice',
+    name: L('Listening amaliyoti', 'Практика Listening', 'Listening practice'),
+    type: 'AUDIO' as const,
+    order: 1,
+  },
+  {
+    key: 'pronunciation',
+    name: L('Talaffuz', 'Произношение', 'Pronunciation'),
+    type: 'AUDIO' as const,
+    order: 2,
+  },
+  {
+    key: 'grammar-lessons',
+    name: L('Grammatika darslari', 'Уроки грамматики', 'Grammar lessons'),
+    type: 'VIDEO' as const,
+    order: 1,
+  },
+  {
+    key: 'speaking-topics',
+    name: L('Speaking mavzulari', 'Темы Speaking', 'Speaking topics'),
+    type: 'VIDEO' as const,
+    order: 2,
+  },
+  {
+    key: 'picture-dictionary',
+    name: L('Rasmli lug‘at', 'Картинный словарь', 'Picture dictionary'),
+    type: 'PHOTO' as const,
+    order: 1,
+  },
+];
+
+type SeedMaterial = {
+  title: ReturnType<typeof L>;
+  description?: ReturnType<typeof L>;
+  type: 'PDF' | 'AUDIO' | 'VIDEO' | 'PHOTO';
+  level:
+    | 'BEGINNER'
+    | 'ELEMENTARY'
+    | 'PRE_INTERMEDIATE'
+    | 'INTERMEDIATE'
+    | 'UPPER_INTERMEDIATE'
+    | 'ADVANCED'
+    | 'IELTS'
+    | 'KIDS';
+  groupKey: string;
+  fileUrl?: string;
+  externalUrl?: string;
+  fileSize?: number;
+  meta?: Record<string, number>;
+  tags: string[];
+  requireContact?: boolean;
+  downloadCount?: number;
+  order: number;
+};
+
+export const MATERIALS: SeedMaterial[] = [
+  // ---------- PDF ----------
+  {
+    title: L('Beginner Student Book', 'Beginner Student Book', 'Beginner Student Book'),
+    description: L(
+      'Noldan boshlovchilar uchun asosiy darslik.',
+      'Основной учебник для начинающих с нуля.',
+      'The core coursebook for absolute beginners.',
+    ),
+    type: 'PDF',
+    level: 'BEGINNER',
+    groupKey: 'student-books',
+    fileUrl: '/uploads/demo/beginner-student-book.pdf',
+    fileSize: 8_400_000,
+    meta: { pages: 128 },
+    tags: ['beginner', 'grammar', 'vocabulary'],
+    downloadCount: 412,
+    order: 1,
+  },
+  {
+    title: L('Beginner Work Book', 'Beginner Work Book', 'Beginner Work Book'),
+    type: 'PDF',
+    level: 'BEGINNER',
+    groupKey: 'work-books',
+    fileUrl: '/uploads/demo/beginner-work-book.pdf',
+    fileSize: 5_100_000,
+    meta: { pages: 96 },
+    tags: ['beginner', 'exercises'],
+    downloadCount: 288,
+    order: 2,
+  },
+  {
+    title: L('Elementary Student Book', 'Elementary Student Book', 'Elementary Student Book'),
+    type: 'PDF',
+    level: 'ELEMENTARY',
+    groupKey: 'student-books',
+    fileUrl: '/uploads/demo/elementary-student-book.pdf',
+    fileSize: 9_200_000,
+    meta: { pages: 144 },
+    tags: ['elementary', 'grammar'],
+    downloadCount: 366,
+    order: 3,
+  },
+  {
+    title: L('Elementary Work Book', 'Elementary Work Book', 'Elementary Work Book'),
+    type: 'PDF',
+    level: 'ELEMENTARY',
+    groupKey: 'work-books',
+    fileUrl: '/uploads/demo/elementary-work-book.pdf',
+    fileSize: 4_800_000,
+    meta: { pages: 88 },
+    tags: ['elementary', 'exercises'],
+    downloadCount: 201,
+    order: 4,
+  },
+  {
+    title: L(
+      'Pre-Intermediate Student Book',
+      'Pre-Intermediate Student Book',
+      'Pre-Intermediate Student Book',
+    ),
+    type: 'PDF',
+    level: 'PRE_INTERMEDIATE',
+    groupKey: 'student-books',
+    fileUrl: '/uploads/demo/pre-intermediate-student-book.pdf',
+    fileSize: 10_300_000,
+    meta: { pages: 152 },
+    tags: ['pre-intermediate'],
+    downloadCount: 245,
+    order: 5,
+  },
+  {
+    title: L('Intermediate Student Book', 'Intermediate Student Book', 'Intermediate Student Book'),
+    type: 'PDF',
+    level: 'INTERMEDIATE',
+    groupKey: 'student-books',
+    fileUrl: '/uploads/demo/intermediate-student-book.pdf',
+    fileSize: 11_700_000,
+    meta: { pages: 168 },
+    tags: ['intermediate'],
+    downloadCount: 318,
+    order: 6,
+  },
+  {
+    title: L(
+      'Upper-Intermediate Work Book',
+      'Upper-Intermediate Work Book',
+      'Upper-Intermediate Work Book',
+    ),
+    type: 'PDF',
+    level: 'UPPER_INTERMEDIATE',
+    groupKey: 'work-books',
+    fileUrl: '/uploads/demo/upper-intermediate-work-book.pdf',
+    fileSize: 6_600_000,
+    meta: { pages: 104 },
+    tags: ['upper-intermediate', 'exercises'],
+    downloadCount: 154,
+    order: 7,
+  },
+  {
+    title: L(
+      'IELTS Writing Task 2 shablonlari',
+      'Шаблоны IELTS Writing Task 2',
+      'IELTS Writing Task 2 templates',
+    ),
+    description: L(
+      "5 ta esse turi uchun tayyor tuzilma va bog'lovchi iboralar.",
+      'Готовая структура и связки для 5 типов эссе.',
+      'Ready-made structures and linking phrases for five essay types.',
+    ),
+    type: 'PDF',
+    level: 'IELTS',
+    groupKey: 'student-books',
+    fileUrl: '/uploads/demo/ielts-writing-templates.pdf',
+    fileSize: 1_200_000,
+    meta: { pages: 24 },
+    tags: ['ielts', 'writing'],
+    requireContact: true,
+    downloadCount: 903,
+    order: 8,
+  },
+  {
+    title: L(
+      'IELTS Speaking Part 2 kartochkalari',
+      'Карточки IELTS Speaking Part 2',
+      'IELTS Speaking Part 2 cue cards',
+    ),
+    type: 'PDF',
+    level: 'IELTS',
+    groupKey: 'student-books',
+    fileUrl: '/uploads/demo/ielts-speaking-cue-cards.pdf',
+    fileSize: 900_000,
+    meta: { pages: 18 },
+    tags: ['ielts', 'speaking'],
+    requireContact: true,
+    downloadCount: 671,
+    order: 9,
+  },
+  {
+    title: L('Kids ABC ish daftari', 'Рабочая тетрадь Kids ABC', 'Kids ABC workbook'),
+    type: 'PDF',
+    level: 'KIDS',
+    groupKey: 'work-books',
+    fileUrl: '/uploads/demo/kids-abc-workbook.pdf',
+    fileSize: 3_400_000,
+    meta: { pages: 60 },
+    tags: ['kids', 'alphabet'],
+    downloadCount: 522,
+    order: 10,
+  },
+
+  // ---------- AUDIO ----------
+  {
+    title: L('Beginner listening 1–10', 'Beginner listening 1–10', 'Beginner listening 1–10'),
+    type: 'AUDIO',
+    level: 'BEGINNER',
+    groupKey: 'listening-practice',
+    fileUrl: '/uploads/demo/beginner-listening-01.mp3',
+    fileSize: 14_000_000,
+    meta: { durationSec: 840 },
+    tags: ['listening', 'beginner'],
+    downloadCount: 132,
+    order: 1,
+  },
+  {
+    title: L('Elementary dialoglar', 'Диалоги Elementary', 'Elementary dialogues'),
+    type: 'AUDIO',
+    level: 'ELEMENTARY',
+    groupKey: 'listening-practice',
+    fileUrl: '/uploads/demo/elementary-dialogues.mp3',
+    fileSize: 18_500_000,
+    meta: { durationSec: 1120 },
+    tags: ['listening', 'dialogue'],
+    downloadCount: 98,
+    order: 2,
+  },
+  {
+    title: L('IELTS Listening Test 1', 'IELTS Listening Test 1', 'IELTS Listening Test 1'),
+    type: 'AUDIO',
+    level: 'IELTS',
+    groupKey: 'listening-practice',
+    fileUrl: '/uploads/demo/ielts-listening-test-1.mp3',
+    fileSize: 27_000_000,
+    meta: { durationSec: 1860 },
+    tags: ['ielts', 'listening', 'mock'],
+    requireContact: true,
+    downloadCount: 415,
+    order: 3,
+  },
+  {
+    title: L('Talaffuz: 44 ta tovush', 'Произношение: 44 звука', 'Pronunciation: 44 sounds'),
+    type: 'AUDIO',
+    level: 'PRE_INTERMEDIATE',
+    groupKey: 'pronunciation',
+    fileUrl: '/uploads/demo/pronunciation-44-sounds.mp3',
+    fileSize: 22_000_000,
+    meta: { durationSec: 1500 },
+    tags: ['pronunciation', 'phonetics'],
+    downloadCount: 267,
+    order: 4,
+  },
+  {
+    title: L('Kids qo‘shiqlari', 'Детские песни', 'Kids songs'),
+    type: 'AUDIO',
+    level: 'KIDS',
+    groupKey: 'pronunciation',
+    fileUrl: '/uploads/demo/kids-songs.mp3',
+    fileSize: 16_300_000,
+    meta: { durationSec: 980 },
+    tags: ['kids', 'songs'],
+    downloadCount: 344,
+    order: 5,
+  },
+
+  // ---------- VIDEO ----------
+  {
+    title: L(
+      'Present Simple: 12 daqiqada',
+      'Present Simple за 12 минут',
+      'Present Simple in 12 minutes',
+    ),
+    type: 'VIDEO',
+    level: 'BEGINNER',
+    groupKey: 'grammar-lessons',
+    externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    meta: { durationSec: 720 },
+    tags: ['grammar', 'present-simple'],
+    downloadCount: 76,
+    order: 1,
+  },
+  {
+    title: L(
+      'Past Simple va Present Perfect farqi',
+      'Разница Past Simple и Present Perfect',
+      'Past Simple vs Present Perfect',
+    ),
+    type: 'VIDEO',
+    level: 'PRE_INTERMEDIATE',
+    groupKey: 'grammar-lessons',
+    externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    meta: { durationSec: 960 },
+    tags: ['grammar', 'tenses'],
+    downloadCount: 121,
+    order: 2,
+  },
+  {
+    title: L('Conditionals: 0–3 turlari', 'Conditionals: типы 0–3', 'Conditionals: types 0–3'),
+    type: 'VIDEO',
+    level: 'INTERMEDIATE',
+    groupKey: 'grammar-lessons',
+    externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    meta: { durationSec: 1080 },
+    tags: ['grammar', 'conditionals'],
+    downloadCount: 143,
+    order: 3,
+  },
+  {
+    title: L(
+      'IELTS Speaking: 8.0 namunasi',
+      'IELTS Speaking: образец 8.0',
+      'IELTS Speaking: an 8.0 sample',
+    ),
+    type: 'VIDEO',
+    level: 'IELTS',
+    groupKey: 'speaking-topics',
+    externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    meta: { durationSec: 900 },
+    tags: ['ielts', 'speaking'],
+    downloadCount: 388,
+    order: 4,
+  },
+  {
+    title: L('Small talk: 20 ta ibora', 'Small talk: 20 фраз', 'Small talk: 20 phrases'),
+    type: 'VIDEO',
+    level: 'UPPER_INTERMEDIATE',
+    groupKey: 'speaking-topics',
+    externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    meta: { durationSec: 660 },
+    tags: ['speaking', 'phrases'],
+    downloadCount: 95,
+    order: 5,
+  },
+
+  // ---------- PHOTO ----------
+  {
+    title: L(
+      'Rasmli lug‘at: uy-ro‘zg‘or',
+      'Картинный словарь: дом и быт',
+      'Picture dictionary: home',
+    ),
+    type: 'PHOTO',
+    level: 'KIDS',
+    groupKey: 'picture-dictionary',
+    fileUrl: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&q=80',
+    meta: { width: 1200, height: 800 },
+    tags: ['kids', 'vocabulary'],
+    downloadCount: 210,
+    order: 1,
+  },
+  {
+    title: L(
+      'Rasmli lug‘at: maktab buyumlari',
+      'Картинный словарь: школьные предметы',
+      'Picture dictionary: school items',
+    ),
+    type: 'PHOTO',
+    level: 'KIDS',
+    groupKey: 'picture-dictionary',
+    fileUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=80',
+    meta: { width: 1200, height: 800 },
+    tags: ['kids', 'school'],
+    downloadCount: 186,
+    order: 2,
+  },
+  {
+    title: L(
+      'Infografika: Irregular verbs',
+      'Инфографика: Irregular verbs',
+      'Infographic: irregular verbs',
+    ),
+    type: 'PHOTO',
+    level: 'ELEMENTARY',
+    groupKey: 'picture-dictionary',
+    fileUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&q=80',
+    meta: { width: 1200, height: 900 },
+    tags: ['grammar', 'verbs'],
+    downloadCount: 274,
+    order: 3,
+  },
+  {
+    title: L(
+      'Infografika: IELTS band deskriptorlari',
+      'Инфографика: дескрипторы IELTS',
+      'Infographic: IELTS band descriptors',
+    ),
+    type: 'PHOTO',
+    level: 'IELTS',
+    groupKey: 'picture-dictionary',
+    fileUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&q=80',
+    meta: { width: 1200, height: 800 },
+    tags: ['ielts'],
+    downloadCount: 158,
+    order: 4,
+  },
+];

@@ -1,0 +1,748 @@
+// Renessans English School — database schema (PROMPT.md §13).
+//
+// Conventions:
+//   * `cuid()` ids, `createdAt` / `updatedAt` on every model.
+//   * Localized columns are `Json` of shape { uz, ru, en } (see src/types/i18n.ts).
+//   * Soft delete (`deletedAt`) on models staff might delete by accident.
+//   * `@@index` on every field used in a filter or a sort.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------- auth ----
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  MODERATOR
+  VIEWER
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         Role      @default(EDITOR)
+  avatarUrl    String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  leads     Lead[]     @relation("LeadAssignee")
+  auditLogs AuditLog[]
+  leadNotes LeadNote[]
+
+  @@index([role, isActive])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String // CREATE | UPDATE | DELETE | LOGIN | EXPORT
+  entity    String
+  entityId  String?
+  diff      Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+// --------------------------------------------------------- site config ----
+
+model SiteSetting {
+  id               String   @id @default("singleton")
+  brandName        Json // Localized
+  tagline          Json // Localized
+  logoLightUrl     String?
+  logoDarkUrl      String?
+  faviconUrl       String?
+  ogImageUrl       String?
+  primaryCtaLabel  Json // Localized
+  primaryCtaHref   String?
+  externalLmsLabel String?
+  externalLmsUrl   String?
+  phones           String[]
+  email            String?
+  socials          Json // { telegram, instagram, youtube, facebook, tiktok, whatsapp }
+  tickerItems      Json // Localized[]
+  currency         String   @default("UZS")
+  ga4Id            String?
+  metaPixelId      String?
+  yandexMetricaId  String?
+  telegramChatIds  Json? // { lead, application, contact, test }
+  privacyPolicy    Json? // Localized rich text
+  madeByLabel      Json? // Localized "Made by ..." footer credit
+  madeByUrl        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NavItem {
+  id        String   @id @default(cuid())
+  label     Json // Localized
+  href      String
+  group     String   @default("header") // header | footer-1 | footer-2 | mobile
+  order     Int      @default(0)
+  isVisible Boolean  @default(true)
+  openInNew Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group, order])
+  @@index([isVisible])
+}
+
+/// Homepage section registry: order, visibility and the editable copy of each
+/// band. `body` / `imageUrl` / `videoUrl` / `cta*` carry the About and Careers
+/// teaser content, which has no model of its own.
+model HomeSection {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  order     Int
+  isVisible Boolean  @default(true)
+  eyebrow   Json? // Localized
+  title     Json? // Localized
+  subtitle  Json? // Localized
+  body      Json? // Localized rich text
+  imageUrl  String?
+  videoUrl  String?
+  ctaLabel  Json? // Localized
+  ctaHref   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isVisible, order])
+}
+
+model Branch {
+  id           String   @id @default(cuid())
+  name         Json // Localized
+  address      Json // Localized
+  phones       String[]
+  workingHours Json? // Localized
+  mapEmbedUrl  String?
+  mapLinkUrl   String?
+  lat          Float?
+  lng          Float?
+  imageUrl     String?
+  order        Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isActive, order])
+}
+
+// -------------------------------------------------------- home content ----
+
+model HeroSlide {
+  id          String   @id @default(cuid())
+  headline    Json // Localized, allows <mark>
+  subtitle    Json?
+  ctaLabel    Json?
+  ctaHref     String?
+  imageUrl    String?
+  imageAlt    Json?
+  videoUrl    String?
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, order])
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  value     String
+  label     Json // Localized
+  icon      String?
+  order     Int      @default(0)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isVisible, order])
+}
+
+/// "Nega aynan bizni tanlashadi" — why-us cards.
+model Advantage {
+  id          String   @id @default(cuid())
+  title       Json
+  description Json
+  icon        String?
+  imageUrl    String?
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, order])
+}
+
+model Problem {
+  id          String    @id @default(cuid())
+  title       Json
+  description Json
+  icon        String?
+  order       Int       @default(0)
+  isPublished Boolean   @default(true)
+  solution    Solution?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isPublished, order])
+}
+
+model Solution {
+  id          String   @id @default(cuid())
+  problemId   String   @unique
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  skill       Skill
+  title       Json
+  description Json
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([skill])
+}
+
+enum Skill {
+  SPEAKING
+  LISTENING
+  READING
+  WRITING
+  GRANT
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  title       Json
+  description Json
+  prizes      Json // [{ place: 1, label: Localized, icon }]
+  imageUrl    String?
+  ctaLabel    Json?
+  ctaHref     String?
+  startsAt    DateTime
+  endsAt      DateTime
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, startsAt, endsAt])
+}
+
+// ------------------------------------------------------------ courses ----
+
+model Course {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          Json
+  shortDesc      Json
+  description    Json? // rich text HTML
+  level          Json?
+  durationLabel  Json
+  price          Decimal? @db.Decimal(12, 2)
+  priceNote      Json?
+  currency       String   @default("UZS")
+  publisher      String? // OXFORD / MACMILLAN
+  coverUrl       String?
+  iconUrl        String?
+  curriculum     Json? // [{ title: Localized, items: Localized[] }]
+  includes       Json? // Localized[]
+  schedule       Json? // Localized[]
+  hasDetailPage  Boolean  @default(true)
+  isFeatured     Boolean  @default(false)
+  isPublished    Boolean  @default(true)
+  order          Int      @default(0)
+  seoTitle       Json?
+  seoDescription Json?
+
+  teachers   Teacher[]       @relation("CourseTeachers")
+  leads      Lead[]
+  levelBands TestLevelBand[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([isPublished, order])
+  @@index([deletedAt])
+}
+
+model Teacher {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  fullName     String
+  position     Json
+  bio          Json?
+  photoUrl     String?
+  photoAlt     Json?
+  ieltsScore   String?
+  certificates String[]
+  experience   Int? // years
+  order        Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  courses Course[] @relation("CourseTeachers")
+
+  @@index([isPublished, order])
+}
+
+/// IELTS result cards shown alongside teachers in the same carousel.
+model SuccessStory {
+  id          String   @id @default(cuid())
+  studentName String
+  overallBand String // "8.0"
+  scores      Json? // { listening, reading, writing, speaking }
+  imageUrl    String?
+  quote       Json?
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, order])
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  authorName  String
+  authorRole  Json?
+  avatarUrl   String?
+  content     Json
+  rating      Int      @default(5)
+  videoUrl    String?
+  sourceLabel String? // Instagram | Telegram | Google
+  sourceUrl   String?
+  isFeatured  Boolean  @default(false)
+  isPublished Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, order])
+  @@index([isFeatured])
+}
+
+model FaqCategory {
+  id        String   @id @default(cuid())
+  name      Json
+  order     Int      @default(0)
+  items     Faq[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+model Faq {
+  id          String       @id @default(cuid())
+  categoryId  String?
+  category    FaqCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  question    Json
+  answer      Json
+  order       Int          @default(0)
+  isPublished Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([isPublished, order])
+  @@index([categoryId])
+}
+
+// ---------------------------------------------------------- materials ----
+
+enum MaterialType {
+  PDF
+  AUDIO
+  VIDEO
+  PHOTO
+}
+
+enum MaterialLevel {
+  BEGINNER
+  ELEMENTARY
+  PRE_INTERMEDIATE
+  INTERMEDIATE
+  UPPER_INTERMEDIATE
+  ADVANCED
+  IELTS
+  KIDS
+}
+
+model MaterialGroup {
+  id        String       @id @default(cuid())
+  name      Json
+  type      MaterialType
+  order     Int          @default(0)
+  materials Material[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([type, order])
+}
+
+model Material {
+  id             String         @id @default(cuid())
+  title          Json
+  description    Json?
+  type           MaterialType
+  level          MaterialLevel?
+  groupId        String?
+  group          MaterialGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  fileUrl        String?
+  externalUrl    String? // YouTube etc.
+  coverUrl       String?
+  fileSize       Int? // bytes
+  meta           Json? // { pages, durationSec, width, height }
+  tags           String[]
+  requireContact Boolean        @default(false)
+  downloadCount  Int            @default(0)
+  isPublished    Boolean        @default(true)
+  order          Int            @default(0)
+
+  downloads MaterialDownload[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([type, level, isPublished])
+  @@index([isPublished, order])
+  @@index([groupId])
+  @@index([deletedAt])
+}
+
+model MaterialDownload {
+  id         String   @id @default(cuid())
+  materialId String
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  leadId     String?
+  ipHash     String?
+  createdAt  DateTime @default(now())
+
+  @@index([materialId, createdAt])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------- placement test ----
+
+model TestCategory {
+  id             String   @id @default(cuid())
+  slug           String   @unique // level-kids | level-general
+  title          Json
+  subtitle       Json?
+  imageUrl       String?
+  icon           String?
+  timeLimitSec   Int?
+  shuffle        Boolean  @default(false)
+  allowBack      Boolean  @default(true)
+  requireContact Boolean  @default(true)
+  isPublished    Boolean  @default(true)
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  questions TestQuestion[]
+  bands     TestLevelBand[]
+  attempts  TestAttempt[]
+
+  @@index([isPublished, order])
+}
+
+model TestQuestion {
+  id          String       @id @default(cuid())
+  categoryId  String
+  category    TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  prompt      String // English; supports two-line dialogue and "_____" gaps
+  imageUrl    String?
+  audioUrl    String?
+  explanation String?
+  points      Int          @default(1)
+  difficulty  Int          @default(1) // 1..5
+  order       Int          @default(0)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  options TestOption[]
+
+  @@index([categoryId, order])
+  @@index([categoryId, isActive])
+}
+
+model TestOption {
+  id         String       @id @default(cuid())
+  questionId String
+  question   TestQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean      @default(false)
+  order      Int          @default(0)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([questionId, order])
+}
+
+model TestLevelBand {
+  id          String       @id @default(cuid())
+  categoryId  String
+  category    TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  minScore    Int
+  maxScore    Int
+  levelName   String // Beginner / Elementary / ...
+  title       Json
+  description Json
+  courseId    String?
+  course      Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([categoryId, minScore, maxScore])
+}
+
+model TestAttempt {
+  id          String       @id @default(cuid())
+  categoryId  String
+  category    TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String?
+  phone       String?
+  answers     Json // [{ questionId, optionId, isCorrect }]
+  score       Int
+  maxScore    Int
+  bandId      String?
+  levelName   String?
+  durationSec Int?
+  locale      String       @default("uz")
+  utm         Json?
+  ipHash      String?
+  leadId      String?      @unique
+  lead        Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([categoryId, createdAt])
+  @@index([createdAt])
+}
+
+// ------------------------------------------------------ leads & forms ----
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  TRIAL_BOOKED
+  ENROLLED
+  REJECTED
+  SPAM
+}
+
+enum LeadSource {
+  HERO
+  COURSE_CARD
+  COURSE_PAGE
+  TEST_RESULT
+  MATERIAL_GATE
+  CONTACT_FORM
+  FLOATING_CTA
+  PROMOTION
+  OTHER
+}
+
+model Lead {
+  id            String     @id @default(cuid())
+  name          String
+  phone         String
+  email         String?
+  courseId      String?
+  course        Course?    @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  message       String?
+  preferredTime String?
+  source        LeadSource @default(OTHER)
+  page          String?
+  locale        String     @default("uz")
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  utmContent    String?
+  utmTerm       String?
+  referrer      String?
+  userAgent     String?
+  ipHash        String?
+  status        LeadStatus @default(NEW)
+  assignedToId  String?
+  assignedTo    User?      @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  notes   LeadNote[]
+  attempt TestAttempt?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status, createdAt])
+  @@index([phone])
+  @@index([source, createdAt])
+  @@index([courseId])
+  @@index([assignedToId])
+  @@index([deletedAt])
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([leadId, createdAt])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  ipHash    String?
+  locale    String   @default("uz")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isRead, createdAt])
+}
+
+// ------------------------------------------------------------ careers ----
+
+enum ApplicationStatus {
+  NEW
+  REVIEWING
+  INTERVIEW
+  HIRED
+  REJECTED
+}
+
+model Vacancy {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            Json
+  shortDesc        Json
+  description      Json?
+  responsibilities Json? // Localized[]
+  requirements     Json? // Localized[]
+  conditions       Json? // Localized[]
+  department       Json?
+  employmentType   Json?
+  salaryFrom       Decimal? @db.Decimal(12, 2)
+  salaryTo         Decimal? @db.Decimal(12, 2)
+  showSalary       Boolean  @default(false)
+  isOpen           Boolean  @default(true)
+  order            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  applications JobApplication[]
+
+  @@index([isOpen, order])
+}
+
+model HiringStep {
+  id          String   @id @default(cuid())
+  title       Json
+  description Json
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+}
+
+model JobApplication {
+  id        String            @id @default(cuid())
+  vacancyId String?
+  vacancy   Vacancy?          @relation(fields: [vacancyId], references: [id], onDelete: SetNull)
+  fullName  String
+  phone     String
+  email     String?
+  birthDate DateTime?
+  about     String?
+  cvUrl     String?
+  cvName    String?
+  status    ApplicationStatus @default(NEW)
+  note      String?
+  ipHash    String?
+  locale    String            @default("uz")
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status, createdAt])
+  @@index([vacancyId])
+  @@index([deletedAt])
+}
+
+// --------------------------------------------------------------- blog ----
+
+model Post {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  title          Json
+  excerpt        Json?
+  body           Json // Localized rich-text HTML
+  coverUrl       String?
+  tags           String[]
+  authorId       String?
+  readingMinutes Int?
+  seoTitle       Json?
+  seoDescription Json?
+  isPublished    Boolean   @default(false)
+  publishedAt    DateTime?
+  viewCount      Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([isPublished, publishedAt])
+}
+
+// -------------------------------------------------------------- media ----
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  url       String
+  key       String   @unique
+  mimeType  String
+  size      Int
+  width     Int?
+  height    Int?
+  alt       Json?
+  folder    String   @default("uploads")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([folder, createdAt])
+}

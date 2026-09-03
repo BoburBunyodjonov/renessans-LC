@@ -1,0 +1,339 @@
+# Build progress
+
+The full specification lives in [`PROMPT.md`](../PROMPT.md). Phases follow section 19.
+
+| Phase | Scope                                                                                                                                          | Status  |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| 1     | Foundation: Next.js 15 + TS + Tailwind v4, ESLint/Prettier, Docker Postgres, Prisma, next-intl, theme tokens, primitives, Header/Footer shells | ✅ done |
+| 2     | Data layer: full `schema.prisma`, first migration, seed in uz/ru/en, cached query helpers                                                      | ⏳      |
+| 3     | Public site: all homepage sections, course/teacher/contact/privacy pages, lead modal + API + Telegram                                          | ⏳      |
+| 4     | Placement test: chooser, runner, scoring, bands, attempts                                                                                      | ⏳      |
+| 5     | Materials & careers                                                                                                                            | ⏳      |
+| 6     | Admin panel                                                                                                                                    | ⏳      |
+| 7     | Blog, SEO, polish                                                                                                                              | ⏳      |
+| 8     | Hardening & handover                                                                                                                           | ⏳      |
+
+## Phase 1 notes
+
+- **Next.js is pinned to 15.5.x.** `create-next-app` installs 16.x by default; the spec calls for
+  15, and the next-intl / NextAuth v5 / Prisma combination is best tested there.
+- **Prisma is pinned to 6.19.x** so `generator client { provider = "prisma-client-js" }` from the
+  spec keeps working. Config lives in `prisma.config.ts` (the `package.json#prisma` key is
+  deprecated in Prisma 6 and removed in 7).
+- **lucide-react v1 dropped brand icons.** Telegram/Instagram/YouTube/Facebook/TikTok/WhatsApp
+  glyphs are hand-rolled in `src/components/shared/brand-icons.tsx`.
+- **Postgres runs on host port 5433** (`docker-compose.yml`) so it does not collide with a local
+  Postgres on 5432.
+- `src/config/placeholder.ts` holds Phase 1 header/footer content. Phase 2 replaces the bodies of
+  `src/server/queries/site.ts` with cached Prisma reads; the view-model types do not change, so no
+  component touches are needed.
+
+## Phase 2 notes
+
+- Migration `20260902185744_init` creates all 34 tables.
+- **Schema extensions beyond PROMPT.md §13** (all admin-editable, no new concepts):
+  - `HomeSection` gained `body`, `imageUrl`, `videoUrl`, `ctaLabel`, `ctaHref` so the About block
+    (§7.5) and the Careers teaser (§7.10) have somewhere to live — the spec listed no model for them.
+  - `SiteSetting` gained `madeByLabel` / `madeByUrl` for the footer credit line (§7.16).
+  - `Course.schedule` (Localized[]) for the "schedule options" listed in §7.11.
+  - `TestCategory.icon`, `JobApplication.cvName`, `ContactMessage.locale`, `JobApplication.locale`,
+    `Problem.isPublished`, `LeadNote.author` relation, and `createdAt`/`updatedAt` on every model.
+- `pnpm db:seed` is **idempotent**: rows with a natural key (slug/key/email) are upserted, the rest
+  are wiped and recreated. Submitted data (leads, applications, contact messages, test attempts,
+  audit log) is never touched — test questions are rebuilt without deleting their category.
+- Queries live in `src/server/queries/*`. Each module caches **raw, locale-agnostic rows** with
+  `unstable_cache` + tags from `src/lib/cache.ts`, then maps to a localized view-model per request.
+  Cached values are JSON-safe: `Decimal` becomes `number`, `Date` becomes an ISO string.
+  `getActivePromotion` is deliberately uncached so an expired campaign disappears immediately.
+- `pnpm db:counts` prints every table's row count; `pnpm check:i18n` verifies message-file key
+  parity, uz fallback behaviour, and that every seeded content row is translated in all three locales.
+- The build queries the database (SSG + ISR), so `DATABASE_URL` must be reachable at build time.
+
+## Phase 3 notes
+
+### Deviations from the stack list, and why
+
+- **Framer Motion was removed.** Its bundle measured **65 kB gzip** on the homepage — more than
+  React itself — and it held Lighthouse mobile at 86. `components/shared/reveal.tsx` now implements
+  the same motion the spec asks for (fade + rise 24px, 0.5s, `cubic-bezier(.22,1,.36,1)`, 60ms
+  stagger, fires once at 20% visibility) with one shared `IntersectionObserver` and two CSS rules.
+  `prefers-reduced-motion` is handled in CSS; the hidden state is scoped to `html[data-js='1']`, so
+  content still renders without JavaScript. Reinstating Framer is a contained change (rewrite that
+  one file) if the animation library matters more than the performance target.
+- **The hero H1 is never animated on first paint.** It is the mobile LCP element; starting it at
+  `opacity: 0` cost ~3s of LCP. Later slides fade in via a CSS keyframe.
+- **The hero image is desktop-only** (`hidden lg:block`), so mobile LCP is text.
+- **Brand red for text and fills is `--brand-600`, not `--brand-500`.** White on `#E63329` is
+  4.31:1 and fails WCAG AA for body text; `#C42A21` is 5.7:1. `brand-500` is still used for icons,
+  large numerals and decorative marks. This is what took Accessibility from 89 to 100.
+- **lucide icons are a curated set** (`components/shared/icon.tsx`). A wildcard import cost 200 kB
+  on any page whose client component rendered an icon by name.
+
+### Lead pipeline
+
+`POST /api/leads` → zod validation → rate limit (5/phone/hour, 20/IP/hour, Upstash with an
+in-memory dev fallback) → 24h dedupe by phone (updates the lead and appends a `LeadNote`) →
+persist with a hashed IP → fire-and-forget Telegram. A filled honeypot returns `200 {id: null}`
+so bots learn nothing. `TELEGRAM_API_BASE` is overridable for testing against a mock.
+
+### Verified
+
+| Check                               | Result                                                                                                                      |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Lighthouse mobile (`/uz`)           | Performance 90 · Accessibility 100 · Best practices 100 · SEO 100                                                           |
+| Core Web Vitals (simulated slow 4G) | FCP 1.1s · LCP 3.7s · TBT 10ms · CLS 0 · SI 1.2s                                                                            |
+| `pnpm check:responsive`             | 360 / 390 / 768 / 1280 / 1536 px, 6 pages: no horizontal overflow, no JS errors                                             |
+| Lead API                            | create 201 · dedupe reuses the row · invalid phone 422 · honeypot 200/no row · foreign origin 403 · 6th post in an hour 429 |
+| Telegram                            | verified end to end against a local mock (HTML message + admin deep link)                                                   |
+
+**Open item:** LCP is 3.7s under Lighthouse's simulated slow-4G model (observed LCP on the machine
+is 158ms). The spec target is < 2.5s on Fast 3G. Remaining levers are dropping the Radix dialog and
+accordion from the initial bundle and serving images from a CDN instead of Unsplash.
+
+## Phase 4 notes
+
+- `GET /api/test/[slug]` serves the question bank; the query behind it never selects `isCorrect`,
+  so the answer key cannot leak. Grading happens in `server/services/test-scoring.ts`, a pure
+  function (no I/O) so Phase 8 can unit test it directly.
+- Band selection is inclusive on both ends; overlapping ranges resolve to the narrowest match and a
+  score outside every band clamps to the nearest one.
+- A completed attempt with contact details creates a `TEST_RESULT` lead through the same
+  `createLead` pipeline as every other form (dedupe, rate limit, Telegram) and links it to the
+  attempt. `TestAttempt.leadId` is unique, so a repeat submission from a phone that already has a
+  linked attempt stores the new attempt unlinked rather than failing.
+- Progress lives in `localStorage` under `placement-test:<slug>`; on return the runner offers
+  resume or start-over, and the key is cleared once the attempt is stored.
+
+### Bug found and fixed during verification
+
+The masked phone field pre-fills `+998 `, so pasting a full number produced a doubled country code
+and stored `+998998912345`. `lib/phone.ts` and `normalizePhone` now strip repeated `998` prefixes;
+`toE164` was added as the single conversion helper.
+
+### Verified
+
+| Check                         | Result                                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `GET /api/test/level-general` | 45 questions, maxScore 45, no `isCorrect` anywhere in the payload                                       |
+| Full run, all correct         | 45/45 → Upper-Intermediate (B2) → recommends IELTS                                                      |
+| Full run, ~50% correct        | 23/45 → Pre-Intermediate (B1) → recommends General English                                              |
+| Kids run, ~30% correct        | 14/45 → Beginner → recommends Kids English                                                              |
+| Attempt storage               | score, band, category, duration and all 45 graded answers stored; lead linked with `source=TEST_RESULT` |
+| Resume                        | 5 answers → reload → "unfinished test" → resumes at question 6; start-over resets to 1                  |
+| Keyboard                      | `2` selects the second option, `Enter` advances                                                         |
+| Countdown                     | 12s limit auto-submits the partial attempt (run against a dev server: ISR caches the page)              |
+| Telegram                      | "Test yakunlandi" message with track, contact, score, band and recommended course                       |
+
+`pnpm check:test <slug> <phone> <correct-ratio>` reruns the full flow; `pnpm check:test-behaviour`
+covers resume and keyboard (add `TIMEOUT_BASE=http://localhost:3112` for the countdown).
+
+## Phase 5 notes
+
+- **Filtering is client-side over the ISR-rendered list**, with every change written back to the URL
+  (`?level=IELTS&group=…&q=…`) via `router.replace`. The page stays statically generated, and a
+  reload or a shared link restores the exact view. The browser is wrapped in `<Suspense>` because
+  `useSearchParams` bails out of the static prerender.
+- **Download gate** — `Material.requireContact` is enforced in two places: the client opens the lead
+  modal (source `MATERIAL_GATE`) and, on success, sets a 30-day `materials_consent` cookie; the
+  download route independently refuses with `LEAD_REQUIRED` when the cookie is absent. Counters are
+  incremented and a `MaterialDownload` row is written without blocking the redirect.
+- **Uploads are validated three ways** (`lib/upload.ts`): extension, declared MIME _and_ magic bytes,
+  plus per-kind size caps (10 MB documents, 5 MB images, 200 MB media). Object keys are random UUIDs,
+  so a filename can never influence the storage path.
+- **`lib/storage.ts`** abstracts the driver: `local` writes to `public/uploads`, `s3` targets any
+  S3-compatible bucket with the SDK imported lazily so local installs never load it.
+
+### Two problems found and fixed during verification
+
+1. **`next start` snapshots `public/` at boot**, so a CV uploaded after the server started 404'd.
+   Local uploads are now served by `app/api/uploads/[...path]/route.ts`, which resolves inside
+   `public/uploads` (rejecting traversal), sends `X-Content-Type-Options: nosniff`, and serves
+   images inline while everything else downloads as an attachment (PROMPT.md §17).
+2. **`materials.download` was missing from the message files** — next-intl silently rendered the key
+   path as the button label in production. `scripts/check-messages-usage.mjs` (`pnpm check:messages`)
+   now statically verifies that every key used through `useTranslations` / `getTranslations` exists.
+
+### Verified
+
+| Check                     | Result                                                                                                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Level chips               | 10 → 2 results, `?level=IELTS` in the URL                                                                                                                |
+| Search                    | 2 → 1 result, `?q=Writing` in the URL                                                                                                                    |
+| **Reload**                | filters, chip state and query all restored                                                                                                               |
+| Reset                     | clears both the results filter and the URL                                                                                                               |
+| Gated download            | opens the lead modal; consent cookie set; `MATERIAL_GATE` lead stored                                                                                    |
+| Download route            | ungated → 302 to the file; gated without cookie → 403 `LEAD_REQUIRED`; with cookie → 302; `downloadCount` 412 → 413 and a `MaterialDownload` row written |
+| CV with wrong magic bytes | rejected (no row created)                                                                                                                                |
+| Real PDF CV               | stored, linked to the vacancy, `status=NEW`, served back with a `%PDF` header                                                                            |
+| Telegram                  | "Yangi ariza (vakansiya)" with role, contact and CV flag                                                                                                 |
+| `pnpm check:responsive`   | 13 pages × 5 breakpoints, no overflow                                                                                                                    |
+
+## Phase 6 notes
+
+### Shape of the panel
+
+- **Auth**: NextAuth v5 credentials, bcrypt cost 12, JWT sessions. `lib/auth.config.ts` is the
+  edge-safe half so `middleware.ts` can gate `/admin/**` without pulling Prisma or bcrypt into the
+  edge runtime. Failed logins are rate limited 5 / 15 min per IP+email and always return the same
+  generic message; successful ones update `lastLoginAt` and write an audit entry.
+- **Roles are enforced server-side.** `lib/permissions.ts` holds the §14 capability matrix; every
+  action starts with `requireCapability(...)`, and pages redirect rather than render. Hiding UI is
+  treated as cosmetic only — verified by driving an EDITOR and a VIEWER at guarded routes directly.
+- **A config-driven resource engine** (`config/admin-resources.ts` + `/admin/[resource]`) provides
+  list, create, edit, publish toggle, soft delete and drag-reorder for **18 resources** from one
+  implementation: hero, home sections, stats, advantages, testimonials, success stories, promotions,
+  FAQ (+categories), branches, navigation, material groups, materials, vacancies, hiring steps,
+  posts, problems (+nested solution), courses and teachers. Field kinds cover localized text,
+  localized rich text (Tiptap), localized lists, images (MediaPicker), icons, relations,
+  multi-relations, decimals, dates and the course curriculum builder.
+- **Bespoke pages** where the shape demanded it: dashboard, leads (+detail), applications, messages,
+  test question bank (+level bands, CSV import/export), test attempts, media library, settings,
+  users, audit log.
+- **Every save invalidates the cache tags its resource feeds**, so the public site updates within
+  seconds without a redeploy.
+
+### Verified
+
+| Check                     | Result                                                                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm check:admin`        | login guard · bad password rejected · dashboard KPIs · generic list · edit persists · audit entry written                            |
+| `pnpm check:admin-editor` | **EDITOR changes hero headline, course price and teacher photo → all three visible on the public site with no redeploy**             |
+| Role guards               | EDITOR blocked from `/admin/users` (redirect, not just hidden nav); VIEWER blocked from `/admin/courses/new` and sees no content nav |
+| Admin mobile              | no horizontal overflow at 390px; sidebar opens as a sheet                                                                            |
+| build / lint / typecheck  | clean                                                                                                                                |
+
+### Notes
+
+- `isomorphic-dompurify` pulls jsdom, which resolves its own assets from disk; it is listed in
+  `serverExternalPackages` so Next does not bundle it (it fails page-data collection otherwise).
+- `server/actions/helpers.ts` is a plain `server-only` module, not a `'use server'` file — action
+  modules may only export async functions, and these helpers include synchronous ones.
+
+## Phase 7 notes
+
+- **Blog**: `/blog` listing and `/blog/[slug]` articles with cover, tags, reading time, related
+  posts, a reading-progress bar and a view counter that fires once per session from the client so
+  the page itself stays statically cacheable. The admin side is the generic engine's `posts`
+  resource (Tiptap body, scheduled `publishedAt`, SEO fields).
+- **SEO**: `sitemap.ts` emits **87 URLs** with full hreflang alternates for every locale, built from
+  the database (courses, posts, vacancies, tests and static routes). `robots.ts` disallows `/admin`,
+  `/api` and `/tests`. `manifest.ts` reads the brand from settings.
+- **JSON-LD coverage**: `EducationalOrganization` + `FAQPage` (home), `Course` + `Offer` +
+  `BreadcrumbList` (course), `Article` + `BreadcrumbList` (post), `JobPosting` (vacancy) — verified
+  by parsing `@type` out of each rendered page.
+- **OG images**: `/api/og` renders a branded 1200×630 card. Satori needs real font data for weights,
+  so Inter 800 is fetched once per process with a graceful fallback to the system face; pages fall
+  back to this route whenever no cover image is set.
+- **Analytics**: GA4 / Meta Pixel / Yandex Metrica load **only** when an id is configured in settings
+  _and_ the visitor consents. Non-essential tracking defaults to declined.
+- **`POST /api/revalidate`** (secret-guarded) invalidates cache tags or paths for deploy hooks; the
+  admin uses server actions instead. Unknown tags are reported back rather than silently ignored.
+
+### Fixed during verification
+
+- Article bodies in the seed opened at `<h3>` under the page `<h1>`, tripping Lighthouse's
+  `heading-order`. Normalised to `<h2>`.
+- Three more `bg-brand-500` fills carrying white text (teacher IELTS badge, result cards, logo mark)
+  failed AA at 4.31:1 — all moved to `brand-600`. **No `bg-brand-500` fill with white text remains.**
+
+### Lighthouse (mobile, warm server)
+
+| Page                | Perf | A11y | Best practices | SEO |
+| ------------------- | ---- | ---- | -------------- | --- |
+| `/uz`               | 89   | 100  | 100            | 100 |
+| `/uz/blog/[slug]`   | 90   | 100  | 100            | 100 |
+| `/uz/courses/ielts` | 89   | 100  | 100            | 100 |
+
+Performance sits in an 86–90 band across runs; the only failing audit is LCP under Lantern's
+simulated slow-4G model (3.6–4.0s against the 2.5s target), which stays open into Phase 8.
+
+## Phase 8 notes
+
+### Hardening
+
+- **Security headers** in `next.config.ts`: CSP with an explicit host allowlist, `X-Frame-Options`,
+  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS. Uploads get their own
+  stricter policy (`default-src 'none'; sandbox`) on top of the attachment disposition.
+  `script-src` keeps `'unsafe-inline'`: a nonce has to be generated per request, which would force
+  every page dynamic and lose ISR. Documented rather than hidden.
+- **Database outages degrade instead of 500ing.** `cachedQuery` takes a `fallback`; a failed read
+  logs and returns it, and failures are never cached. This also lets `next build` succeed with no
+  database — the pages fill in on the next revalidation.
+
+### Tests
+
+- **58 Vitest unit tests** across 6 files: scoring and band selection (including overlapping ranges,
+  cross-question option spoofing and double answers), phone masking/normalisation, the localization
+  helpers and their uz fallback, all four zod schemas, upload magic-byte validation, CSV writing and
+  HTML sanitisation.
+- **8 Playwright e2e tests** covering the three critical flows from §19: lead submit (plus invalid
+  phone and honeypot), a complete 45-question placement run with resume, and admin login → edit →
+  verify on the public site (plus the anonymous guard and `noindex`).
+
+### Deployment
+
+- Multi-stage `Dockerfile` on Next's standalone output, **645 MB** (an early version copied pnpm's
+  store and came to 2 GB). `docker-entrypoint.sh` applies migrations when `RUN_MIGRATIONS=true`.
+- Verified by building the image and running it against Postgres: pages, admin redirect, API,
+  sitemap and security headers all correct. Both deployment paths were tested — building **with**
+  `DATABASE_URL` prerenders content, and building **without** one produces empty pages that
+  `POST /api/revalidate` repopulates immediately.
+
+### Defects found and fixed while hardening
+
+- **`/uz/materials/[type]` had CLS 0.466** — the Suspense fallback was a single line of text, so the
+  page jumped when the client-rendered list took over. A layout-matching skeleton took CLS to **0**
+  and the score from **68 to 92**.
+- **Faded white text on the brand block** (`opacity-80/85`) on `/uz/teachers` measured 3.7:1.
+  Removed; accessibility back to 100.
+- A dead Unsplash id in the seed produced a 404 on every render of the promotion block.
+
+### Performance work
+
+Three attempts moved the needle, one did not: trimming font preloads from 9 to 1 and dropping the
+mobile-wasted hero image preload (no measurable change), a modern `browserslist` (LCP 3.9s → 3.5s),
+and cutting the client message payload to the namespaces client components actually read.
+
+### Final Lighthouse (mobile, warm server)
+
+| Page                | Perf  | A11y | Best practices | SEO |
+| ------------------- | ----- | ---- | -------------- | --- |
+| `/uz`               | 85–91 | 100  | 100            | 100 |
+| `/uz/courses/ielts` | 88    | 100  | 100            | 100 |
+| `/uz/teachers`      | 85    | 100  | 100            | 100 |
+| `/uz/materials/pdf` | 92    | 100  | 100            | 100 |
+| `/uz/blog/[slug]`   | 91    | 100  | 100            | 100 |
+| `/uz/join-team`     | 94    | 100  | 100            | 100 |
+| `/uz/choose-level`  | 94    | 100  | 100            | 100 |
+| `/uz/contact`       | 98    | 100  | 100            | 100 |
+
+Accessibility, best practices and SEO clear their targets everywhere. Performance clears ≥90 on five
+of eight pages; the homepage and teachers page sit at 85–91 depending on the run, held there by
+Lighthouse's _simulated_ LCP (3.3–3.9s against a 2.5s target) — the observed LCP on the machine is
+~160ms, and the simulation charges the whole React + next-intl hydration graph against a 1.6 Mbps
+link. Closing the gap would mean removing the next-intl client provider or hand-rolling i18n, which
+trades real maintainability for a synthetic number; the remaining practical levers are a CDN for
+images and HTTP/2 in production.
+
+### Known deviation
+
+The **admin panel UI is hardcoded Uzbek** (28 files), not routed through `messages/*.json`. The
+public site is fully localized and grep-clean of hardcoded content strings; the admin is staff-facing
+and single-language by design. Extracting it into the `admin` namespace is a mechanical change if
+Russian or English staff UI is ever needed.
+
+## Post-handover fixes (reported from the running site)
+
+1. **The mobile/overlay menu was clipped to the header** — once the page was scrolled, the header
+   picks up `backdrop-blur-md`, and `backdrop-filter` makes an element the containing block for its
+   `position: fixed` descendants. `inset-0` therefore resolved to the header's 72–84px box instead
+   of the viewport, so the nav items rendered over the hero with no background behind them. The
+   overlay is now portalled to `document.body` (`components/shared/header.tsx`). Verified full-height
+   at 390 / 768 / 1512px, scrolled and unscrolled.
+2. **The stat counters froze near zero** (`0+`, `13+`, `1+`, `0+` instead of `6+`, `2 500+`, `200+`,
+   `40+`). `parseValue()` ran in the render body, so each `setDisplay` produced a new object, which
+   re-ran the effect, which started another animation loop from zero — the competing loops kept
+   resetting the number. `parsed` is now memoised, the run is guarded by a ref, and the frame is
+   cancelled on unmount. The final frame renders the authored string verbatim.
+3. **`2 500+` wrapped onto two lines** at the old `clamp(2.5rem, 8vw, 6rem)`. The numeral is now
+   `clamp(2.25rem, 5.5vw, 4.5rem)` with `white-space: nowrap`, checked at all five breakpoints.
