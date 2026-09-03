@@ -20,6 +20,12 @@ function previewFor(resource: string, row: Record<string, unknown>): string | un
       return slug ? `/${DEFAULT_LOCALE}/join-team/${slug}` : undefined;
     case 'materials':
       return `/${DEFAULT_LOCALE}/materials`;
+    case 'courses':
+      return slug ? `/${DEFAULT_LOCALE}/courses/${slug}` : `/${DEFAULT_LOCALE}`;
+    case 'teachers':
+      return `/${DEFAULT_LOCALE}/teachers`;
+    case 'home-sections':
+      return `/${DEFAULT_LOCALE}`;
     case 'hero':
     case 'stats':
     case 'advantages':

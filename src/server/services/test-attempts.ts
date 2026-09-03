@@ -9,6 +9,9 @@ import type { TestSubmitPayload } from '@/lib/validations/test';
 import type { CourseCardView } from '@/types/content';
 import type { Locale } from '@/types/i18n';
 
+/** Returned when the submitted option ids match no current question. */
+export type StaleAttempt = { stale: true };
+
 export type AttemptResult = {
   attemptId: string;
   score: number;
@@ -31,7 +34,7 @@ export async function submitAttempt(
   slug: string,
   payload: TestSubmitPayload,
   meta: { ipHash?: string; userAgent?: string } = {},
-): Promise<AttemptResult | null> {
+): Promise<AttemptResult | StaleAttempt | null> {
   const category = await prisma.testCategory.findFirst({
     where: { slug, isPublished: true },
     select: { id: true, title: true, requireContact: true },
@@ -48,6 +51,14 @@ export async function submitAttempt(
     key,
     payload.answers,
   );
+
+  // Every answer referenced an option that no longer exists — the visitor is
+  // holding a cached page from before the question bank changed. Storing this
+  // would record a silent 0, so ask them to reload instead.
+  if (payload.answers.length > 0 && graded.length === 0) {
+    return { stale: true };
+  }
+
   const band = findBand(bands, score);
 
   // Contact details are optional at the schema level; when present they become a

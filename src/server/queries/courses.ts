@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { TAGS, cachedQuery } from '@/lib/cache';
+import { isPreview } from '@/lib/draft';
 import { loc, locList, locOrNull } from '@/lib/localize';
 import { asLocalized, asLocalizedList, t, type Locale } from '@/types/i18n';
 import type {
@@ -43,46 +44,47 @@ function serialize<T extends { price: unknown; updatedAt: Date }>(row: T) {
   };
 }
 
-const rawCourses = cachedQuery(
-  async () => {
-    const rows = await prisma.course.findMany({
-      where: { isPublished: true, deletedAt: null },
-      orderBy: { order: 'asc' },
-      select: courseSelect,
-    });
-    return rows.map(serialize);
-  },
-  ['courses:list'],
-  [TAGS.courses],
-  { fallback: [] },
-);
+async function fetchCourses(includeUnpublished = false) {
+  const rows = await prisma.course.findMany({
+    where: { deletedAt: null, ...(includeUnpublished ? {} : { isPublished: true }) },
+    orderBy: { order: 'asc' },
+    select: courseSelect,
+  });
+  return rows.map(serialize);
+}
 
-const rawCourseBySlug = cachedQuery(
-  async (slug: string) => {
-    const row = await prisma.course.findFirst({
-      where: { slug, isPublished: true, deletedAt: null },
-      select: {
-        ...courseSelect,
-        teachers: {
-          where: { isPublished: true },
-          orderBy: { order: 'asc' },
-          select: {
-            id: true,
-            slug: true,
-            fullName: true,
-            position: true,
-            bio: true,
-            photoUrl: true,
-            photoAlt: true,
-            ieltsScore: true,
-            certificates: true,
-            experience: true,
-          },
+const rawCourses = cachedQuery(() => fetchCourses(), ['courses:list'], [TAGS.courses], {
+  fallback: [],
+});
+
+async function fetchCourseBySlug(slug: string, includeUnpublished = false) {
+  const row = await prisma.course.findFirst({
+    where: { slug, deletedAt: null, ...(includeUnpublished ? {} : { isPublished: true }) },
+    select: {
+      ...courseSelect,
+      teachers: {
+        where: { isPublished: true },
+        orderBy: { order: 'asc' },
+        select: {
+          id: true,
+          slug: true,
+          fullName: true,
+          position: true,
+          bio: true,
+          photoUrl: true,
+          photoAlt: true,
+          ieltsScore: true,
+          certificates: true,
+          experience: true,
         },
       },
-    });
-    return row ? { ...serialize(row), teachers: row.teachers } : null;
-  },
+    },
+  });
+  return row ? { ...serialize(row), teachers: row.teachers } : null;
+}
+
+const rawCourseBySlug = cachedQuery(
+  (slug: string) => fetchCourseBySlug(slug),
   ['courses:by-slug'],
   [TAGS.courses, TAGS.teachers],
   { fallback: null },
@@ -136,7 +138,8 @@ function toCurriculum(value: unknown, locale: Locale): CurriculumBlockView[] {
 }
 
 export async function getCourses(locale: Locale): Promise<CourseCardView[]> {
-  const rows = await rawCourses();
+  // In preview the cache is bypassed so unpublished work is visible.
+  const rows = (await isPreview()) ? await fetchCourses(true) : await rawCourses();
   return rows.map((row) => toCard(row, locale));
 }
 
@@ -144,7 +147,9 @@ export async function getCourseBySlug(
   slug: string,
   locale: Locale,
 ): Promise<CourseDetailView | null> {
-  const row = await rawCourseBySlug(slug);
+  const row = (await isPreview())
+    ? await fetchCourseBySlug(slug, true)
+    : await rawCourseBySlug(slug);
   if (!row) return null;
 
   const teachers: TeacherView[] = row.teachers.map((teacher) => ({

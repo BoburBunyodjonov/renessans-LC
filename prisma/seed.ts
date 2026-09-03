@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { statSync } from 'node:fs';
+import path from 'node:path';
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
@@ -20,6 +22,21 @@ const prisma = new PrismaClient();
 
 /** Localized values are plain `{ uz, ru, en }` objects — safe to hand to Prisma as Json. */
 const json = (value: unknown): Prisma.InputJsonValue => value as Prisma.InputJsonValue;
+
+/**
+ * Real byte size for locally shipped files, so the listing never advertises a
+ * size the file does not have. Falls back to the authored value for remote URLs.
+ */
+function fileSizeOf(fileUrl: string | undefined, authored: number | undefined): number | null {
+  if (fileUrl?.startsWith('/demo/')) {
+    try {
+      return statSync(path.join(process.cwd(), 'public', fileUrl)).size;
+    } catch {
+      return authored ?? null;
+    }
+  }
+  return authored ?? null;
+}
 
 async function seedSettings() {
   await prisma.siteSetting.upsert({
@@ -294,7 +311,7 @@ async function seedMaterials() {
       groupId: groupIds.get(material.groupKey) ?? null,
       fileUrl: material.fileUrl ?? null,
       externalUrl: material.externalUrl ?? null,
-      fileSize: material.fileSize ?? null,
+      fileSize: fileSizeOf(material.fileUrl, material.fileSize),
       meta: material.meta ? json(material.meta) : Prisma.DbNull,
       tags: material.tags,
       requireContact: material.requireContact ?? false,

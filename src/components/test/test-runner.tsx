@@ -80,6 +80,7 @@ export function TestRunner({
   const [result, setResult] = useState<AttemptResultView | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(false);
+  const [stale, setStale] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [timedOut, setTimedOut] = useState(false);
   const submitted = useRef(false);
@@ -165,6 +166,16 @@ export function TestRunner({
           }),
         });
 
+        if (response.status === 409) {
+          // The question bank changed under us; the stored progress is useless.
+          setStale(true);
+          try {
+            window.localStorage.removeItem(storageKey(slug));
+          } catch {
+            // ignore
+          }
+          return;
+        }
         if (!response.ok) throw new Error(String(response.status));
         const payload = (await response.json()) as { data: AttemptResultView };
 
@@ -181,6 +192,7 @@ export function TestRunner({
         submitted.current = false;
       } finally {
         setSubmitting(false);
+        submitted.current = false;
       }
     },
     [locale, progress, slug],
@@ -269,6 +281,17 @@ export function TestRunner({
   }, [choose, goNext, question, stage]);
 
   // ---- render -----------------------------------------------------------
+  if (stale) {
+    return (
+      <Container className="flex min-h-[60vh] flex-col items-center justify-center gap-5 py-16 text-center">
+        <h1 className="text-2xl md:text-3xl">{t('staleTest')}</h1>
+        <Button size="lg" onClick={() => window.location.reload()}>
+          {tCommon('retry')}
+        </Button>
+      </Container>
+    );
+  }
+
   if (resumable) {
     return (
       <Container className="flex min-h-[60vh] flex-col items-center justify-center gap-5 py-16 text-center">

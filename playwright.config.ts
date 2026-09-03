@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.E2E_PORT ?? 3210);
+const CHANNEL = process.env.CI ? undefined : (process.env.PLAYWRIGHT_CHANNEL ?? 'chrome');
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 
 /**
@@ -22,7 +23,14 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     locale: 'uz-UZ',
   },
-  projects: [{ name: 'desktop', use: { ...devices['Desktop Chrome'], channel: 'chrome' } }],
+  projects: [
+    {
+      name: 'desktop',
+      // Locally reuse the installed Chrome; on CI use Playwright's own Chromium,
+      // which is what `playwright install chromium` provides.
+      use: { ...devices['Desktop Chrome'], ...(CHANNEL ? { channel: CHANNEL } : {}) },
+    },
+  ],
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {

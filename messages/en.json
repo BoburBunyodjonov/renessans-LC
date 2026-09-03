@@ -112,7 +112,8 @@
     "correctAnswers": "Correct answers",
     "retake": "Take the test again",
     "shareText": "I scored {score}/{max} on the Renessans English School placement test!",
-    "errorLoading": "The test could not be loaded"
+    "errorLoading": "The test could not be loaded",
+    "staleTest": "The test was updated. Reload the page and start again."
   },
   "materials": {
     "title": "Free materials",

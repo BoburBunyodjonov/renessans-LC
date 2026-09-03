@@ -112,7 +112,8 @@
     "correctAnswers": "Правильных ответов",
     "retake": "Пройти тест заново",
     "shareText": "Я набрал {score}/{max} в тесте на определение уровня Renessans English School!",
-    "errorLoading": "Не удалось загрузить тест"
+    "errorLoading": "Не удалось загрузить тест",
+    "staleTest": "Тест обновился. Обновите страницу и начните заново."
   },
   "materials": {
     "title": "Бесплатные материалы",

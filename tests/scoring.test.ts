@@ -62,6 +62,17 @@ describe('scoreAttempt', () => {
     expect(result.score).toBe(0);
   });
 
+  it('grades nothing when every option id is unknown', () => {
+    // What a visitor on a cached page sends after the question bank is rebuilt;
+    // the submit route turns this into a 409 rather than storing a silent 0.
+    const result = scoreAttempt(key, [
+      { questionId: 'q1', optionId: 'stale-1' },
+      { questionId: 'q2', optionId: 'stale-2' },
+    ]);
+    expect(result.graded).toHaveLength(0);
+    expect(result.score).toBe(0);
+  });
+
   it('counts a question only once when it is answered twice', () => {
     const result = scoreAttempt(key, [
       { questionId: 'q1', optionId: 'a1' },

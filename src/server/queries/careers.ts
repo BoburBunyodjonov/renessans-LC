@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { TAGS, cachedQuery } from '@/lib/cache';
+import { isPreview } from '@/lib/draft';
 import { loc, locList, locOrNull } from '@/lib/localize';
 import type { Locale } from '@/types/i18n';
 import type { HiringStepView, VacancyCardView, VacancyDetailView } from '@/types/content';
@@ -42,14 +43,16 @@ const rawVacancies = cachedQuery(
   { fallback: [] },
 );
 
+async function fetchVacancyBySlug(slug: string, includeClosed = false) {
+  const row = await prisma.vacancy.findFirst({
+    where: { slug, ...(includeClosed ? {} : { isOpen: true }) },
+    select: vacancySelect,
+  });
+  return row ? serialize(row) : null;
+}
+
 const rawVacancyBySlug = cachedQuery(
-  async (slug: string) => {
-    const row = await prisma.vacancy.findFirst({
-      where: { slug, isOpen: true },
-      select: vacancySelect,
-    });
-    return row ? serialize(row) : null;
-  },
+  (slug: string) => fetchVacancyBySlug(slug),
   ['vacancies:by-slug'],
   [TAGS.vacancies],
   { fallback: null },
@@ -87,7 +90,9 @@ export async function getVacancyBySlug(
   slug: string,
   locale: Locale,
 ): Promise<VacancyDetailView | null> {
-  const row = await rawVacancyBySlug(slug);
+  const row = (await isPreview())
+    ? await fetchVacancyBySlug(slug, true)
+    : await rawVacancyBySlug(slug);
   if (!row) return null;
 
   return {

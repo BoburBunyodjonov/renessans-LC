@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { TAGS, cachedQuery } from '@/lib/cache';
 import { loc, locOrNull } from '@/lib/localize';
+import { isPreview } from '@/lib/draft';
 import { asLocalized, t, type Locale } from '@/types/i18n';
 import type {
   AdvantageView,
@@ -24,13 +25,16 @@ const rawHomeSections = cachedQuery(
   { fallback: [] },
 );
 
-const rawHeroSlides = cachedQuery(
-  async () =>
-    prisma.heroSlide.findMany({ where: { isPublished: true }, orderBy: { order: 'asc' } }),
-  ['home:hero'],
-  [TAGS.home],
-  { fallback: [] },
-);
+async function fetchHeroSlides(includeUnpublished = false) {
+  return prisma.heroSlide.findMany({
+    where: includeUnpublished ? {} : { isPublished: true },
+    orderBy: { order: 'asc' },
+  });
+}
+
+const rawHeroSlides = cachedQuery(() => fetchHeroSlides(), ['home:hero'], [TAGS.home], {
+  fallback: [],
+});
 
 const rawStats = cachedQuery(
   async () => prisma.stat.findMany({ where: { isVisible: true }, orderBy: { order: 'asc' } }),
@@ -39,13 +43,16 @@ const rawStats = cachedQuery(
   { fallback: [] },
 );
 
-const rawAdvantages = cachedQuery(
-  async () =>
-    prisma.advantage.findMany({ where: { isPublished: true }, orderBy: { order: 'asc' } }),
-  ['home:advantages'],
-  [TAGS.home],
-  { fallback: [] },
-);
+async function fetchAdvantages(includeUnpublished = false) {
+  return prisma.advantage.findMany({
+    where: includeUnpublished ? {} : { isPublished: true },
+    orderBy: { order: 'asc' },
+  });
+}
+
+const rawAdvantages = cachedQuery(() => fetchAdvantages(), ['home:advantages'], [TAGS.home], {
+  fallback: [],
+});
 
 const rawProblems = cachedQuery(
   async () =>
@@ -59,12 +66,15 @@ const rawProblems = cachedQuery(
   { fallback: [] },
 );
 
+async function fetchTestimonials(includeUnpublished = false) {
+  return prisma.testimonial.findMany({
+    where: includeUnpublished ? {} : { isPublished: true },
+    orderBy: [{ isFeatured: 'desc' }, { order: 'asc' }],
+  });
+}
+
 const rawTestimonials = cachedQuery(
-  async () =>
-    prisma.testimonial.findMany({
-      where: { isPublished: true },
-      orderBy: [{ isFeatured: 'desc' }, { order: 'asc' }],
-    }),
+  () => fetchTestimonials(),
   ['home:testimonials'],
   [TAGS.testimonials],
   { fallback: [] },
@@ -152,7 +162,7 @@ export async function getHomeSections(locale: Locale): Promise<HomeSectionView[]
 }
 
 export async function getHeroSlides(locale: Locale): Promise<HeroSlideView[]> {
-  const rows = await rawHeroSlides();
+  const rows = (await isPreview()) ? await fetchHeroSlides(true) : await rawHeroSlides();
   return rows.map((row) => ({
     id: row.id,
     headline: loc(row.headline, locale),
@@ -176,7 +186,7 @@ export async function getStats(locale: Locale): Promise<StatView[]> {
 }
 
 export async function getAdvantages(locale: Locale): Promise<AdvantageView[]> {
-  const rows = await rawAdvantages();
+  const rows = (await isPreview()) ? await fetchAdvantages(true) : await rawAdvantages();
   return rows.map((row) => ({
     id: row.id,
     title: loc(row.title, locale),
@@ -206,7 +216,7 @@ export async function getProblems(locale: Locale): Promise<ProblemView[]> {
 }
 
 export async function getTestimonials(locale: Locale): Promise<TestimonialView[]> {
-  const rows = await rawTestimonials();
+  const rows = (await isPreview()) ? await fetchTestimonials(true) : await rawTestimonials();
   return rows.map((row) => ({
     id: row.id,
     authorName: row.authorName,

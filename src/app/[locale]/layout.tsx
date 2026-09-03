@@ -11,6 +11,7 @@ import { Header } from '@/components/shared/header';
 import { Footer } from '@/components/shared/footer';
 import { LeadModalProvider } from '@/components/shared/lead-modal';
 import { DeferredChrome } from '@/components/shared/deferred-chrome';
+import { DraftBanner } from '@/components/shared/draft-banner';
 import type { Locale } from '@/types/i18n';
 import '../globals.css';
 
@@ -124,6 +125,7 @@ export default async function LocaleLayout({
             >
               {t('skipToContent')}
             </a>
+            <DraftBanner />
             <Header settings={settings} nav={nav} locale={typedLocale} />
             <main id="main">{children}</main>
             <Footer settings={settings} nav={nav} />

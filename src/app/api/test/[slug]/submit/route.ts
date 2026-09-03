@@ -49,6 +49,9 @@ export async function POST(
     });
 
     if (!result) return fail('NOT_FOUND', 'Test not found', 404);
+    if ('stale' in result) {
+      return fail('STALE_TEST', 'Question bank changed, reload the test', 409);
+    }
     return ok(result, { status: 201 });
   } catch (error) {
     logError('api/test/submit', id, error);

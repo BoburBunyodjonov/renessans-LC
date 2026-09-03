@@ -118,7 +118,12 @@ export function AdminFormShell({
               asChild
               className="border-admin-border text-admin-text hover:bg-admin-hover hover:text-admin-text"
             >
-              <a href={previewHref} target="_blank" rel="noopener noreferrer">
+              {/* Through Draft Mode, so unpublished edits are visible. */}
+              <a
+                href={`/api/draft?path=${encodeURIComponent(previewHref)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <ExternalLink aria-hidden />
                 Ko‘rish
               </a>

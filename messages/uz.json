@@ -112,7 +112,8 @@
     "correctAnswers": "To‘g‘ri javoblar",
     "retake": "Testni qayta topshirish",
     "shareText": "Men Renessans English School darajani aniqlash testida {score}/{max} ball to‘pladim!",
-    "errorLoading": "Testni yuklab bo‘lmadi"
+    "errorLoading": "Testni yuklab bo‘lmadi",
+    "staleTest": "Test yangilangan. Sahifani yangilab, qaytadan boshlang."
   },
   "materials": {
     "title": "Bepul materiallar",

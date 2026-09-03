@@ -337,3 +337,33 @@ Russian or English staff UI is ever needed.
    cancelled on unmount. The final frame renders the authored string verbatim.
 3. **`2 500+` wrapped onto two lines** at the old `clamp(2.5rem, 8vw, 6rem)`. The numeral is now
    `clamp(2.25rem, 5.5vw, 4.5rem)` with `white-space: nowrap`, checked at all five breakpoints.
+
+## Follow-up work (post-handover)
+
+**Repository.** `git init`, `.gitignore` corrected so `.env.example` ships while real `.env` files
+stay out, and an initial commit covering all eight phases. Verified before committing that no
+`.env`, `node_modules`, `.next` or upload artefacts were staged.
+
+**Material downloads delivered nothing.** The seeded materials pointed at `/uploads/demo/*.pdf`,
+which never existed — the route worked, but every download 302'd to a 404.
+`scripts/generate-demo-files.mjs` now writes real files to `public/demo` (valid single-page PDFs
+with a correct xref table, and playable WAV audio), the seed points at them, and it reads each
+file's true size from disk so the listing never advertises a size the file does not have.
+
+**Draft Mode (spec §14).** `/api/draft` enables Next.js Draft Mode for signed-in staff — no shared
+preview secret, and site-relative paths only, so it cannot be used as an open redirect. The course,
+post, vacancy, hero, advantage and testimonial queries bypass their cache and include unpublished
+rows while previewing, a banner makes the mode obvious with a one-click exit, and the admin's
+"Ko‘rish" button now routes through it. Verified: hidden from visitors, 401 for anonymous callers,
+visible to staff, gone again on exit, external paths rejected.
+
+**CI.** `.github/workflows/ci.yml` runs two jobs — types/lint/format/unit tests for fast feedback,
+then migrate → seed → i18n check → build → Playwright against a Postgres service, uploading the
+report on failure. Playwright uses the machine's Chrome locally and its own Chromium on CI.
+
+### Defect found while doing the above
+
+Re-seeding recreates test options with new ids, so a page cached from before scored **0/45** in
+silence — every submitted option id was unknown. `submitAttempt` now returns a stale marker when
+answers were given but none matched, the API answers `409 STALE_TEST`, and the runner clears its
+saved progress and asks the visitor to reload. Covered by a unit test.

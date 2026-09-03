@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { TAGS, cachedQuery } from '@/lib/cache';
+import { isPreview } from '@/lib/draft';
 import { loc, locOrNull } from '@/lib/localize';
 import type { Locale } from '@/types/i18n';
 import type { PostCardView, PostDetailView } from '@/types/content';
@@ -15,28 +16,27 @@ const postSelect = {
   publishedAt: true,
 } as const;
 
-const rawPosts = cachedQuery(
-  async () => {
-    const rows = await prisma.post.findMany({
-      where: { isPublished: true, publishedAt: { lte: new Date() } },
-      orderBy: { publishedAt: 'desc' },
-      select: postSelect,
-    });
-    return rows.map((row) => ({ ...row, publishedAt: row.publishedAt?.toISOString() ?? null }));
-  },
-  ['posts:list'],
-  [TAGS.posts],
-  { fallback: [] },
-);
+async function fetchPosts(includeDrafts = false) {
+  const rows = await prisma.post.findMany({
+    where: includeDrafts ? {} : { isPublished: true, publishedAt: { lte: new Date() } },
+    orderBy: { publishedAt: 'desc' },
+    select: postSelect,
+  });
+  return rows.map((row) => ({ ...row, publishedAt: row.publishedAt?.toISOString() ?? null }));
+}
+
+const rawPosts = cachedQuery(() => fetchPosts(), ['posts:list'], [TAGS.posts], { fallback: [] });
+
+async function fetchPostBySlug(slug: string, includeDrafts = false) {
+  const row = await prisma.post.findFirst({
+    where: { slug, ...(includeDrafts ? {} : { isPublished: true }) },
+    select: { ...postSelect, body: true, seoTitle: true, seoDescription: true },
+  });
+  return row ? { ...row, publishedAt: row.publishedAt?.toISOString() ?? null } : null;
+}
 
 const rawPostBySlug = cachedQuery(
-  async (slug: string) => {
-    const row = await prisma.post.findFirst({
-      where: { slug, isPublished: true },
-      select: { ...postSelect, body: true, seoTitle: true, seoDescription: true },
-    });
-    return row ? { ...row, publishedAt: row.publishedAt?.toISOString() ?? null } : null;
-  },
+  (slug: string) => fetchPostBySlug(slug),
   ['posts:by-slug'],
   [TAGS.posts],
   { fallback: null },
@@ -58,12 +58,12 @@ function toCard(row: RawPost, locale: Locale): PostCardView {
 }
 
 export async function getPosts(locale: Locale): Promise<PostCardView[]> {
-  const rows = await rawPosts();
+  const rows = (await isPreview()) ? await fetchPosts(true) : await rawPosts();
   return rows.map((row) => toCard(row, locale));
 }
 
 export async function getPostBySlug(slug: string, locale: Locale): Promise<PostDetailView | null> {
-  const row = await rawPostBySlug(slug);
+  const row = (await isPreview()) ? await fetchPostBySlug(slug, true) : await rawPostBySlug(slug);
   if (!row) return null;
 
   return {
