@@ -1,11 +1,15 @@
 import { prisma } from '@/lib/prisma';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/admin/ui';
 import { ApplicationsTable } from '@/components/admin/applications-table';
 import { currentUser } from '@/server/actions/helpers';
 import { can } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Vakansiya arizalari' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('nav.applications') };
+}
 
 const localizedUz = (value: unknown): string | null => {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -38,7 +42,8 @@ export default async function ApplicationsPage({
       : {}),
   };
 
-  const [rows, total, vacancies, user] = await Promise.all([
+  const [t, rows, total, vacancies, user] = await Promise.all([
+    getTranslations('admin'),
     prisma.jobApplication.findMany({
       where,
       orderBy: { createdAt: 'desc' },
@@ -53,7 +58,10 @@ export default async function ApplicationsPage({
 
   return (
     <>
-      <PageHeader title="Vakansiya arizalari" description={`Jami ${total} ta ariza`} />
+      <PageHeader
+        title={t('nav.applications')}
+        description={t('apps.description', { count: total })}
+      />
       <ApplicationsTable
         rows={rows.map((row) => ({
           id: row.id,

@@ -24,18 +24,19 @@ say('unauthenticated /admin redirects to login', page.url().includes('/admin/log
 
 await page.fill('#email', email);
 await page.fill('#password', 'wrong-password');
-await page.getByRole('button', { name: 'Kirish' }).click();
-await page.waitForTimeout(1500);
-say(
-  'wrong password is rejected',
-  await page
-    .getByText('Email yoki parol noto‘g‘ri')
-    .isVisible()
-    .catch(() => false),
-);
+await page.locator('form button[type="submit"]').click();
+await page.waitForTimeout(2500);
+// Assert the outcome, not the wording: the copy is translated now.
+const stillOnLogin = page.url().includes('/admin/login');
+const errorShown = await page
+  .locator('[role="alert"], [data-error], .text-danger, [aria-live]')
+  .first()
+  .isVisible()
+  .catch(() => false);
+say('wrong password is rejected', stillOnLogin && errorShown, page.url());
 
 await page.fill('#password', password);
-await page.getByRole('button', { name: 'Kirish' }).click();
+await page.locator('form button[type="submit"]').click();
 await page.waitForURL(/\/admin(?!\/login)/, { timeout: 20_000 });
 say('valid credentials sign in', !page.url().includes('/admin/login'), page.url());
 
@@ -49,28 +50,39 @@ say(
 // ---------- generic resource list + reorder view ----------
 await page.goto(`${base}/admin/advantages`, { waitUntil: 'load' });
 await page.waitForTimeout(500);
-const advantageCount = await page.locator('li:has-text("Tahrirlash")').count();
+const advantageCount = await page.locator('li:has(a[href^="/admin/advantages/"])').count();
 say('advantages list renders seeded rows', advantageCount >= 5, `${advantageCount} rows`);
 
 // ---------- edit a record and see it change in the database ----------
-await page.getByRole('link', { name: 'Tahrirlash' }).first().click();
+// Scope to list rows: a bare href match also picks up the "New" button.
+await page.locator('li a[href^="/admin/advantages/"]').first().click();
 await page.waitForSelector('#field-title');
+// Query the row we actually opened rather than assuming it sorts first.
+const editedId = new URL(page.url()).pathname.split('/').pop();
 const stamp = `Admin test ${Date.now() % 100000}`;
 await page.fill('#field-title', stamp);
-await page.getByRole('button', { name: 'Saqlash' }).click();
-await page.waitForTimeout(2000);
+await page.getByTestId('admin-save').click();
+// Wait for the save toast instead of a fixed delay: a cold dev compile can
+// take longer than any timeout worth hard-coding. The selector is sonner's
+// own attribute, so this stays language-agnostic.
+await page.waitForSelector('[data-sonner-toast]', { timeout: 20_000 });
 
-const advantage = await prisma.advantage.findFirst({ orderBy: { order: 'asc' } });
+const advantage = await prisma.advantage.findUnique({ where: { id: editedId } });
+if (!advantage) console.log(`  (debug) no advantage row for id "${editedId}"`);
 const savedTitle =
   advantage?.title && typeof advantage.title === 'object' ? advantage.title.uz : null;
 say('edit persists to the database', savedTitle === stamp, `title.uz = "${savedTitle}"`);
 
 // ---------- audit log written ----------
 const audit = await prisma.auditLog.findFirst({
-  where: { entity: 'advantages' },
+  where: { entity: 'advantages', entityId: editedId },
   orderBy: { createdAt: 'desc' },
 });
-say('audit entry written', audit?.action === 'UPDATE', `${audit?.action} ${audit?.entity}`);
+say(
+  'audit entry written for the edited record',
+  audit?.action === 'UPDATE',
+  `${audit?.action} ${audit?.entity} ${audit?.entityId}`,
+);
 
 console.log(`page errors: ${errors.length ? errors.slice(0, 2).join(' | ') : 'none'}`);
 pass &&= errors.length === 0;

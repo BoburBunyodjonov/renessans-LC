@@ -19,6 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { GripVertical, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { describeError } from '@/components/admin/form-shell';
@@ -43,6 +44,7 @@ export function SortableList<T extends SortableItem>({
   disabled?: boolean;
 }) {
   const [order, setOrder] = useState(items);
+  const t = useTranslations('admin');
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -68,10 +70,10 @@ export function SortableList<T extends SortableItem>({
     try {
       const result = await onReorder(order.map((item) => item.id));
       if (result.ok) {
-        toast.success('Tartib saqlandi');
+        toast.success(t('common.orderSaved'));
         setDirty(false);
       } else {
-        toast.error(describeError(result.error));
+        toast.error(describeError(result.error, t));
       }
     } finally {
       setSaving(false);
@@ -82,10 +84,10 @@ export function SortableList<T extends SortableItem>({
     <div className="flex flex-col gap-3">
       {dirty ? (
         <div className="flex items-center gap-3 rounded-lg border border-warning/40 bg-warning/10 p-3">
-          <p className="text-sm font-semibold text-admin-text">Tartib o‘zgardi</p>
+          <p className="text-sm font-semibold text-admin-text">{t('common.orderChanged')}</p>
           <Button size="sm" onClick={save} disabled={saving} className="ms-auto">
             {saving ? <Loader2 className="animate-spin" aria-hidden /> : null}
-            Tartibni saqlash
+            {t('common.saveOrder')}
           </Button>
         </div>
       ) : null}
@@ -97,7 +99,12 @@ export function SortableList<T extends SortableItem>({
         >
           <ul className="flex flex-col gap-2">
             {order.map((item, index) => (
-              <SortableRow key={item.id} id={item.id} disabled={disabled}>
+              <SortableRow
+                key={item.id}
+                id={item.id}
+                disabled={disabled}
+                label={t('common.reorderHandle')}
+              >
                 {renderItem(item, index)}
               </SortableRow>
             ))}
@@ -111,10 +118,12 @@ export function SortableList<T extends SortableItem>({
 function SortableRow({
   id,
   disabled,
+  label,
   children,
 }: {
   id: string;
   disabled: boolean;
+  label: string;
   children: ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -134,7 +143,7 @@ function SortableRow({
       {!disabled ? (
         <button
           type="button"
-          aria-label="Tartibni o‘zgartirish"
+          aria-label={label}
           className="cursor-grab touch-none text-admin-muted hover:text-admin-text active:cursor-grabbing"
           {...attributes}
           {...listeners}

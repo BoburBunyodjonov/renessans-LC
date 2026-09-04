@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { NextIntlClientProvider } from 'next-intl';
 import { Toaster } from 'sonner';
 import { inter, poppins } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
+import { getAdminLocale, getAdminMessages } from '@/i18n/admin';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -14,9 +16,12 @@ export const metadata: Metadata = {
  * The admin panel is not locale-prefixed and renders its own document so it can
  * opt into dark mode (class strategy) independently of the public site.
  */
-export default function AdminRootLayout({ children }: { children: ReactNode }) {
+export default async function AdminRootLayout({ children }: { children: ReactNode }) {
+  const locale = await getAdminLocale();
+  const messages = await getAdminMessages(locale);
+
   return (
-    <html lang="uz" className={cn(inter.variable, poppins.variable)} suppressHydrationWarning>
+    <html lang={locale} className={cn(inter.variable, poppins.variable)} suppressHydrationWarning>
       <head>
         <script
           // Applies the stored theme before first paint to avoid a flash.
@@ -26,8 +31,10 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="min-h-screen bg-paper-alt text-ink-900 antialiased">
-        {children}
-        <Toaster richColors position="top-right" closeButton />
+        <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Tashkent">
+          {children}
+          <Toaster richColors position="top-right" closeButton />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

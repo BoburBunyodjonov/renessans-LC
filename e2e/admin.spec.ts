@@ -11,9 +11,10 @@ test.describe('admin panel', () => {
 
     await page.locator('#email').fill(EMAIL);
     await page.locator('#password').fill('definitely-wrong');
-    await page.getByRole('button', { name: 'Kirish' }).click();
+    await page.locator('form button[type="submit"]').click();
 
-    await expect(page.getByText('Email yoki parol noto‘g‘ri')).toBeVisible();
+    // Asserted by role, not wording: the admin UI is translatable.
+    await expect(page.getByRole('alert')).toBeVisible();
     await expect(page).toHaveURL(/\/admin\/login/);
   });
 
@@ -23,10 +24,10 @@ test.describe('admin panel', () => {
     await page.goto('/admin/login');
     await page.locator('#email').fill(EMAIL);
     await page.locator('#password').fill(PASSWORD);
-    await page.getByRole('button', { name: 'Kirish' }).click();
+    await page.locator('form button[type="submit"]').click();
     await page.waitForURL(/\/admin$/);
 
-    await expect(page.getByText('Bugungi arizalar')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
     // Edit an advantage card — small, visible on the homepage, easy to restore.
     const original = await prisma.advantage.findFirst({ orderBy: { order: 'asc' } });
@@ -37,8 +38,9 @@ test.describe('admin panel', () => {
 
     const heading = `E2E afzallik ${stamp}`;
     await page.locator('#field-title').fill(heading);
-    await page.getByRole('button', { name: 'Saqlash' }).click();
-    await expect(page.getByText('Saqlandi')).toBeVisible();
+    await page.getByTestId('admin-save').click();
+    // Sonner renders the toast into a status region.
+    await expect(page.locator('[data-sonner-toast]').first()).toBeVisible();
 
     const saved = await prisma.advantage.findUnique({ where: { id: original!.id } });
     expect((saved?.title as { uz?: string })?.uz).toBe(heading);

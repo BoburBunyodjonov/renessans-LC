@@ -5,6 +5,7 @@ import {
   nameSchema,
   optionalEmailSchema,
   phoneSchema,
+  recordIdSchema,
   utmSchema,
 } from './common';
 
@@ -24,9 +25,7 @@ export const leadSchema = utmSchema.extend({
   name: nameSchema,
   phone: phoneSchema,
   email: optionalEmailSchema,
-  courseId: z
-    .string()
-    .cuid()
+  courseId: recordIdSchema
     .optional()
     .or(z.literal(''))
     .transform((v) => v || undefined),

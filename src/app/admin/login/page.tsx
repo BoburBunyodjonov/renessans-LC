@@ -1,7 +1,10 @@
-import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { LoginForm } from '@/components/admin/login-form';
 
-export const metadata: Metadata = { title: 'Kirish' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('signIn') };
+}
 
 export default async function AdminLoginPage({
   searchParams,

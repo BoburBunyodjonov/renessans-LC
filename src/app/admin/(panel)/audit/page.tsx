@@ -1,11 +1,15 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader, Panel, StatusPill } from '@/components/admin/ui';
 import { currentUser } from '@/server/actions/helpers';
 import { can } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Audit jurnali' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('nav.audit') };
+}
 
 const ACTION_TONE: Record<string, 'brand' | 'success' | 'danger' | 'neutral'> = {
   CREATE: 'success',
@@ -28,7 +32,8 @@ export default async function AuditPage({
   const page = Number(query.page ?? 1) || 1;
   const pageSize = 50;
 
-  const [rows, total] = await Promise.all([
+  const [t, rows, total] = await Promise.all([
+    getTranslations('admin'),
     prisma.auditLog.findMany({
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * pageSize,
@@ -40,17 +45,17 @@ export default async function AuditPage({
 
   return (
     <>
-      <PageHeader title="Audit jurnali" description={`Jami ${total} ta yozuv`} />
+      <PageHeader title={t('nav.audit')} description={t('audit.description', { count: total })} />
       <Panel>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-admin-border">
               <tr className="text-xs text-admin-muted uppercase">
-                <th className="px-3 py-2 text-start">Vaqt</th>
-                <th className="px-3 py-2 text-start">Foydalanuvchi</th>
-                <th className="px-3 py-2 text-start">Amal</th>
-                <th className="px-3 py-2 text-start">Obyekt</th>
-                <th className="px-3 py-2 text-start">IP</th>
+                <th className="px-3 py-2 text-start">{t('audit.time')}</th>
+                <th className="px-3 py-2 text-start">{t('audit.user')}</th>
+                <th className="px-3 py-2 text-start">{t('audit.action')}</th>
+                <th className="px-3 py-2 text-start">{t('audit.entity')}</th>
+                <th className="px-3 py-2 text-start">{t('audit.ip')}</th>
               </tr>
             </thead>
             <tbody>
@@ -78,7 +83,7 @@ export default async function AuditPage({
           </table>
         </div>
         {rows.length === 0 ? (
-          <p className="py-6 text-center text-sm text-admin-muted">Yozuv yo‘q</p>
+          <p className="py-6 text-center text-sm text-admin-muted">{t('audit.empty')}</p>
         ) : null}
       </Panel>
     </>

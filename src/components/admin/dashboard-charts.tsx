@@ -15,6 +15,7 @@ import {
   YAxis,
 } from 'recharts';
 import { Panel, PanelTitle } from '@/components/admin/ui';
+import { useTranslations } from 'next-intl';
 
 type Point = { name: string; value: number };
 
@@ -48,13 +49,15 @@ function ChartFrame({ title, children }: { title: string; children: React.ReactN
 }
 
 function EmptyChart() {
-  return <div className="grid h-full place-items-center text-sm">Hozircha ma’lumot yo‘q</div>;
+  const t = useTranslations('admin');
+  return <div className="grid h-full place-items-center text-sm">{t('charts.noData')}</div>;
 }
 
 export function LeadsPerDayChart({ data }: { data: { date: string; count: number }[] }) {
+  const t = useTranslations('admin');
   const hasData = data.some((point) => point.count > 0);
   return (
-    <ChartFrame title="Kunlik arizalar (30 kun)">
+    <ChartFrame title={t('charts.leadsPerDay')}>
       {hasData ? (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 8, bottom: 0, left: -20 }}>
@@ -87,8 +90,9 @@ export function LeadsPerDayChart({ data }: { data: { date: string; count: number
 }
 
 export function LeadsBySourceChart({ data }: { data: Point[] }) {
+  const t = useTranslations('admin');
   return (
-    <ChartFrame title="Manba bo‘yicha">
+    <ChartFrame title={t('charts.bySource')}>
       {data.length > 0 ? (
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -152,9 +156,10 @@ export function SimpleBarChart({
 }
 
 export function ScoreHistogram({ data }: { data: { label: string; count: number }[] }) {
+  const t = useTranslations('admin');
   const hasData = data.some((bucket) => bucket.count > 0);
   return (
-    <ChartFrame title="Test natijalari taqsimoti">
+    <ChartFrame title={t('charts.scores')}>
       {hasData ? (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 8, bottom: 0, left: -20 }}>

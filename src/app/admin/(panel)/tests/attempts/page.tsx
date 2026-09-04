@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { getTranslations } from 'next-intl/server';
 import { Download } from 'lucide-react';
 import { PageHeader, Panel, PanelTitle, StatCard } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,10 @@ import { currentUser } from '@/server/actions/helpers';
 import { can } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Test natijalari' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('nav.attempts') };
+}
 
 /** CSV download endpoint — a real navigation, not a client-side route. */
 const EXPORT_HREF = '/api/admin/export?entity=attempts';
@@ -22,7 +26,8 @@ export default async function AttemptsPage({
   const pageSize = 30;
   const where = query.category ? { category: { slug: query.category } } : {};
 
-  const [rows, total, categories, scores, user] = await Promise.all([
+  const [t, rows, total, categories, scores, user] = await Promise.all([
+    getTranslations('admin'),
     prisma.testAttempt.findMany({
       where,
       orderBy: { createdAt: 'desc' },
@@ -58,8 +63,8 @@ export default async function AttemptsPage({
   return (
     <>
       <PageHeader
-        title="Test natijalari"
-        description={`Jami ${total} ta urinish`}
+        title={t('nav.attempts')}
+        description={t('attempts.description', { count: total })}
         actions={
           can(user?.role, 'exportCsv') ? (
             <Button
@@ -78,9 +83,9 @@ export default async function AttemptsPage({
       />
 
       <div className="mb-4 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Urinishlar" value={total} />
-        <StatCard label="O‘rtacha natija" value={`${average}%`} />
-        <StatCard label="Yo‘nalishlar" value={categories.length} />
+        <StatCard label={t('attempts.count')} value={total} />
+        <StatCard label={t('attempts.average')} value={`${average}%`} />
+        <StatCard label={t('attempts.tracks')} value={categories.length} />
       </div>
 
       <div className="mb-4">
@@ -88,18 +93,18 @@ export default async function AttemptsPage({
       </div>
 
       <Panel>
-        <PanelTitle>Oxirgi urinishlar</PanelTitle>
+        <PanelTitle>{t('attempts.recent')}</PanelTitle>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-admin-border">
               <tr className="text-xs text-admin-muted uppercase">
-                <th className="px-3 py-2 text-start">Sana</th>
-                <th className="px-3 py-2 text-start">Yo‘nalish</th>
-                <th className="px-3 py-2 text-start">Ism</th>
-                <th className="px-3 py-2 text-start">Telefon</th>
-                <th className="px-3 py-2 text-start">Natija</th>
-                <th className="px-3 py-2 text-start">Daraja</th>
-                <th className="px-3 py-2 text-start">Ariza</th>
+                <th className="px-3 py-2 text-start">{t('leads.date')}</th>
+                <th className="px-3 py-2 text-start">{t('attempts.track')}</th>
+                <th className="px-3 py-2 text-start">{t('leads.name')}</th>
+                <th className="px-3 py-2 text-start">{t('leads.phone')}</th>
+                <th className="px-3 py-2 text-start">{t('attempts.score')}</th>
+                <th className="px-3 py-2 text-start">{t('attempts.level')}</th>
+                <th className="px-3 py-2 text-start">{t('attempts.lead')}</th>
               </tr>
             </thead>
             <tbody>
@@ -121,7 +126,7 @@ export default async function AttemptsPage({
                         href={`/admin/leads/${attempt.lead.id}`}
                         className="font-semibold text-brand-600"
                       >
-                        Ochish
+                        {t('attempts.open')}
                       </a>
                     ) : (
                       '—'
@@ -133,7 +138,7 @@ export default async function AttemptsPage({
           </table>
         </div>
         {rows.length === 0 ? (
-          <p className="py-6 text-center text-sm text-admin-muted">Hozircha urinish yo‘q</p>
+          <p className="py-6 text-center text-sm text-admin-muted">{t('attempts.empty')}</p>
         ) : null}
       </Panel>
     </>

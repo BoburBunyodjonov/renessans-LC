@@ -3,6 +3,7 @@
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Mail, MailOpen, Phone } from 'lucide-react';
 import { EmptyState, Panel, StatusPill } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
@@ -31,13 +32,14 @@ export function MessagesInbox({
   canManage: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations('admin');
   const [pending, startTransition] = useTransition();
 
   function toggle(message: Message) {
     startTransition(async () => {
       const result = await markMessageRead(message.id, !message.isRead);
       if (result.ok) router.refresh();
-      else toast.error(describeError(result.error));
+      else toast.error(describeError(result.error, t));
     });
   }
 
@@ -49,19 +51,19 @@ export function MessagesInbox({
           size="sm"
           onClick={() => router.replace('?')}
         >
-          Barchasi
+          {t('common.all')}
         </Button>
         <Button
           variant={unreadOnly ? 'brand' : 'ghost'}
           size="sm"
           onClick={() => router.replace('?unread=1')}
         >
-          O‘qilmagan
+          {t('msgs.unreadOnly')}
         </Button>
       </div>
 
       {rows.length === 0 ? (
-        <EmptyState title="Xabar yo‘q" description="Aloqa formasi orqali xabar kelmagan." />
+        <EmptyState title={t('msgs.empty')} description={t('msgs.emptyHint')} />
       ) : (
         <ul className="flex flex-col gap-3">
           {rows.map((message) => (
@@ -69,7 +71,7 @@ export function MessagesInbox({
               <Panel className={cn('p-4 md:p-5', !message.isRead && 'border-brand-600/40')}>
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="font-semibold text-admin-text">{message.name}</p>
-                  {!message.isRead ? <StatusPill tone="brand">Yangi</StatusPill> : null}
+                  {!message.isRead ? <StatusPill tone="brand">{t('msgs.new')}</StatusPill> : null}
                   <span className="ms-auto text-xs text-admin-muted tabular-nums">
                     {new Date(message.createdAt).toLocaleString('uz-UZ')}
                   </span>
@@ -111,7 +113,7 @@ export function MessagesInbox({
                       className="ms-auto text-admin-muted hover:bg-admin-hover hover:text-admin-text"
                     >
                       <MailOpen aria-hidden />
-                      {message.isRead ? 'O‘qilmagan deb belgilash' : 'O‘qilgan deb belgilash'}
+                      {message.isRead ? t('msgs.markUnread') : t('msgs.markRead')}
                     </Button>
                   ) : null}
                 </div>

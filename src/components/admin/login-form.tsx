@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { Loader2, LogIn } from 'lucide-react';
@@ -11,6 +12,7 @@ type FormValues = { email: string; password: string };
 
 export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   const [error, setError] = useState(false);
+  const t = useTranslations('admin');
   const {
     register,
     handleSubmit,
@@ -42,7 +44,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
     >
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="email" className="dark:text-white">
-          Email
+          {t('login.email')}
         </Label>
         <Input
           id="email"
@@ -51,14 +53,14 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
           autoFocus
           aria-invalid={Boolean(errors.email)}
           className="dark:border-white/15 dark:bg-white/5 dark:text-white"
-          {...register('email', { required: 'Email kiriting' })}
+          {...register('email', { required: t('login.emailRequired') })}
         />
         <FieldError>{errors.email?.message}</FieldError>
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="password" className="dark:text-white">
-          Parol
+          {t('login.password')}
         </Label>
         <Input
           id="password"
@@ -66,14 +68,14 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
           autoComplete="current-password"
           aria-invalid={Boolean(errors.password)}
           className="dark:border-white/15 dark:bg-white/5 dark:text-white"
-          {...register('password', { required: 'Parolni kiriting' })}
+          {...register('password', { required: t('login.passwordRequired') })}
         />
         <FieldError>{errors.password?.message}</FieldError>
       </div>
 
       {error ? (
         <p role="alert" className="text-sm text-danger">
-          Email yoki parol noto‘g‘ri
+          {t('login.invalid')}
         </p>
       ) : null}
 
@@ -83,7 +85,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
         ) : (
           <>
             <LogIn aria-hidden />
-            Kirish
+            {t('signIn')}
           </>
         )}
       </Button>

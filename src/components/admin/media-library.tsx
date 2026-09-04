@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Copy, Loader2, Trash2, Upload } from 'lucide-react';
 import { EmptyState, Panel } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ export function MediaLibrary({
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations('admin');
   const [uploading, setUploading] = useState(false);
   const [pending, startTransition] = useTransition();
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
@@ -41,11 +43,11 @@ export function MediaLibrary({
 
         const response = await fetch('/api/upload', { method: 'POST', body });
         if (!response.ok) {
-          toast.error(`${file.name}: yuklab bo‘lmadi`);
+          toast.error(`${file.name}: ${t('errors.uploadFailed')}`);
           continue;
         }
       }
-      toast.success('Yuklandi');
+      toast.success(t('common.uploaded'));
       router.refresh();
     } finally {
       setUploading(false);
@@ -68,17 +70,17 @@ export function MediaLibrary({
           onKeyDown={(event) => {
             if (event.key === 'Enter') setParam('q', query);
           }}
-          placeholder="Fayl nomi bo‘yicha qidirish (Enter)"
+          placeholder={t('media.searchPlaceholder')}
           className="h-10 max-w-xs border-admin-border bg-admin-panel text-admin-text"
         />
 
         <select
-          aria-label="Papka"
+          aria-label={t('media.folder')}
           value={activeFolder}
           onChange={(event) => setParam('folder', event.target.value)}
           className="h-10 rounded-md border border-admin-border bg-admin-panel px-2 text-sm text-admin-text"
         >
-          <option value="">Barcha papkalar</option>
+          <option value="">{t('media.allFolders')}</option>
           {folders.map((folder) => (
             <option key={folder} value={folder}>
               {folder}
@@ -93,7 +95,7 @@ export function MediaLibrary({
           className="ms-auto"
         >
           {uploading ? <Loader2 className="animate-spin" aria-hidden /> : <Upload aria-hidden />}
-          Fayl yuklash
+          {t('common.upload')}
         </Button>
         <input
           ref={fileRef}
@@ -109,7 +111,7 @@ export function MediaLibrary({
       </Panel>
 
       {rows.length === 0 ? (
-        <EmptyState title="Fayl yo‘q" description="Birinchi faylni yuklang." />
+        <EmptyState title={t('media.empty')} description={t('media.uploadFirst')} />
       ) : (
         <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {rows.map((asset) => {
@@ -147,10 +149,10 @@ export function MediaLibrary({
                 <div className="mt-1.5 flex items-center gap-1">
                   <button
                     type="button"
-                    title="Havolani nusxalash"
+                    title={t('common.copyLink')}
                     onClick={() => {
                       void navigator.clipboard.writeText(asset.url);
-                      toast.success('Havola nusxalandi');
+                      toast.success(t('common.copied'));
                     }}
                     className="grid size-7 place-items-center rounded-md text-admin-muted hover:bg-admin-hover hover:text-admin-text"
                   >
@@ -158,17 +160,17 @@ export function MediaLibrary({
                   </button>
                   <button
                     type="button"
-                    title="O‘chirish"
+                    title={t('common.delete')}
                     disabled={pending}
                     onClick={() => {
-                      if (!window.confirm('Fayl o‘chirilsinmi?')) return;
+                      if (!window.confirm(t('media.deleteConfirm'))) return;
                       startTransition(async () => {
                         const result = await deleteMediaAsset(asset.id);
                         if (result.ok) {
-                          toast.success('O‘chirildi');
+                          toast.success(t('common.deleted'));
                           router.refresh();
                         } else {
-                          toast.error(describeError(result.error));
+                          toast.error(describeError(result.error, t));
                         }
                       });
                     }}

@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Loader2, Plus, UserX } from 'lucide-react';
 import { Panel, PanelTitle, StatusPill } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ export function UsersManager({
   currentUserId: string;
 }) {
   const router = useRouter();
+  const t = useTranslations('admin');
   const [pending, startTransition] = useTransition();
   const [form, setForm] = useState(blank);
   const [open, setOpen] = useState(false);
@@ -64,12 +66,12 @@ export function UsersManager({
       });
 
       if (result.ok) {
-        toast.success('Saqlandi');
+        toast.success(t('common.saved'));
         setForm(blank);
         setOpen(false);
         router.refresh();
       } else {
-        toast.error(result.fields?.password ?? describeError(result.error));
+        toast.error(result.fields?.password ?? describeError(result.error, t));
       }
     });
   }
@@ -78,7 +80,7 @@ export function UsersManager({
     <div className="flex flex-col gap-4">
       <Panel>
         <div className="flex items-center justify-between">
-          <PanelTitle>Xodimlar</PanelTitle>
+          <PanelTitle>{t('users.staff')}</PanelTitle>
           <Button
             size="sm"
             onClick={() => {
@@ -87,7 +89,7 @@ export function UsersManager({
             }}
           >
             <Plus aria-hidden />
-            Yangi
+            {t('common.new')}
           </Button>
         </div>
 
@@ -95,11 +97,11 @@ export function UsersManager({
           <table className="w-full text-sm">
             <thead className="border-b border-admin-border">
               <tr className="text-xs text-admin-muted uppercase">
-                <th className="px-3 py-2 text-start">Ism</th>
-                <th className="px-3 py-2 text-start">Email</th>
-                <th className="px-3 py-2 text-start">Rol</th>
-                <th className="px-3 py-2 text-start">Oxirgi kirish</th>
-                <th className="px-3 py-2 text-start">Holat</th>
+                <th className="px-3 py-2 text-start">{t('users.name')}</th>
+                <th className="px-3 py-2 text-start">{t('login.email')}</th>
+                <th className="px-3 py-2 text-start">{t('users.role')}</th>
+                <th className="px-3 py-2 text-start">{t('users.lastLogin')}</th>
+                <th className="px-3 py-2 text-start">{t('leads.status')}</th>
                 <th className="px-3 py-2" />
               </tr>
             </thead>
@@ -118,7 +120,7 @@ export function UsersManager({
                   </td>
                   <td className="px-3 py-2">
                     <StatusPill tone={user.isActive ? 'success' : 'danger'}>
-                      {user.isActive ? 'Faol' : 'Bloklangan'}
+                      {user.isActive ? t('users.active') : t('users.blocked')}
                     </StatusPill>
                   </td>
                   <td className="px-3 py-2 text-end">
@@ -127,7 +129,7 @@ export function UsersManager({
                       onClick={() => edit(user)}
                       className="me-3 text-sm font-semibold text-brand-600 hover:text-brand-700"
                     >
-                      Tahrirlash
+                      {t('common.edit')}
                     </button>
                     {user.isActive && user.id !== currentUserId ? (
                       <button
@@ -137,17 +139,17 @@ export function UsersManager({
                           startTransition(async () => {
                             const result = await deactivateUser(user.id);
                             if (result.ok) {
-                              toast.success('Bloklandi');
+                              toast.success(t('users.blocked_toast'));
                               router.refresh();
                             } else {
-                              toast.error(describeError(result.error));
+                              toast.error(describeError(result.error, t));
                             }
                           })
                         }
                         className="inline-flex items-center gap-1 text-sm font-semibold text-danger"
                       >
                         <UserX className="size-4" aria-hidden />
-                        Bloklash
+                        {t('users.block')}
                       </button>
                     ) : null}
                   </td>
@@ -160,12 +162,12 @@ export function UsersManager({
 
       {open ? (
         <Panel className="flex flex-col gap-4">
-          <PanelTitle>{form.id ? 'Foydalanuvchini tahrirlash' : 'Yangi foydalanuvchi'}</PanelTitle>
+          <PanelTitle>{form.id ? t('users.editUser') : t('users.newUser')}</PanelTitle>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="user-name" className="text-admin-text">
-                Ism
+                {t('users.name')}
               </Label>
               <Input
                 id="user-name"
@@ -176,7 +178,7 @@ export function UsersManager({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="user-email" className="text-admin-text">
-                Email
+                {t('login.email')}
               </Label>
               <Input
                 id="user-email"
@@ -188,7 +190,7 @@ export function UsersManager({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="user-role" className="text-admin-text">
-                Rol
+                {t('users.role')}
               </Label>
               <select
                 id="user-role"
@@ -205,7 +207,7 @@ export function UsersManager({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="user-password" className="text-admin-text">
-                Parol {form.id ? '(o‘zgartirish uchun)' : ''}
+                {t('login.password')} {form.id ? t('users.passwordChange') : ''}
               </Label>
               <Input
                 id="user-password"
@@ -225,13 +227,13 @@ export function UsersManager({
               checked={form.isActive}
               onChange={(event) => setForm({ ...form, isActive: event.target.checked })}
             />
-            Faol
+            {t('users.active')}
           </label>
 
           <div className="flex gap-2">
             <Button size="sm" onClick={submit} disabled={pending}>
               {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-              Saqlash
+              {t('common.save')}
             </Button>
             <Button
               variant="ghost"
@@ -239,7 +241,7 @@ export function UsersManager({
               onClick={() => setOpen(false)}
               className="text-admin-muted hover:bg-admin-hover"
             >
-              Bekor qilish
+              {t('common.cancel')}
             </Button>
           </div>
         </Panel>

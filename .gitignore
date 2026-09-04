@@ -44,3 +44,8 @@ next-env.d.ts
 # local uploads (storage driver "local")
 /public/uploads
 .tmp-check
+
+# Playwright artefacts
+/test-results/
+/playwright-report/
+/blob-report/

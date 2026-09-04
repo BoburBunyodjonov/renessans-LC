@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/admin/ui';
 import { SettingsForm } from '@/components/admin/settings-form';
 import { currentUser } from '@/server/actions/helpers';
@@ -7,7 +8,10 @@ import { can } from '@/lib/permissions';
 import { asLocalized, asLocalizedList, type Localized } from '@/types/i18n';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Sayt sozlamalari' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('nav.settings') };
+}
 
 const EMPTY: Localized = { uz: '', ru: '', en: '' };
 
@@ -24,14 +28,14 @@ export default async function SettingsPage() {
   const user = await currentUser();
   if (!can(user?.role, 'manageSettings')) redirect('/admin');
 
-  const settings = await prisma.siteSetting.findUnique({ where: { id: 'singleton' } });
+  const [t, settings] = await Promise.all([
+    getTranslations('admin'),
+    prisma.siteSetting.findUnique({ where: { id: 'singleton' } }),
+  ]);
 
   return (
     <>
-      <PageHeader
-        title="Sayt sozlamalari"
-        description="Brend, aloqa ma’lumotlari, ijtimoiy tarmoqlar, analitika va Telegram kanallari."
-      />
+      <PageHeader title={t('nav.settings')} description={t('settings.description')} />
       <SettingsForm
         initial={{
           brandName: asLocalized(settings?.brandName) ?? EMPTY,

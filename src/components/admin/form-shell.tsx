@@ -2,21 +2,29 @@
 
 import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { ArrowLeft, ExternalLink, Loader2, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUnsavedGuard } from '@/hooks/use-unsaved-guard';
 import type { ActionResult } from '@/server/actions/helpers';
 
-const ERROR_MESSAGES: Record<string, string> = {
-  UNAUTHENTICATED: 'Sessiya tugagan — qaytadan kiring',
-  FORBIDDEN: 'Bu amal uchun ruxsat yo‘q',
-  VALIDATION_ERROR: 'Maydonlarni tekshiring',
-  UNKNOWN_ERROR: 'Saqlab bo‘lmadi',
+/** Maps an action error code to its `admin.errors.*` message key. */
+const ERROR_KEYS: Record<string, string> = {
+  UNAUTHENTICATED: 'errors.session',
+  FORBIDDEN: 'errors.forbidden',
+  VALIDATION_ERROR: 'errors.validation',
+  UNKNOWN_ERROR: 'errors.unknown',
 };
 
-export function describeError(code: string): string {
-  return ERROR_MESSAGES[code] ?? code;
+/**
+ * Turns an action error code into a message. Callers pass their `admin`
+ * translator so the text follows the staff member's chosen language.
+ */
+export function describeError(code: string, t?: (key: string) => string): string {
+  const key = ERROR_KEYS[code];
+  if (!key) return code;
+  return t ? t(key) : code;
 }
 
 /**
@@ -30,7 +38,7 @@ export function AdminFormShell({
   previewHref,
   backHref,
   children,
-  saveLabel = 'Saqlash',
+  saveLabel,
   extraActions,
 }: {
   dirty: boolean;
@@ -42,25 +50,26 @@ export function AdminFormShell({
   saveLabel?: string;
   extraActions?: ReactNode;
 }) {
+  const t = useTranslations('admin');
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  useUnsavedGuard(dirty && !saving);
+  useUnsavedGuard(dirty && !saving, t('common.leaveConfirm'));
 
   async function handleSave() {
     setSaving(true);
     try {
       const result = await onSave();
       if (result.ok) {
-        toast.success('Saqlandi');
+        toast.success(t('common.saved'));
         router.refresh();
       } else {
-        toast.error(describeError(result.error));
+        toast.error(describeError(result.error, t));
       }
       return result;
     } catch (error) {
-      toast.error('Saqlab bo‘lmadi');
+      toast.error(t('errors.unknown'));
       console.error(error);
       return { ok: false as const, error: 'UNKNOWN_ERROR' };
     } finally {
@@ -70,17 +79,17 @@ export function AdminFormShell({
 
   async function handleDelete() {
     if (!onDelete) return;
-    if (!window.confirm('O‘chirilsinmi?')) return;
+    if (!window.confirm(t('common.deleteConfirm'))) return;
 
     setDeleting(true);
     try {
       const result = await onDelete();
       if (result.ok) {
-        toast.success('O‘chirildi');
+        toast.success(t('common.deleted'));
         if (backHref) router.push(backHref);
         else router.refresh();
       } else {
-        toast.error(describeError(result.error));
+        toast.error(describeError(result.error, t));
       }
     } finally {
       setDeleting(false);
@@ -100,12 +109,12 @@ export function AdminFormShell({
             className="text-admin-muted hover:bg-admin-hover hover:text-admin-text"
           >
             <ArrowLeft aria-hidden />
-            Orqaga
+            {t('common.back')}
           </Button>
         ) : null}
 
         {dirty ? (
-          <span className="text-sm font-semibold text-warning">Saqlanmagan o‘zgarishlar</span>
+          <span className="text-sm font-semibold text-warning">{t('common.unsaved')}</span>
         ) : null}
 
         <div className="ms-auto flex flex-wrap items-center gap-2">
@@ -125,7 +134,7 @@ export function AdminFormShell({
                 rel="noopener noreferrer"
               >
                 <ExternalLink aria-hidden />
-                Ko‘rish
+                {t('common.preview')}
               </a>
             </Button>
           ) : null}
@@ -136,16 +145,17 @@ export function AdminFormShell({
               size="sm"
               onClick={handleDelete}
               disabled={deleting}
+              data-testid="admin-delete"
               className="text-danger hover:bg-danger/10"
             >
               {deleting ? <Loader2 className="animate-spin" aria-hidden /> : <Trash2 aria-hidden />}
-              O‘chirish
+              {t('common.delete')}
             </Button>
           ) : null}
 
-          <Button size="sm" onClick={handleSave} disabled={saving}>
+          <Button size="sm" onClick={handleSave} disabled={saving} data-testid="admin-save">
             {saving ? <Loader2 className="animate-spin" aria-hidden /> : <Save aria-hidden />}
-            {saveLabel}
+            {saveLabel ?? t('common.save')}
           </Button>
         </div>
       </div>

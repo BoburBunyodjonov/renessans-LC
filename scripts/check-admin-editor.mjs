@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 /**
  * Phase 6 acceptance check: an EDITOR changes the hero headline, a course price
@@ -21,11 +22,28 @@ const say = (label, ok, detail = '') => {
 
 const stamp = Date.now().toString().slice(-5);
 
+// The seed ships a single SUPER_ADMIN, so provision the EDITOR this check needs
+// rather than depending on a user left behind by an earlier run.
+const EDITOR_EMAIL = 'editor@school.uz';
+const EDITOR_PASSWORD = 'EditorPass123!';
+const passwordHash = await bcrypt.hash(EDITOR_PASSWORD, 12);
+await prisma.user.upsert({
+  where: { email: EDITOR_EMAIL },
+  update: { passwordHash, role: 'EDITOR', isActive: true },
+  create: {
+    email: EDITOR_EMAIL,
+    name: 'Editor (check)',
+    passwordHash,
+    role: 'EDITOR',
+    isActive: true,
+  },
+});
+
 // ---- sign in as the EDITOR ----
 await page.goto(`${base}/admin/login`, { waitUntil: 'load' });
-await page.fill('#email', 'editor@school.uz');
-await page.fill('#password', 'EditorPass123!');
-await page.getByRole('button', { name: 'Kirish' }).click();
+await page.fill('#email', EDITOR_EMAIL);
+await page.fill('#password', EDITOR_PASSWORD);
+await page.locator('form button[type="submit"]').click();
 await page.waitForURL(/\/admin(?!\/login)/, { timeout: 20_000 });
 say('editor signs in', !page.url().includes('login'));
 
@@ -36,48 +54,72 @@ say(
   !navText.includes('Foydalanuvchilar') && !navText.includes('Audit'),
 );
 
-// server-side guard, not just hidden UI
-const usersResponse = await page.goto(`${base}/admin/users`, { waitUntil: 'load' });
+// Server-side guard, not just hidden UI. Assert on what actually rendered:
+// `redirect()` serves the dashboard, but Next does not always rewrite the
+// address bar, so the URL is not the property worth testing — the absence of
+// user data is.
+// A denied route answers with a redirect the client resolves itself, which
+// Playwright surfaces as an aborted navigation — expected, not a failure.
+const visitDenied = async (path) => {
+  await page.goto(`${base}${path}`, { waitUntil: 'load' }).catch(() => {});
+  await page.waitForSelector('aside', { timeout: 15_000 });
+  return page.locator('body').innerText();
+};
+
+const usersBody = await visitDenied('/admin/users');
 say(
-  'editor is redirected away from /admin/users',
-  page.url().endsWith('/admin'),
-  `${usersResponse?.status()} ${page.url()}`,
+  'editor is denied /admin/users (dashboard served, no user records)',
+  !usersBody.includes('admin@school.uz') && !usersBody.includes(EDITOR_EMAIL),
+  page.url(),
+);
+
+const auditBody = await visitDenied('/admin/audit');
+say(
+  'editor is denied /admin/audit',
+  !auditBody.includes('LOGIN') && !auditBody.includes('UPDATE'),
+  page.url(),
 );
 
 // ---- 1. hero headline ----
 await page.goto(`${base}/admin/hero`, { waitUntil: 'load' });
-await page.getByRole('link', { name: 'Tahrirlash' }).first().click();
+await page.locator('li a[href^="/admin/hero/"]').first().click();
 await page.waitForSelector('#field-headline');
+const heroId = new URL(page.url()).pathname.split('/').pop();
 const headline = `Kafolatlangan <mark>IELTS 7+</mark> — ${stamp}`;
 await page.fill('#field-headline', headline);
-await page.getByRole('button', { name: 'Saqlash' }).click();
-await page.waitForTimeout(2500);
+await page.getByTestId('admin-save').click();
+await page.waitForSelector('[data-sonner-toast]', { timeout: 20_000 });
+await page.waitForTimeout(300);
 
 // ---- 2. course price ----
 await page.goto(`${base}/admin/courses`, { waitUntil: 'load' });
-await page.getByRole('link', { name: 'Tahrirlash' }).first().click();
+await page.locator('li a[href^="/admin/courses/"]').first().click();
 await page.waitForSelector('#field-price');
+const courseId = new URL(page.url()).pathname.split('/').pop();
 const newPrice = `9${stamp}0`;
 await page.fill('#field-price', newPrice);
-await page.getByRole('button', { name: 'Saqlash' }).click();
-await page.waitForTimeout(2500);
+await page.getByTestId('admin-save').click();
+await page.waitForSelector('[data-sonner-toast]', { timeout: 20_000 });
+await page.waitForTimeout(300);
 
 const courseSlug = await page.evaluate(() => document.querySelector('#field-slug')?.value ?? null);
 
 // ---- 3. teacher photo ----
 await page.goto(`${base}/admin/teachers`, { waitUntil: 'load' });
-await page.getByRole('link', { name: 'Tahrirlash' }).first().click();
+await page.locator('li a[href^="/admin/teachers/"]').first().click();
 await page.waitForSelector('input[placeholder="https://..."]');
+const teacherId = new URL(page.url()).pathname.split('/').pop();
 const photo = `https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=1067&fit=crop&q=80&v=${stamp}`;
 await page.locator('input[placeholder="https://..."]').first().fill(photo);
-await page.getByRole('button', { name: 'Saqlash' }).click();
-await page.waitForTimeout(2500);
+await page.getByTestId('admin-save').click();
+await page.waitForSelector('[data-sonner-toast]', { timeout: 20_000 });
+await page.waitForTimeout(300);
 
 // ---- database state ----
 const [hero, course, teacher] = await Promise.all([
-  prisma.heroSlide.findFirst({ orderBy: { order: 'asc' } }),
-  prisma.course.findFirst({ where: { deletedAt: null }, orderBy: { order: 'asc' } }),
-  prisma.teacher.findFirst({ orderBy: { order: 'asc' } }),
+  prisma.heroSlide.findUnique({ where: { id: heroId } }),
+  prisma.course.findUnique({ where: { id: courseId } }),
+  prisma.teacher.findUnique({ where: { id: teacherId } }),
 ]);
 say(
   'hero headline stored',

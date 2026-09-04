@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Download, FileText } from 'lucide-react';
 import { DataTable } from '@/components/admin/data-table';
@@ -49,6 +50,7 @@ export function ApplicationsTable({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('admin');
   const [pending, startTransition] = useTransition();
   const [openId, setOpenId] = useState<string | null>(null);
   const [note, setNote] = useState('');
@@ -66,7 +68,7 @@ export function ApplicationsTable({
       {
         id: 'fullName',
         accessorKey: 'fullName',
-        header: 'Nomzod',
+        header: t('apps.candidate'),
         cell: ({ row }) => (
           <button
             type="button"
@@ -83,7 +85,7 @@ export function ApplicationsTable({
       {
         id: 'phone',
         accessorKey: 'phone',
-        header: 'Telefon',
+        header: t('leads.phone'),
         cell: ({ row }) => (
           <a href={`tel:${row.original.phone}`} className="tabular-nums">
             {row.original.phone}
@@ -93,13 +95,13 @@ export function ApplicationsTable({
       {
         id: 'vacancy',
         accessorKey: 'vacancy',
-        header: 'Vakansiya',
+        header: t('apps.vacancy'),
         cell: ({ row }) => <span className="text-sm">{row.original.vacancy ?? '—'}</span>,
       },
       {
         id: 'status',
         accessorKey: 'status',
-        header: 'Holat',
+        header: t('leads.status'),
         cell: ({ row }) =>
           canManage ? (
             <select
@@ -108,10 +110,10 @@ export function ApplicationsTable({
                 startTransition(async () => {
                   const result = await updateApplicationStatus(row.original.id, event.target.value);
                   if (result.ok) {
-                    toast.success('Holat yangilandi');
+                    toast.success(t('common.statusUpdated'));
                     router.refresh();
                   } else {
-                    toast.error(describeError(result.error));
+                    toast.error(describeError(result.error, t));
                   }
                 })
               }
@@ -132,7 +134,7 @@ export function ApplicationsTable({
       {
         id: 'cvUrl',
         accessorKey: 'cvUrl',
-        header: 'Rezyume',
+        header: t('apps.cv'),
         enableSorting: false,
         cell: ({ row }) =>
           row.original.cvUrl ? (
@@ -143,7 +145,7 @@ export function ApplicationsTable({
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700"
             >
               <FileText className="size-4" aria-hidden />
-              {row.original.cvName ?? 'Yuklab olish'}
+              {row.original.cvName ?? t('apps.download')}
             </a>
           ) : (
             <span className="text-admin-muted">—</span>
@@ -152,7 +154,7 @@ export function ApplicationsTable({
       {
         id: 'createdAt',
         accessorKey: 'createdAt',
-        header: 'Sana',
+        header: t('leads.date'),
         cell: ({ row }) => (
           <span className="text-xs text-admin-muted tabular-nums">
             {new Date(row.original.createdAt).toLocaleDateString('uz-UZ')}
@@ -160,7 +162,7 @@ export function ApplicationsTable({
         ),
       },
     ],
-    [canManage, openId, router],
+    [canManage, openId, router, t],
   );
 
   const open = rows.find((row) => row.id === openId);
@@ -175,16 +177,16 @@ export function ApplicationsTable({
         pageSize={pageSize}
         loading={pending}
         getRowId={(row) => row.id}
-        searchPlaceholder="Ism yoki telefon..."
+        searchPlaceholder={t('leads.searchPlaceholder')}
         toolbar={
           <div className="flex flex-wrap items-center gap-2">
             <select
-              aria-label="Holat"
+              aria-label={t('leads.status')}
               value={searchParams.get('status') ?? ''}
               onChange={(event) => setParam('status', event.target.value)}
               className="h-10 rounded-md border border-admin-border bg-admin-panel px-2 text-xs font-semibold text-admin-text"
             >
-              <option value="">Holat: barchasi</option>
+              <option value="">{t('leads.filterAll', { label: t('leads.status') })}</option>
               {APPLICATION_STATUSES.map((status) => (
                 <option key={status} value={status}>
                   {APPLICATION_STATUS_LABELS[status]}
@@ -192,12 +194,12 @@ export function ApplicationsTable({
               ))}
             </select>
             <select
-              aria-label="Vakansiya"
+              aria-label={t('apps.vacancy')}
               value={searchParams.get('vacancyId') ?? ''}
               onChange={(event) => setParam('vacancyId', event.target.value)}
               className="h-10 rounded-md border border-admin-border bg-admin-panel px-2 text-xs font-semibold text-admin-text"
             >
-              <option value="">Vakansiya: barchasi</option>
+              <option value="">{t('leads.filterAll', { label: t('apps.vacancy') })}</option>
               {vacancies.map((vacancy) => (
                 <option key={vacancy.value} value={vacancy.value}>
                   {vacancy.label}
@@ -219,9 +221,7 @@ export function ApplicationsTable({
             ) : null}
           </div>
         }
-        emptyState={
-          <EmptyState title="Ariza yo‘q" description="Hozircha vakansiyaga ariza kelmagan." />
-        }
+        emptyState={<EmptyState title={t('apps.empty')} description={t('apps.emptyHint')} />}
       />
 
       {open ? (
@@ -241,7 +241,7 @@ export function ApplicationsTable({
                 rows={3}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="Ichki izoh..."
+                placeholder={t('apps.notePlaceholder')}
                 className="border-admin-border bg-admin-panel text-admin-text"
               />
               <Button
@@ -252,15 +252,15 @@ export function ApplicationsTable({
                   startTransition(async () => {
                     const result = await saveApplicationNote(open.id, note);
                     if (result.ok) {
-                      toast.success('Izoh saqlandi');
+                      toast.success(t('apps.noteSaved'));
                       router.refresh();
                     } else {
-                      toast.error(describeError(result.error));
+                      toast.error(describeError(result.error, t));
                     }
                   })
                 }
               >
-                Izohni saqlash
+                {t('apps.saveNote')}
               </Button>
             </div>
           ) : null}

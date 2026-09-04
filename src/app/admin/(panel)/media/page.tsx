@@ -1,4 +1,5 @@
 import { PageHeader } from '@/components/admin/ui';
+import { getTranslations } from 'next-intl/server';
 import { MediaLibrary } from '@/components/admin/media-library';
 import { listMedia } from '@/server/queries/media';
 import { currentUser } from '@/server/actions/helpers';
@@ -6,7 +7,10 @@ import { can } from '@/lib/permissions';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Media' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('nav.media') };
+}
 
 export default async function MediaPage({
   searchParams,
@@ -17,6 +21,7 @@ export default async function MediaPage({
   if (!can(user?.role, 'contentCrud')) redirect('/admin');
 
   const query = await searchParams;
+  const t = await getTranslations('admin');
   const { rows, total, folders } = await listMedia({
     query: query.q,
     folder: query.folder,
@@ -26,7 +31,7 @@ export default async function MediaPage({
 
   return (
     <>
-      <PageHeader title="Media kutubxonasi" description={`${total} ta fayl`} />
+      <PageHeader title={t('media.title')} description={t('media.fileCount', { count: total })} />
       <MediaLibrary rows={rows} folders={folders} activeFolder={query.folder ?? ''} />
     </>
   );

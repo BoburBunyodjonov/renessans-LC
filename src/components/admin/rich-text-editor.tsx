@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
+import { useTranslations } from 'next-intl';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -33,12 +34,13 @@ export function RichTextEditor({
   placeholder?: string;
   className?: string;
 }) {
+  const t = useTranslations('admin');
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
       Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: 'noopener' } }),
-      Placeholder.configure({ placeholder: placeholder ?? 'Matn kiriting...' }),
+      Placeholder.configure({ placeholder: placeholder ?? t('editor.placeholder') }),
     ],
     content: value || '',
     onUpdate: ({ editor: instance }) => {
@@ -71,46 +73,46 @@ export function RichTextEditor({
   const buttons = [
     {
       icon: Bold,
-      label: 'Qalin',
+      label: t('editor.bold'),
       action: () => editor.chain().focus().toggleBold().run(),
       active: editor.isActive('bold'),
     },
     {
       icon: Italic,
-      label: 'Kursiv',
+      label: t('editor.italic'),
       action: () => editor.chain().focus().toggleItalic().run(),
       active: editor.isActive('italic'),
     },
     {
       icon: Heading2,
-      label: 'Sarlavha 2',
+      label: t('editor.heading2'),
       action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
       active: editor.isActive('heading', { level: 2 }),
     },
     {
       icon: Heading3,
-      label: 'Sarlavha 3',
+      label: t('editor.heading3'),
       action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
       active: editor.isActive('heading', { level: 3 }),
     },
     {
       icon: List,
-      label: 'Ro‘yxat',
+      label: t('editor.bulletList'),
       action: () => editor.chain().focus().toggleBulletList().run(),
       active: editor.isActive('bulletList'),
     },
     {
       icon: ListOrdered,
-      label: 'Raqamli ro‘yxat',
+      label: t('editor.orderedList'),
       action: () => editor.chain().focus().toggleOrderedList().run(),
       active: editor.isActive('orderedList'),
     },
     {
       icon: Link2,
-      label: 'Havola',
+      label: t('editor.link'),
       action: () => {
         const previous = editor.getAttributes('link').href as string | undefined;
-        const url = window.prompt('Havola manzili', previous ?? 'https://');
+        const url = window.prompt(t('editor.linkPrompt'), previous ?? 'https://');
         if (url === null) return;
         if (url === '') {
           editor.chain().focus().extendMarkRange('link').unsetLink().run();
@@ -122,13 +124,13 @@ export function RichTextEditor({
     },
     {
       icon: Undo2,
-      label: 'Bekor qilish',
+      label: t('editor.undo'),
       action: () => editor.chain().focus().undo().run(),
       active: false,
     },
     {
       icon: Redo2,
-      label: 'Qaytarish',
+      label: t('editor.redo'),
       action: () => editor.chain().focus().redo().run(),
       active: false,
     },

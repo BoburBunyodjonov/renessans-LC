@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { contactSchema, leadSchema } from '@/lib/validations/lead';
-import { testSubmitSchema } from '@/lib/validations/test';
+import { testAnswerSchema, testSubmitSchema } from '@/lib/validations/test';
 import { applicationSchema } from '@/lib/validations/application';
 
 const validLead = {
@@ -76,8 +76,10 @@ describe('testSubmitSchema', () => {
   });
 
   it('rejects a malformed answer id', () => {
+    // Ids are opaque strings, so the shape is what is checked — not the
+    // generator. Whether the id exists is settled by the lookup that follows.
     const result = testSubmitSchema.safeParse({
-      answers: [{ questionId: 'not-a-cuid', optionId: 'nope' }],
+      answers: [{ questionId: 'not a valid id', optionId: '' }],
     });
     expect(result.success).toBe(false);
   });
@@ -100,5 +102,28 @@ describe('applicationSchema', () => {
     const result = applicationSchema.safeParse({ ...base, birthDate: '1999-05-20' });
     expect(result.success).toBe(true);
     if (result.success) expect(result.data.birthDate?.getFullYear()).toBe(1999);
+  });
+});
+
+describe('record ids', () => {
+  it('accepts both generated cuids and deterministic seeded ids', () => {
+    const answers = [
+      { questionId: 'cmtkgzr0n003k9khk2mg1v6wy', optionId: 'cmtkgzr0n003k9khk2mg1v6wz' },
+      { questionId: 'level-general-q1', optionId: 'level-general-q1-o2' },
+    ];
+
+    for (const answer of answers) {
+      expect(testAnswerSchema.safeParse(answer).success).toBe(true);
+    }
+  });
+
+  it('still rejects ids that are empty, oversized or oddly shaped', () => {
+    const bad = ['', 'a'.repeat(65), 'has space', "drop';--", '../etc/passwd'];
+
+    for (const id of bad) {
+      expect(
+        testAnswerSchema.safeParse({ questionId: id, optionId: 'level-general-q1-o2' }).success,
+      ).toBe(false);
+    }
   });
 });

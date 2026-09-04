@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { signOut } from 'next-auth/react';
 import { ChevronRight, ExternalLink, LogOut, Menu } from 'lucide-react';
 import { AdminSidebar } from '@/components/admin/sidebar';
 import { CommandPalette } from '@/components/admin/command-palette';
 import { ThemeToggle } from '@/components/admin/theme-toggle';
+import { AdminLocaleSwitcher } from '@/components/admin/locale-switcher';
 import { ALL_NAV_ITEMS } from '@/components/admin/nav-config';
 import { ROLE_LABELS, type Role } from '@/lib/permissions';
 import { DEFAULT_LOCALE } from '@/types/i18n';
@@ -20,10 +22,11 @@ export function AdminShell({
   user: { name: string; email: string; role: Role };
   children: React.ReactNode;
 }) {
+  const t = useTranslations('admin');
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const crumbs = buildCrumbs(pathname);
+  const crumbs = buildCrumbs(pathname, t);
 
   return (
     <div className="flex min-h-screen">
@@ -38,7 +41,7 @@ export function AdminShell({
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            aria-label="Menyu"
+            aria-label={t('menu')}
             className="grid size-9 place-items-center rounded-lg text-admin-muted hover:bg-admin-hover lg:hidden"
           >
             <Menu className="size-5" aria-hidden />
@@ -67,11 +70,13 @@ export function AdminShell({
             href={`/${DEFAULT_LOCALE}`}
             target="_blank"
             rel="noopener noreferrer"
-            title="Saytni ochish"
+            title={t('openSite')}
             className="grid size-9 place-items-center rounded-lg text-admin-muted transition-colors hover:bg-admin-hover hover:text-admin-text"
           >
             <ExternalLink className="size-[18px]" aria-hidden />
           </a>
+
+          <AdminLocaleSwitcher />
 
           <ThemeToggle />
 
@@ -91,7 +96,7 @@ export function AdminShell({
             <button
               type="button"
               onClick={() => signOut({ callbackUrl: '/admin/login' })}
-              aria-label="Chiqish"
+              aria-label={t('signOut')}
               className="grid size-9 place-items-center rounded-lg text-admin-muted transition-colors hover:bg-admin-hover hover:text-danger"
             >
               <LogOut className="size-[18px]" aria-hidden />
@@ -105,8 +110,11 @@ export function AdminShell({
   );
 }
 
-function buildCrumbs(pathname: string): { href: string; label: string }[] {
-  const crumbs = [{ href: '/admin', label: 'Boshqaruv paneli' }];
+function buildCrumbs(
+  pathname: string,
+  t: (key: string) => string,
+): { href: string; label: string }[] {
+  const crumbs = [{ href: '/admin', label: t('nav.dashboard') }];
   if (pathname === '/admin') return crumbs;
 
   const segments = pathname.split('/').filter(Boolean).slice(1);
@@ -117,7 +125,11 @@ function buildCrumbs(pathname: string): { href: string; label: string }[] {
     const known = ALL_NAV_ITEMS.find((item) => item.href === href);
     crumbs.push({
       href,
-      label: known?.label ?? (segment === 'new' ? 'Yangi' : decodeURIComponent(segment)),
+      label: known
+        ? t(`nav.${known.labelKey}`)
+        : segment === 'new'
+          ? t('common.new')
+          : decodeURIComponent(segment),
     });
   }
 

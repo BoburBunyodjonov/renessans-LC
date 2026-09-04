@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader, TableSkeleton } from '@/components/admin/ui';
 import { LeadsTable } from '@/components/admin/leads-table';
 import { leadFilterOptions, listLeads } from '@/server/admin/leads';
@@ -6,7 +7,10 @@ import { currentUser } from '@/server/actions/helpers';
 import { can } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Arizalar' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('nav.leads') };
+}
 
 export default async function LeadsPage({
   searchParams,
@@ -14,7 +18,8 @@ export default async function LeadsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const query = await searchParams;
-  const [user, { courses, staff }, data] = await Promise.all([
+  const [t, user, { courses, staff }, data] = await Promise.all([
+    getTranslations('admin'),
     currentUser(),
     leadFilterOptions(),
     listLeads({
@@ -34,8 +39,8 @@ export default async function LeadsPage({
   return (
     <>
       <PageHeader
-        title="Arizalar"
-        description={`Jami ${data.total} ta ariza. Holat va mas’ulni shu yerdan o‘zgartiring.`}
+        title={t('nav.leads')}
+        description={t('leads.description', { count: data.total })}
       />
       <Suspense fallback={<TableSkeleton />}>
         <LeadsTable

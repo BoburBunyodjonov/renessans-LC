@@ -10,6 +10,17 @@ type Result = { success: boolean; remaining: number; reset: number };
 
 const memoryHits = new Map<string, number[]>();
 
+/** Reads the current window without consuming a slot. */
+function memoryPeek(key: string, limit: number, windowMs: number): Result {
+  const now = Date.now();
+  const hits = (memoryHits.get(key) ?? []).filter((time) => now - time < windowMs);
+  return {
+    success: hits.length < limit,
+    remaining: Math.max(0, limit - hits.length),
+    reset: now + windowMs,
+  };
+}
+
 function memoryLimit(key: string, limit: number, windowMs: number): Result {
   const now = Date.now();
   const hits = (memoryHits.get(key) ?? []).filter((time) => now - time < windowMs);
@@ -77,6 +88,28 @@ export async function rateLimit(
 
   const [amount, unit] = window.split(' ') as [string, 's' | 'm' | 'h'];
   return memoryLimit(`${name}:${identifier}`, limit, Number(amount) * WINDOW_MS[unit]!);
+}
+
+/**
+ * Checks a limit **without** consuming a slot. Used where only failures should
+ * count against the budget — sign-in, for example, where locking out someone who
+ * keeps typing the right password would be a bug, not protection.
+ */
+export async function peekRateLimit(
+  name: string,
+  identifier: string,
+  limit: number,
+  window: `${number} ${'s' | 'm' | 'h'}`,
+): Promise<Result> {
+  const limiter = upstashLimiter(name, limit, window);
+  if (limiter) {
+    const remaining = await limiter.getRemaining(identifier);
+    const left = typeof remaining === 'number' ? remaining : remaining.remaining;
+    return { success: left > 0, remaining: left, reset: Date.now() };
+  }
+
+  const [amount, unit] = window.split(' ') as [string, 's' | 'm' | 'h'];
+  return memoryPeek(`${name}:${identifier}`, limit, Number(amount) * WINDOW_MS[unit]!);
 }
 
 /** Limits from PROMPT.md §11: 5 per phone per hour, 20 per IP per hour. */

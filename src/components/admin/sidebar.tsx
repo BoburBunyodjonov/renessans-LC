@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { PanelLeftClose, PanelLeftOpen, X } from 'lucide-react';
 import { AdminIcon } from '@/components/admin/admin-icon';
 import { ADMIN_NAV } from '@/components/admin/nav-config';
@@ -18,6 +19,7 @@ export function AdminSidebar({
   mobileOpen: boolean;
   onMobileClose: () => void;
 }) {
+  const t = useTranslations('admin');
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -56,7 +58,7 @@ export function AdminSidebar({
       {mobileOpen ? (
         <button
           type="button"
-          aria-label="Close menu"
+          aria-label={t('close')}
           onClick={onMobileClose}
           className="fixed inset-0 z-40 bg-black/40 lg:hidden"
         />
@@ -87,7 +89,7 @@ export function AdminSidebar({
           <button
             type="button"
             onClick={onMobileClose}
-            aria-label="Yopish"
+            aria-label={t('close')}
             className="ms-auto grid size-9 place-items-center rounded-lg text-admin-muted hover:bg-admin-hover lg:hidden"
           >
             <X className="size-5" aria-hidden />
@@ -96,10 +98,10 @@ export function AdminSidebar({
 
         <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Admin">
           {groups.map((group) => (
-            <div key={group.label} className="mb-5">
+            <div key={group.labelKey} className="mb-5">
               {!collapsed ? (
                 <p className="mb-1.5 px-2 text-[0.6875rem] font-bold tracking-[0.12em] text-admin-muted uppercase">
-                  {group.label}
+                  {t(`navGroups.${group.labelKey}`)}
                 </p>
               ) : null}
               <ul className="flex flex-col gap-0.5">
@@ -111,7 +113,7 @@ export function AdminSidebar({
                     <li key={item.href}>
                       <Link
                         href={item.href}
-                        title={collapsed ? item.label : undefined}
+                        title={collapsed ? t(`nav.${item.labelKey}`) : undefined}
                         aria-current={active ? 'page' : undefined}
                         className={cn(
                           'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
@@ -121,7 +123,9 @@ export function AdminSidebar({
                         )}
                       >
                         <AdminIcon name={item.icon} className="size-[18px] shrink-0" />
-                        {!collapsed ? <span className="truncate">{item.label}</span> : null}
+                        {!collapsed ? (
+                          <span className="truncate">{t(`nav.${item.labelKey}`)}</span>
+                        ) : null}
                       </Link>
                     </li>
                   );
@@ -141,7 +145,7 @@ export function AdminSidebar({
           ) : (
             <>
               <PanelLeftClose className="size-4" aria-hidden />
-              Yig‘ish
+              {t('collapse')}
             </>
           )}
         </button>

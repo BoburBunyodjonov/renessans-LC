@@ -394,43 +394,80 @@ async function seedTests() {
       update: payload,
     });
 
-    // Questions and bands are rebuilt from scratch; attempts are left untouched.
-    await prisma.testQuestion.deleteMany({ where: { categoryId: saved.id } });
-    await prisma.testLevelBand.deleteMany({ where: { categoryId: saved.id } });
+    // Seeded rows carry deterministic ids so re-seeding is idempotent. Recreating
+    // them would mint fresh cuids on every run, which silently invalidates any
+    // page already serving the old option ids — the placement test then refuses
+    // to score a visitor's answers. Stable ids also keep past attempts readable.
+    const questionIds: string[] = [];
 
     for (const [index, [prompt, options, correct]] of category.questions.entries()) {
-      await prisma.testQuestion.create({
-        data: {
-          categoryId: saved.id,
-          prompt,
-          order: index + 1,
-          difficulty: Math.min(5, Math.floor(index / 9) + 1),
-          options: {
-            create: options.map((text, optionIndex) => ({
-              text,
-              isCorrect: optionIndex === correct,
-              order: optionIndex + 1,
-            })),
-          },
-        },
+      const questionId = `${category.slug}-q${index + 1}`;
+      questionIds.push(questionId);
+      const question = {
+        categoryId: saved.id,
+        prompt,
+        order: index + 1,
+        difficulty: Math.min(5, Math.floor(index / 9) + 1),
+      };
+      await prisma.testQuestion.upsert({
+        where: { id: questionId },
+        create: { id: questionId, ...question },
+        update: question,
+      });
+
+      const optionIds: string[] = [];
+      for (const [optionIndex, text] of options.entries()) {
+        const optionId = `${questionId}-o${optionIndex + 1}`;
+        optionIds.push(optionId);
+        const option = {
+          questionId,
+          text,
+          isCorrect: optionIndex === correct,
+          order: optionIndex + 1,
+        };
+        await prisma.testOption.upsert({
+          where: { id: optionId },
+          create: { id: optionId, ...option },
+          update: option,
+        });
+      }
+
+      // Drop options removed from the authored question since the last seed.
+      await prisma.testOption.deleteMany({
+        where: { questionId, id: { notIn: optionIds } },
       });
     }
 
-    for (const band of category.bands) {
+    // Same for questions dropped from the bank.
+    await prisma.testQuestion.deleteMany({
+      where: { categoryId: saved.id, id: { notIn: questionIds } },
+    });
+
+    const bandIds: string[] = [];
+    for (const [index, band] of category.bands.entries()) {
+      const bandId = `${category.slug}-band${index + 1}`;
+      bandIds.push(bandId);
       const course = await prisma.course.findUnique({ where: { slug: band.courseSlug } });
-      await prisma.testLevelBand.create({
-        data: {
-          categoryId: saved.id,
-          minScore: band.minScore,
-          maxScore: band.maxScore,
-          levelName: band.levelName,
-          title: json(band.title),
-          description: json(band.description),
-          courseId: course?.id ?? null,
-          order: band.order,
-        },
+      const payload = {
+        categoryId: saved.id,
+        minScore: band.minScore,
+        maxScore: band.maxScore,
+        levelName: band.levelName,
+        title: json(band.title),
+        description: json(band.description),
+        courseId: course?.id ?? null,
+        order: band.order,
+      };
+      await prisma.testLevelBand.upsert({
+        where: { id: bandId },
+        create: { id: bandId, ...payload },
+        update: payload,
       });
     }
+
+    await prisma.testLevelBand.deleteMany({
+      where: { categoryId: saved.id, id: { notIn: bandIds } },
+    });
   }
 }
 
@@ -558,7 +595,34 @@ async function main() {
   await seedTests();
   const adminEmail = await seedAdminUser();
   await printCounts();
+  await dropServerCaches();
   console.log(`\n  Admin login: ${adminEmail} (password from SEED_ADMIN_PASSWORD)\n`);
+}
+
+/**
+ * Seeding rewrites rows the running server may already have cached — including
+ * test option ids, which the placement test refuses to score once they no longer
+ * exist. The admin invalidates through server actions, but a seed runs outside
+ * the app, so ask a running instance to drop every tag. Best effort by design:
+ * nothing is listening during a fresh `db:seed`, and that must not fail the seed.
+ */
+async function dropServerCaches(): Promise<void> {
+  const secret = process.env.REVALIDATE_SECRET;
+  const base = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!secret || !base) return;
+
+  try {
+    const response = await fetch(new URL('/api/revalidate', base), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-revalidate-secret': secret },
+      // An empty body means "every tag the public site caches".
+      body: '{}',
+      signal: AbortSignal.timeout(5000),
+    });
+    if (response.ok) console.log('  Asked the running server to drop its caches.');
+  } catch {
+    // No server running (or not reachable) — the next build/start starts clean.
+  }
 }
 
 main()

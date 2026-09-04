@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/admin/ui';
+import { resourceLabels } from '@/components/admin/resource-labels';
 import { ResourceForm } from '@/components/admin/resource-form';
 import { getRecord, relationOptions, resourceConfig } from '@/server/admin/list';
 import { toFormValues } from '@/server/admin/records';
@@ -54,6 +56,8 @@ export default async function EditResourcePage({
   const row = await getRecord(config, id);
   if (!row) notFound();
 
+  const t = await getTranslations('admin');
+  const labels = resourceLabels(config, t as never);
   const user = await currentUser();
   const canEdit = can(user?.role, 'contentCrud');
 
@@ -71,7 +75,7 @@ export default async function EditResourcePage({
 
   return (
     <>
-      <PageHeader title={config.singular} description={config.description} />
+      <PageHeader title={labels.singular} description={labels.description} />
       <ResourceForm
         config={config}
         id={id}

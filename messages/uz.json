@@ -181,7 +181,585 @@
   "admin": {
     "signIn": "Tizimga kirish",
     "signOut": "Chiqish",
-    "dashboard": "Boshqaruv paneli"
+    "dashboard": "Boshqaruv paneli",
+    "panelName": "Renessans Admin",
+    "openSite": "Saytni ochish",
+    "uiLanguage": "Interfeys tili",
+    "themeDark": "Qorong‘i rejim",
+    "themeLight": "Yorug‘ rejim",
+    "collapse": "Yig‘ish",
+    "menu": "Menyu",
+    "close": "Yopish",
+    "navGroups": {
+      "general": "Umumiy",
+      "inbox": "Murojaatlar",
+      "content": "Kontent",
+      "library": "Materiallar va test",
+      "careers": "Karyera",
+      "settings": "Sozlamalar"
+    },
+    "nav": {
+      "dashboard": "Boshqaruv paneli",
+      "leads": "Arizalar",
+      "applications": "Vakansiya arizalari",
+      "messages": "Xabarlar",
+      "attempts": "Test natijalari",
+      "hero": "Hero slaydlar",
+      "homeSections": "Bosh sahifa bloklari",
+      "courses": "Kurslar",
+      "teachers": "Ustozlar",
+      "successStories": "IELTS natijalari",
+      "testimonials": "Fikrlar",
+      "advantages": "Afzalliklar",
+      "problems": "Muammo va yechimlar",
+      "promotions": "Aksiyalar",
+      "stats": "Statistika raqamlari",
+      "faq": "FAQ",
+      "posts": "Blog",
+      "materials": "Materiallar",
+      "materialGroups": "Material bo‘limlari",
+      "tests": "Test savollari",
+      "vacancies": "Vakansiyalar",
+      "hiringSteps": "Ishga qabul bosqichlari",
+      "branches": "Filiallar",
+      "navigation": "Menyu",
+      "media": "Media",
+      "settings": "Sayt sozlamalari",
+      "users": "Foydalanuvchilar",
+      "audit": "Audit jurnali"
+    },
+    "common": {
+      "save": "Saqlash",
+      "saved": "Saqlandi",
+      "saveOrder": "Tartibni saqlash",
+      "cancel": "Bekor qilish",
+      "delete": "O‘chirish",
+      "deleted": "O‘chirildi",
+      "edit": "Tahrirlash",
+      "add": "Qo‘shish",
+      "new": "Yangi",
+      "search": "Qidirish",
+      "searchPlaceholder": "Qidirish...",
+      "columns": "Ustunlar",
+      "back": "Orqaga",
+      "preview": "Ko‘rish",
+      "yes": "Ha",
+      "no": "Yo‘q",
+      "all": "Barchasi",
+      "selectAll": "Barchasini tanlash",
+      "selectRow": "Qatorni tanlash",
+      "selected": "{count} ta tanlandi",
+      "unsaved": "Saqlanmagan o‘zgarishlar",
+      "leaveConfirm": "Saqlanmagan o‘zgarishlar bor. Chiqilsinmi?",
+      "deleteConfirm": "O‘chirilsinmi?",
+      "reorderHandle": "Tartibni o‘zgartirish",
+      "orderChanged": "Tartib o‘zgardi",
+      "orderSaved": "Tartib saqlandi",
+      "published": "Chop etilgan",
+      "hidden": "Yashirin",
+      "publishedToast": "Chop etildi",
+      "hiddenToast": "Yashirildi",
+      "statusUpdated": "Holat yangilandi",
+      "rowsSummary": "{total} tadan {from}–{to}",
+      "noRecords": "Hozircha yozuv yo‘q",
+      "addFirst": "Birinchi yozuvni qo‘shing.",
+      "nothingFound": "Hech narsa topilmadi",
+      "commandHint": "Bo‘lim nomini yozing...",
+      "copyLink": "Havolani nusxalash",
+      "copied": "Havola nusxalandi",
+      "upload": "Fayl yuklash",
+      "uploaded": "Yuklandi",
+      "remove": "Olib tashlash",
+      "total": "Jami {count} ta",
+      "emptyList": "Ro‘yxat bo‘sh"
+    },
+    "errors": {
+      "session": "Sessiya tugagan — qaytadan kiring",
+      "forbidden": "Bu amal uchun ruxsat yo‘q",
+      "validation": "Maydonlarni tekshiring",
+      "unknown": "Saqlab bo‘lmadi",
+      "loadFailed": "Ro‘yxatni yuklab bo‘lmadi",
+      "uploadFailed": "Faylni yuklab bo‘lmadi",
+      "required": "Majburiy maydon",
+      "requiredUz": "UZ matni majburiy"
+    },
+    "login": {
+      "brandSubtitle": "Boshqaruv paneli",
+      "email": "Email",
+      "password": "Parol",
+      "emailRequired": "Email kiriting",
+      "passwordRequired": "Parolni kiriting",
+      "invalid": "Email yoki parol noto‘g‘ri"
+    },
+    "localized": {
+      "language": "Til",
+      "copyFromUz": "UZ dan",
+      "copyFromUzTitle": "UZ dan nusxalash",
+      "htmlHint": "HTML qo‘llab-quvvatlanadi"
+    },
+    "editor": {
+      "bold": "Qalin",
+      "italic": "Kursiv",
+      "heading2": "Sarlavha 2",
+      "heading3": "Sarlavha 3",
+      "bulletList": "Ro‘yxat",
+      "orderedList": "Raqamli ro‘yxat",
+      "link": "Havola",
+      "linkPrompt": "Havola manzili",
+      "undo": "Bekor qilish",
+      "redo": "Qaytarish",
+      "placeholder": "Matn kiriting..."
+    },
+    "media": {
+      "title": "Media kutubxonasi",
+      "pickFromLibrary": "Kutubxonadan tanlash",
+      "empty": "Hozircha fayl yo‘q",
+      "uploadFirst": "Birinchi faylni yuklang.",
+      "searchPlaceholder": "Fayl nomi bo‘yicha qidirish (Enter)",
+      "folder": "Papka",
+      "allFolders": "Barcha papkalar",
+      "fileCount": "{count} ta fayl",
+      "deleteConfirm": "Fayl o‘chirilsinmi?",
+      "tooLarge": "Fayl hajmi {size} — 500 KB dan katta"
+    },
+    "dash": {
+      "description": "Bugungi holat va oxirgi murojaatlar",
+      "leadsToday": "Bugungi arizalar",
+      "leadsWeek": "7 kunlik arizalar",
+      "leadsMonth": "30 kunlik arizalar",
+      "vsYesterday": "kechagiga nisbatan",
+      "vsPrevWeek": "oldingi haftaga nisbatan",
+      "vsPrevMonth": "oldingi oyga nisbatan",
+      "conversion": "Konversiya (o‘qishga yozildi)",
+      "attempts": "Test topshirganlar",
+      "downloads": "Material yuklashlar",
+      "unread": "O‘qilmagan xabarlar",
+      "openVacancies": "Ochiq vakansiyalar",
+      "newApplications": "{count} ta yangi ariza",
+      "latestLeads": "Yangi arizalar",
+      "latestApplications": "Vakansiya arizalari",
+      "lastN": "Oxirgi {count} ta",
+      "noLeads": "Hozircha ariza yo‘q",
+      "call": "Qo‘ng‘iroq"
+    },
+    "charts": {
+      "leadsPerDay": "Kunlik arizalar (30 kun)",
+      "bySource": "Manba bo‘yicha",
+      "byCourse": "Kurslar bo‘yicha arizalar",
+      "scores": "Test natijalari taqsimoti",
+      "topMaterials": "Eng ko‘p yuklangan materiallar",
+      "noData": "Hozircha ma’lumot yo‘q"
+    },
+    "leads": {
+      "description": "Jami {count} ta ariza. Holat va mas’ulni shu yerdan o‘zgartiring.",
+      "name": "Ism",
+      "phone": "Telefon",
+      "status": "Holat",
+      "source": "Manba",
+      "course": "Kurs",
+      "assignee": "Mas’ul",
+      "assigneeFull": "Mas’ul xodim",
+      "date": "Sana",
+      "searchPlaceholder": "Ism yoki telefon...",
+      "filterAll": "{label}: barchasi",
+      "from": "Dan",
+      "to": "Gacha",
+      "empty": "Ariza yo‘q",
+      "emptyHint": "Tanlangan filtrlar bo‘yicha ariza topilmadi.",
+      "bulkStatus": "Holatni o‘zgartirish…",
+      "bulkAssign": "Mas’ul biriktirish…",
+      "assigned": "Mas’ul biriktirildi",
+      "assigneeUpdated": "Mas’ul yangilandi",
+      "unassigned": "— biriktirilmagan —",
+      "createdAt": "Yaratilgan: {date}",
+      "facts": "Ma’lumotlar",
+      "statusAndOwner": "Holat va mas’ul",
+      "notes": "Izohlar",
+      "notesHint": "Qo‘ng‘iroq natijasi, kelishuvlar va h.k.",
+      "notePlaceholder": "Izoh yozing...",
+      "noteAdded": "Izoh qo‘shildi",
+      "noNotes": "Hozircha izoh yo‘q",
+      "system": "Tizim",
+      "testResult": "Test natijasi",
+      "purge": "Butunlay o‘chirish",
+      "purgeHint": "Shaxsiy ma’lumotni o‘chirish so‘rovlari uchun. Qaytarib bo‘lmaydi.",
+      "purgeConfirm": "Ariza butunlay o‘chirilsinmi? Bu amalni qaytarib bo‘lmaydi.",
+      "page": "Sahifa",
+      "locale": "Til",
+      "preferredTime": "Qulay vaqt",
+      "message": "Xabar",
+      "device": "Qurilma",
+      "email": "Email",
+      "referrer": "Referrer"
+    },
+    "apps": {
+      "description": "Jami {count} ta ariza",
+      "candidate": "Nomzod",
+      "vacancy": "Vakansiya",
+      "cv": "Rezyume",
+      "download": "Yuklab olish",
+      "empty": "Ariza yo‘q",
+      "emptyHint": "Hozircha vakansiyaga ariza kelmagan.",
+      "notePlaceholder": "Ichki izoh...",
+      "saveNote": "Izohni saqlash",
+      "noteSaved": "Izoh saqlandi"
+    },
+    "msgs": {
+      "description": "{count} ta o‘qilmagan xabar",
+      "unreadOnly": "O‘qilmagan",
+      "empty": "Xabar yo‘q",
+      "emptyHint": "Aloqa formasi orqali xabar kelmagan.",
+      "markRead": "O‘qilgan deb belgilash",
+      "markUnread": "O‘qilmagan deb belgilash",
+      "new": "Yangi"
+    },
+    "attempts": {
+      "description": "Jami {count} ta urinish",
+      "count": "Urinishlar",
+      "average": "O‘rtacha natija",
+      "tracks": "Yo‘nalishlar",
+      "recent": "Oxirgi urinishlar",
+      "track": "Yo‘nalish",
+      "score": "Natija",
+      "level": "Daraja",
+      "lead": "Ariza",
+      "open": "Ochish",
+      "empty": "Hozircha urinish yo‘q"
+    },
+    "tests": {
+      "description": "Yo‘nalishni tanlab savollar bazasi va daraja chegaralarini tahrirlang.",
+      "questions": "Savollar",
+      "levels": "Darajalar",
+      "attempts": "Urinishlar",
+      "editQuestions": "Savollarni tahrirlash",
+      "summary": "{questions} ta savol · {bands} ta daraja",
+      "bank": "Savollar bazasi",
+      "csvHint": "CSV ustunlari: prompt, option1…option5, correct, points, difficulty",
+      "csvExport": "CSV eksport",
+      "csvImport": "CSV import",
+      "imported": "{imported} ta savol qo‘shildi, {skipped} ta o‘tkazib yuborildi",
+      "question": "Savol",
+      "newQuestion": "Yangi savol",
+      "editQuestion": "Savolni tahrirlash",
+      "promptLabel": "Savol matni",
+      "promptHint": "Ikki qatorli dialog uchun Enter bosing, bo‘sh joy uchun _____ ishlating.",
+      "options": "Javob variantlari",
+      "correctOption": "To‘g‘ri javob {index}",
+      "addOption": "+ Variant",
+      "points": "Ball",
+      "difficulty": "Murakkablik (1–5)",
+      "active": "Faol",
+      "inactive": "O‘chirilgan",
+      "deleteQuestion": "Savol o‘chirilsinmi?",
+      "noQuestions": "Savol yo‘q",
+      "bands": "Daraja chegaralari",
+      "bandsHint": "Ball oralig‘iga qarab daraja va tavsiya etilgan kurs tanlanadi",
+      "band": "Daraja",
+      "minScore": "Min ball",
+      "maxScore": "Max ball",
+      "levelName": "Daraja nomi",
+      "bandTitle": "Sarlavha",
+      "bandDescription": "Tavsif",
+      "recommendedCourse": "Tavsiya etiladigan kurs",
+      "deleteBand": "Daraja o‘chirilsinmi?"
+    },
+    "users": {
+      "description": "Xodimlarga rol biriktiring. Rollar server tomonida ham tekshiriladi.",
+      "staff": "Xodimlar",
+      "name": "Ism",
+      "role": "Rol",
+      "lastLogin": "Oxirgi kirish",
+      "active": "Faol",
+      "blocked": "Bloklangan",
+      "block": "Bloklash",
+      "blocked_toast": "Bloklandi",
+      "newUser": "Yangi foydalanuvchi",
+      "editUser": "Foydalanuvchini tahrirlash",
+      "passwordChange": "(o‘zgartirish uchun)"
+    },
+    "settings": {
+      "description": "Brend, aloqa ma’lumotlari, ijtimoiy tarmoqlar, analitika va Telegram kanallari.",
+      "brand": "Brend",
+      "brandName": "Brend nomi",
+      "tagline": "Shior",
+      "logo": "Logotip",
+      "ogImage": "OG rasm (ijtimoiy tarmoqlar uchun)",
+      "ctaAndLms": "Asosiy tugma va LMS",
+      "ctaLabel": "Tugma matni",
+      "ctaHref": "Tugma havolasi",
+      "lmsLabel": "LMS tugmasi matni",
+      "lmsUrl": "LMS havolasi",
+      "contact": "Aloqa",
+      "phones": "Telefonlar",
+      "email": "Email",
+      "currency": "Valyuta",
+      "ticker": "Ticker",
+      "tickerHint": "Bosh sahifadagi harakatlanuvchi qator",
+      "tickerItems": "Iboralar",
+      "analytics": "Analitika",
+      "analyticsHint": "Bo‘sh qoldirilsa, skript umuman yuklanmaydi",
+      "telegram": "Telegram kanallari",
+      "telegramHint": "Har bir bildirishnoma turi uchun alohida kanal",
+      "telegramLead": "Arizalar",
+      "telegramApplication": "Vakansiya arizalari",
+      "telegramContact": "Aloqa xabarlari",
+      "telegramTest": "Test natijalari",
+      "privacy": "Maxfiylik siyosati",
+      "privacyText": "Matn",
+      "credit": "Footer krediti",
+      "creditText": "Matn",
+      "creditUrl": "Havola"
+    },
+    "audit": {
+      "description": "Jami {count} ta yozuv",
+      "time": "Vaqt",
+      "user": "Foydalanuvchi",
+      "action": "Amal",
+      "entity": "Obyekt",
+      "ip": "IP",
+      "empty": "Yozuv yo‘q"
+    },
+    "fields": {
+      "address": "Manzil",
+      "answer": "Javob",
+      "authorName": "Muallif ismi",
+      "authorRole": "Kim (Ota-ona / O‘quvchi)",
+      "avatarUrl": "Avatar",
+      "bio": "Qisqacha ma’lumot",
+      "body": "Matn",
+      "categoryId": "Bo‘lim",
+      "certificates": "Sertifikatlar",
+      "conditions": "Shartlar",
+      "content": "Fikr matni",
+      "courses": "Kurslari",
+      "coverUrl": "Muqova",
+      "ctaHref": "Tugma havolasi",
+      "ctaLabel": "Tugma matni",
+      "currency": "Valyuta",
+      "curriculum": "O‘quv dasturi",
+      "department": "Bo‘lim",
+      "description": "Tavsif",
+      "durationLabel": "Davomiyligi",
+      "employmentType": "Bandlik turi",
+      "endsAt": "Tugash sanasi",
+      "excerpt": "Qisqacha",
+      "experience": "Tajriba (yil)",
+      "externalUrl": "Tashqi havola (YouTube va h.k.)",
+      "eyebrow": "Kichik sarlavha",
+      "fileSize": "Fayl hajmi (bayt)",
+      "fileUrl": "Fayl havolasi",
+      "fullName": "To‘liq ismi",
+      "group": "Guruh",
+      "groupId": "Bo‘lim",
+      "hasDetailPage": "Alohida sahifasi bo‘lsin",
+      "headline": "Sarlavha",
+      "href": "Havola",
+      "icon": "Ikonka",
+      "ieltsScore": "IELTS bali",
+      "imageAlt": "Rasm alt matni",
+      "imageUrl": "Rasm",
+      "includes": "Kursga nima kiradi",
+      "isActive": "Faol",
+      "isFeatured": "Tanlangan",
+      "isOpen": "Ochiq",
+      "isPublished": "Chop etilgan",
+      "isVisible": "Ko‘rinadi",
+      "key": "Kalit",
+      "label": "Nomi",
+      "level": "Daraja",
+      "mapEmbedUrl": "Xarita embed havolasi",
+      "mapLinkUrl": "Xarita havolasi",
+      "name": "Nomi",
+      "openInNew": "Yangi oynada ochilsin",
+      "overallBand": "Overall band",
+      "phones": "Telefonlar",
+      "photoAlt": "Rasm alt matni",
+      "photoUrl": "Rasmi (3:4)",
+      "position": "Lavozimi",
+      "price": "Narxi",
+      "priceNote": "Narx izohi",
+      "publishedAt": "Chop etilgan sana",
+      "publisher": "Nashriyot",
+      "question": "Savol",
+      "quote": "Iqtibos",
+      "rating": "Baho (1–5)",
+      "readingMinutes": "O‘qish vaqti (daqiqa)",
+      "requireContact": "Yuklashdan oldin aloqa so‘ralsin",
+      "requirements": "Talablar",
+      "responsibilities": "Vazifalar",
+      "salaryFrom": "Maosh (dan)",
+      "salaryTo": "Maosh (gacha)",
+      "schedule": "Dars jadvali",
+      "seoDescription": "SEO tavsif",
+      "seoTitle": "SEO sarlavha",
+      "shortDesc": "Qisqa tavsif",
+      "showSalary": "Maosh ko‘rsatilsin",
+      "slug": "Slug",
+      "sourceLabel": "Manba (Instagram / Telegram / Google)",
+      "sourceUrl": "Manba havolasi",
+      "startsAt": "Boshlanish sanasi",
+      "studentName": "O‘quvchi ismi",
+      "subtitle": "Qo‘shimcha matn",
+      "tags": "Teglar",
+      "teachers": "Ustozlar",
+      "title": "Sarlavha",
+      "type": "Turi",
+      "value": "Qiymat",
+      "videoUrl": "Video havolasi (YouTube)",
+      "workingHours": "Ish vaqti",
+      "solution": {
+        "skill": "Yechim: ko‘nikma",
+        "title": "Yechim: sarlavha",
+        "description": "Yechim: tavsif",
+        "imageUrl": "Yechim: rasm"
+      },
+      "downloadCount": "Yuklamalar",
+      "viewCount": "Ko‘rishlar"
+    },
+    "resources": {
+      "hero": {
+        "title": "Hero slaydlar",
+        "singular": "Slayd",
+        "description": "Bosh sahifadagi katta banner. Bir nechta slayd bo‘lsa avtomatik almashadi.",
+        "fields": {
+          "imageUrl": "Rasm"
+        },
+        "hints": {
+          "headline": "<mark>so‘z</mark> — ajratib ko‘rsatish uchun"
+        }
+      },
+      "home-sections": {
+        "title": "Bosh sahifa bloklari",
+        "singular": "Blok",
+        "description": "Bloklarni sudrab tartibini o‘zgartiring yoki o‘chirib qo‘ying.",
+        "fields": {
+          "body": "Matn (About bloki uchun)"
+        },
+        "hints": {
+          "key": "hero, about, courses … — kod bilan bog‘langan, o‘zgartirmang"
+        }
+      },
+      "stats": {
+        "title": "Statistika raqamlari",
+        "singular": "Raqam",
+        "fields": {
+          "label": "Izoh"
+        }
+      },
+      "advantages": {
+        "title": "Afzalliklar",
+        "singular": "Afzallik"
+      },
+      "testimonials": {
+        "title": "Mijozlar fikri",
+        "singular": "Fikr",
+        "fields": {
+          "isFeatured": "Yuqorida ko‘rsatilsin"
+        }
+      },
+      "success-stories": {
+        "title": "IELTS natijalari",
+        "singular": "Natija",
+        "fields": {
+          "imageUrl": "Sertifikat rasmi"
+        }
+      },
+      "promotions": {
+        "title": "Aksiyalar",
+        "singular": "Aksiya",
+        "fields": {
+          "title": "Nomi"
+        }
+      },
+      "faq": {
+        "title": "Savol-javoblar",
+        "singular": "Savol"
+      },
+      "faq-categories": {
+        "title": "FAQ bo‘limlari",
+        "singular": "Bo‘lim",
+        "fields": {
+          "name": "Nomi"
+        }
+      },
+      "branches": {
+        "title": "Filiallar",
+        "singular": "Filial",
+        "fields": {
+          "name": "Nomi",
+          "imageUrl": "Rasm"
+        }
+      },
+      "navigation": {
+        "title": "Menyu",
+        "singular": "Menyu bandi",
+        "description": "Header va footer havolalari.",
+        "fields": {
+          "label": "Nomi"
+        }
+      },
+      "material-groups": {
+        "title": "Material bo‘limlari",
+        "singular": "Bo‘lim",
+        "fields": {
+          "name": "Nomi"
+        }
+      },
+      "materials": {
+        "title": "Materiallar",
+        "singular": "Material",
+        "fields": {
+          "title": "Nomi",
+          "coverUrl": "Muqova rasmi"
+        },
+        "hints": {
+          "fileUrl": "Yuklangan fayl manzili"
+        }
+      },
+      "vacancies": {
+        "title": "Vakansiyalar",
+        "singular": "Vakansiya",
+        "fields": {
+          "description": "To‘liq tavsif",
+          "title": "Nomi"
+        }
+      },
+      "hiring-steps": {
+        "title": "Ishga qabul bosqichlari",
+        "singular": "Bosqich"
+      },
+      "posts": {
+        "title": "Blog",
+        "singular": "Maqola"
+      },
+      "courses": {
+        "title": "Kurslar",
+        "singular": "Kurs",
+        "fields": {
+          "description": "To‘liq tavsif",
+          "coverUrl": "Muqova rasmi",
+          "isFeatured": "Tanlangan kurs",
+          "title": "Nomi"
+        },
+        "hints": {
+          "level": "Masalan: Beginner – Upper-Intermediate",
+          "durationLabel": "Masalan: 3 oy",
+          "priceNote": "Masalan: 1 daraja uchun"
+        }
+      },
+      "teachers": {
+        "title": "Ustozlar",
+        "singular": "Ustoz"
+      },
+      "problems": {
+        "title": "Muammolar",
+        "singular": "Muammo",
+        "description": "Har bir muammoning yechimi alohida saqlanadi.",
+        "fields": {
+          "title": "Muammo"
+        }
+      }
+    }
   },
   "course": {
     "curriculum": "O'quv dasturi",

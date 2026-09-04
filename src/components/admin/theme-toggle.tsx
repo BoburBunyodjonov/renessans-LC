@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Moon, Sun } from 'lucide-react';
 
 /** Dark mode is admin-only and uses the `class` strategy (PROMPT.md §5). */
 export function ThemeToggle() {
+  const t = useTranslations('admin');
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label={dark ? 'Yorug‘ rejim' : 'Qorong‘i rejim'}
+      aria-label={dark ? t('themeLight') : t('themeDark')}
       className="grid size-9 place-items-center rounded-lg text-admin-muted transition-colors hover:bg-admin-hover hover:text-admin-text"
     >
       {dark ? (

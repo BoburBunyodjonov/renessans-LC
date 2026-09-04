@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { ClipboardList, Download, Inbox, Mail, Percent, TrendingUp, Users } from 'lucide-react';
 import { PageHeader, Panel, PanelTitle, StatCard, StatusPill } from '@/components/admin/ui';
 import {
@@ -11,71 +12,77 @@ import { getDashboard } from '@/server/admin/dashboard';
 import { LEAD_STATUS_TONE } from '@/config/lead-status';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Boshqaruv paneli' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('nav.dashboard') };
+}
 
 export default async function AdminDashboardPage() {
-  const { kpis, charts, latestLeads, latestApplications } = await getDashboard();
+  const [t, { kpis, charts, latestLeads, latestApplications }] = await Promise.all([
+    getTranslations('admin'),
+    getDashboard(),
+  ]);
 
   return (
     <>
-      <PageHeader title="Boshqaruv paneli" description="Bugungi holat va oxirgi murojaatlar" />
+      <PageHeader title={t('dashboard')} description={t('dash.description')} />
 
       <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Bugungi arizalar"
+          label={t('dash.leadsToday')}
           value={kpis.leadsToday}
           delta={kpis.leadsTodayDelta}
-          hint="kechagiga nisbatan"
+          hint={t('dash.vsYesterday')}
           icon={<Inbox className="size-5" aria-hidden />}
         />
         <StatCard
-          label="7 kunlik arizalar"
+          label={t('dash.leadsWeek')}
           value={kpis.leadsWeek}
           delta={kpis.leadsWeekDelta}
-          hint="oldingi haftaga nisbatan"
+          hint={t('dash.vsPrevWeek')}
           icon={<TrendingUp className="size-5" aria-hidden />}
         />
         <StatCard
-          label="30 kunlik arizalar"
+          label={t('dash.leadsMonth')}
           value={kpis.leadsMonth}
           delta={kpis.leadsMonthDelta}
-          hint="oldingi oyga nisbatan"
+          hint={t('dash.vsPrevMonth')}
           icon={<Users className="size-5" aria-hidden />}
         />
         <StatCard
-          label="Konversiya (o‘qishga yozildi)"
+          label={t('dash.conversion')}
           value={`${kpis.conversion}%`}
           icon={<Percent className="size-5" aria-hidden />}
         />
         <StatCard
-          label="Test topshirganlar"
+          label={t('dash.attempts')}
           value={kpis.attempts}
           icon={<ClipboardList className="size-5" aria-hidden />}
         />
         <StatCard
-          label="Material yuklashlar"
+          label={t('dash.downloads')}
           value={kpis.downloads}
           icon={<Download className="size-5" aria-hidden />}
         />
         <StatCard
-          label="O‘qilmagan xabarlar"
+          label={t('dash.unread')}
           value={kpis.unreadMessages}
           icon={<Mail className="size-5" aria-hidden />}
         />
         <StatCard
-          label="Ochiq vakansiyalar"
+          label={t('dash.openVacancies')}
           value={kpis.openVacancies}
-          hint={`${kpis.newApplications} ta yangi ariza`}
+          hint={t('dash.newApplications', { count: kpis.newApplications })}
         />
       </div>
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <LeadsPerDayChart data={charts.leadsPerDay} />
         <LeadsBySourceChart data={charts.leadsBySource} />
-        <SimpleBarChart title="Kurslar bo‘yicha arizalar" data={charts.leadsByCourse} />
+        <SimpleBarChart title={t('charts.byCourse')} data={charts.leadsByCourse} />
         <ScoreHistogram data={charts.scoreDistribution} />
         <SimpleBarChart
-          title="Eng ko‘p yuklangan materiallar"
+          title={t('charts.topMaterials')}
           data={charts.topMaterials}
           color="#B45309"
         />
@@ -83,14 +90,14 @@ export default async function AdminDashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel>
-          <PanelTitle hint="Oxirgi 10 ta">
+          <PanelTitle hint={t('dash.lastN', { count: 10 })}>
             <Link href="/admin/leads" className="hover:text-brand-600">
-              Yangi arizalar
+              {t('dash.latestLeads')}
             </Link>
           </PanelTitle>
 
           {latestLeads.length === 0 ? (
-            <p className="py-6 text-center text-sm text-admin-muted">Hozircha ariza yo‘q</p>
+            <p className="py-6 text-center text-sm text-admin-muted">{t('dash.noLeads')}</p>
           ) : (
             <ul className="flex flex-col">
               {latestLeads.map((lead) => (
@@ -117,7 +124,7 @@ export default async function AdminDashboardPage() {
                     href={`tel:${lead.phone}`}
                     className="text-xs font-bold text-brand-600 hover:text-brand-700"
                   >
-                    Qo‘ng‘iroq
+                    {t('dash.call')}
                   </a>
                 </li>
               ))}
@@ -126,14 +133,14 @@ export default async function AdminDashboardPage() {
         </Panel>
 
         <Panel>
-          <PanelTitle hint="Oxirgi 5 ta">
+          <PanelTitle hint={t('dash.lastN', { count: 5 })}>
             <Link href="/admin/applications" className="hover:text-brand-600">
-              Vakansiya arizalari
+              {t('dash.latestApplications')}
             </Link>
           </PanelTitle>
 
           {latestApplications.length === 0 ? (
-            <p className="py-6 text-center text-sm text-admin-muted">Hozircha ariza yo‘q</p>
+            <p className="py-6 text-center text-sm text-admin-muted">{t('dash.noLeads')}</p>
           ) : (
             <ul className="flex flex-col">
               {latestApplications.map((application) => (

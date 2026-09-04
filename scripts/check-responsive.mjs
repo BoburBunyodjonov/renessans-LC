@@ -52,8 +52,11 @@ for (const path of PAGES) {
     });
     const overflow = scrollWidth > clientWidth + 1;
     if (overflow || errors.length) failures++;
+    // Print every error in full: truncated console text is not diagnosable, and
+    // these are usually intermittent, so there may be no second chance to catch one.
+    for (const error of errors) console.error(`  ${path} @ ${width}px — ${error}`);
     results.push(
-      `${width}px ${overflow ? `OVERFLOW ${scrollWidth}>${clientWidth} ${offenders.join(', ')}` : 'ok'}${errors.length ? ' ERR:' + errors[0].slice(0, 60) : ''}`,
+      `${width}px ${overflow ? `OVERFLOW ${scrollWidth}>${clientWidth} ${offenders.join(', ')}` : 'ok'}${errors.length ? ' ERR:' + errors[0].slice(0, 200) : ''}`,
     );
     await context.close();
   }

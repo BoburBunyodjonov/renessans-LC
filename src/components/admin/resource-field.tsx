@@ -1,6 +1,7 @@
 'use client';
 
 import { Input, Label, Textarea } from '@/components/ui/field';
+import { useTranslations } from 'next-intl';
 import {
   LocalizedEditor,
   LocalizedInput,
@@ -22,18 +23,26 @@ export type FieldValue = unknown;
 /** Renders one field of a generic resource form. */
 export function ResourceField({
   field,
+  label,
+  hint,
   value,
   onChange,
   error,
   relationOptions,
 }: {
   field: FieldSpec;
+  /** Translated label; falls back to the registry literal. */
+  label?: string;
+  hint?: string;
   value: FieldValue;
   onChange: (next: FieldValue) => void;
   error?: string;
   relationOptions?: { value: string; label: string }[];
 }) {
+  const t = useTranslations('admin');
   const id = `field-${field.name.replace(/\./g, '-')}`;
+  const fieldLabel = label ?? field.label;
+  const fieldHint = hint ?? ('hint' in field ? field.hint : undefined);
   const localized = (value ?? { uz: '', ru: '', en: '' }) as Localized;
 
   switch (field.kind) {
@@ -41,8 +50,8 @@ export function ResourceField({
       return (
         <LocalizedInput
           id={id}
-          label={field.label}
-          hint={field.hint}
+          label={fieldLabel}
+          hint={fieldHint}
           required={field.required}
           error={error}
           value={localized}
@@ -54,8 +63,8 @@ export function ResourceField({
       return (
         <LocalizedTextarea
           id={id}
-          label={field.label}
-          hint={field.hint}
+          label={fieldLabel}
+          hint={fieldHint}
           required={field.required}
           error={error}
           rows={field.rows}
@@ -68,8 +77,8 @@ export function ResourceField({
       return (
         <LocalizedEditor
           id={id}
-          label={field.label}
-          hint={field.hint}
+          label={fieldLabel}
+          hint={fieldHint}
           required={field.required}
           error={error}
           value={localized}
@@ -81,8 +90,8 @@ export function ResourceField({
       return (
         <LocalizedList
           id={id}
-          label={field.label}
-          hint={field.hint}
+          label={fieldLabel}
+          hint={fieldHint}
           value={(value as Localized[]) ?? []}
           onChange={onChange}
         />
@@ -93,13 +102,13 @@ export function ResourceField({
       return (
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <Label className="text-admin-text">{field.label}</Label>
+            <Label className="text-admin-text">{fieldLabel}</Label>
             <button
               type="button"
               onClick={() => onChange([...items, ''])}
               className="text-xs font-bold text-brand-600 hover:text-brand-700"
             >
-              + Qo‘shish
+              + {t('common.add')}
             </button>
           </div>
           {items.map((item, index) => (
@@ -120,7 +129,7 @@ export function ResourceField({
               </button>
             </div>
           ))}
-          {field.hint ? <p className="text-xs text-admin-muted">{field.hint}</p> : null}
+          {fieldHint ? <p className="text-xs text-admin-muted">{fieldHint}</p> : null}
         </div>
       );
     }
@@ -134,16 +143,16 @@ export function ResourceField({
             checked={Boolean(value)}
             onChange={(event) => onChange(event.target.checked)}
           />
-          <span className="text-sm font-semibold text-admin-text">{field.label}</span>
-          {field.hint ? <span className="text-xs text-admin-muted">{field.hint}</span> : null}
+          <span className="text-sm font-semibold text-admin-text">{fieldLabel}</span>
+          {fieldHint ? <span className="text-xs text-admin-muted">{fieldHint}</span> : null}
         </label>
       );
 
     case 'image':
       return (
         <MediaPicker
-          label={field.label}
-          hint={field.hint}
+          label={fieldLabel}
+          hint={fieldHint}
           folder={field.folder}
           value={(value as string) || null}
           onChange={(url) => onChange(url ?? '')}
@@ -154,7 +163,7 @@ export function ResourceField({
       return (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={id} className="text-admin-text">
-            {field.label}
+            {fieldLabel}
           </Label>
           <select
             id={id}
@@ -169,7 +178,7 @@ export function ResourceField({
               </option>
             ))}
           </select>
-          {field.hint ? <p className="text-xs text-admin-muted">{field.hint}</p> : null}
+          {fieldHint ? <p className="text-xs text-admin-muted">{fieldHint}</p> : null}
         </div>
       );
 
@@ -177,7 +186,7 @@ export function ResourceField({
       return (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={id} className="text-admin-text">
-            {field.label}
+            {fieldLabel}
           </Label>
           <select
             id={id}
@@ -198,7 +207,7 @@ export function ResourceField({
       return (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={id} className="text-admin-text">
-            {field.label}
+            {fieldLabel}
           </Label>
           <select
             id={id}
@@ -213,7 +222,7 @@ export function ResourceField({
               </option>
             ))}
           </select>
-          {field.hint ? <p className="text-xs text-admin-muted">{field.hint}</p> : null}
+          {fieldHint ? <p className="text-xs text-admin-muted">{fieldHint}</p> : null}
         </div>
       );
 
@@ -221,10 +230,10 @@ export function ResourceField({
       const selected = (value as string[]) ?? [];
       return (
         <div className="flex flex-col gap-2">
-          <Label className="text-admin-text">{field.label}</Label>
+          <Label className="text-admin-text">{fieldLabel}</Label>
           <div className="grid gap-1.5 rounded-md border border-admin-border p-3 sm:grid-cols-2">
             {(relationOptions ?? []).length === 0 ? (
-              <p className="text-sm text-admin-muted">Ro‘yxat bo‘sh</p>
+              <p className="text-sm text-admin-muted">{t('common.emptyList')}</p>
             ) : (
               (relationOptions ?? []).map((option) => (
                 <label
@@ -248,7 +257,7 @@ export function ResourceField({
               ))
             )}
           </div>
-          {field.hint ? <p className="text-xs text-admin-muted">{field.hint}</p> : null}
+          {fieldHint ? <p className="text-xs text-admin-muted">{fieldHint}</p> : null}
         </div>
       );
     }
@@ -263,7 +272,7 @@ export function ResourceField({
       return (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <Label className="text-admin-text">{field.label}</Label>
+            <Label className="text-admin-text">{fieldLabel}</Label>
             <button
               type="button"
               onClick={() => onChange([...blocks, { title: { ...blank }, items: [] }])}
@@ -305,7 +314,7 @@ export function ResourceField({
             </div>
           ))}
 
-          {field.hint ? <p className="text-xs text-admin-muted">{field.hint}</p> : null}
+          {fieldHint ? <p className="text-xs text-admin-muted">{fieldHint}</p> : null}
         </div>
       );
     }
@@ -314,7 +323,7 @@ export function ResourceField({
       return (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={id} className="text-admin-text">
-            {field.label}
+            {fieldLabel}
           </Label>
           <Input
             id={id}
@@ -331,7 +340,7 @@ export function ResourceField({
       return (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={id} className="text-admin-text">
-            {field.label}
+            {fieldLabel}
           </Label>
           <Input
             id={id}
@@ -341,7 +350,7 @@ export function ResourceField({
             onChange={(event) => onChange(event.target.value)}
             className={inputTheme}
           />
-          {field.hint ? <p className="text-xs text-admin-muted">{field.hint}</p> : null}
+          {fieldHint ? <p className="text-xs text-admin-muted">{fieldHint}</p> : null}
         </div>
       );
 
@@ -350,7 +359,7 @@ export function ResourceField({
       return (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={id} className="text-admin-text">
-            {field.label}
+            {fieldLabel}
             {'required' in field && field.required ? (
               <span className="ms-1 text-danger">*</span>
             ) : null}
@@ -373,7 +382,7 @@ export function ResourceField({
               className={inputTheme}
             />
           )}
-          {field.hint ? <p className="text-xs text-admin-muted">{field.hint}</p> : null}
+          {fieldHint ? <p className="text-xs text-admin-muted">{fieldHint}</p> : null}
           {error ? (
             <p role="alert" className="text-xs text-danger">
               {error}

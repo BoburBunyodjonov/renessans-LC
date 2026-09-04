@@ -181,7 +181,585 @@
   "admin": {
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "panelName": "Renessans Admin",
+    "openSite": "Open the site",
+    "uiLanguage": "Interface language",
+    "themeDark": "Dark mode",
+    "themeLight": "Light mode",
+    "collapse": "Collapse",
+    "menu": "Menu",
+    "close": "Close",
+    "navGroups": {
+      "general": "General",
+      "inbox": "Inbox",
+      "content": "Content",
+      "library": "Materials and test",
+      "careers": "Careers",
+      "settings": "Settings"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "leads": "Leads",
+      "applications": "Job applications",
+      "messages": "Messages",
+      "attempts": "Test results",
+      "hero": "Hero slides",
+      "homeSections": "Homepage sections",
+      "courses": "Courses",
+      "teachers": "Teachers",
+      "successStories": "IELTS results",
+      "testimonials": "Testimonials",
+      "advantages": "Advantages",
+      "problems": "Problems and solutions",
+      "promotions": "Promotions",
+      "stats": "Statistics",
+      "faq": "FAQ",
+      "posts": "Blog",
+      "materials": "Materials",
+      "materialGroups": "Material groups",
+      "tests": "Test questions",
+      "vacancies": "Vacancies",
+      "hiringSteps": "Hiring steps",
+      "branches": "Branches",
+      "navigation": "Site menu",
+      "media": "Media",
+      "settings": "Site settings",
+      "users": "Users",
+      "audit": "Audit log"
+    },
+    "common": {
+      "save": "Save",
+      "saved": "Saved",
+      "saveOrder": "Save order",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleted": "Deleted",
+      "edit": "Edit",
+      "add": "Add",
+      "new": "New",
+      "search": "Search",
+      "searchPlaceholder": "Search...",
+      "columns": "Columns",
+      "back": "Back",
+      "preview": "Preview",
+      "yes": "Yes",
+      "no": "No",
+      "all": "All",
+      "selectAll": "Select all",
+      "selectRow": "Select row",
+      "selected": "{count} selected",
+      "unsaved": "Unsaved changes",
+      "leaveConfirm": "You have unsaved changes. Leave anyway?",
+      "deleteConfirm": "Delete this?",
+      "reorderHandle": "Reorder",
+      "orderChanged": "Order changed",
+      "orderSaved": "Order saved",
+      "published": "Published",
+      "hidden": "Hidden",
+      "publishedToast": "Published",
+      "hiddenToast": "Hidden",
+      "statusUpdated": "Status updated",
+      "rowsSummary": "{from}–{to} of {total}",
+      "noRecords": "No records yet",
+      "addFirst": "Add the first record.",
+      "nothingFound": "Nothing found",
+      "commandHint": "Type a section name...",
+      "copyLink": "Copy link",
+      "copied": "Link copied",
+      "upload": "Upload file",
+      "uploaded": "Uploaded",
+      "remove": "Remove",
+      "total": "{count} total",
+      "emptyList": "The list is empty"
+    },
+    "errors": {
+      "session": "Session expired — sign in again",
+      "forbidden": "You do not have permission for this",
+      "validation": "Check the fields",
+      "unknown": "Could not save",
+      "loadFailed": "Could not load the list",
+      "uploadFailed": "Could not upload the file",
+      "required": "Required field",
+      "requiredUz": "The Uzbek text is required"
+    },
+    "login": {
+      "brandSubtitle": "Admin panel",
+      "email": "Email",
+      "password": "Password",
+      "emailRequired": "Enter your email",
+      "passwordRequired": "Enter your password",
+      "invalid": "Wrong email or password"
+    },
+    "localized": {
+      "language": "Language",
+      "copyFromUz": "From UZ",
+      "copyFromUzTitle": "Copy from Uzbek",
+      "htmlHint": "HTML is supported"
+    },
+    "editor": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "bulletList": "Bullet list",
+      "orderedList": "Numbered list",
+      "link": "Link",
+      "linkPrompt": "Link address",
+      "undo": "Undo",
+      "redo": "Redo",
+      "placeholder": "Enter text..."
+    },
+    "media": {
+      "title": "Media library",
+      "pickFromLibrary": "Choose from library",
+      "empty": "No files yet",
+      "uploadFirst": "Upload the first file.",
+      "searchPlaceholder": "Search by file name (Enter)",
+      "folder": "Folder",
+      "allFolders": "All folders",
+      "fileCount": "{count} files",
+      "deleteConfirm": "Delete this file?",
+      "tooLarge": "File is {size} — over 500 KB"
+    },
+    "dash": {
+      "description": "Today at a glance and the latest enquiries",
+      "leadsToday": "Leads today",
+      "leadsWeek": "Leads this week",
+      "leadsMonth": "Leads this month",
+      "vsYesterday": "vs yesterday",
+      "vsPrevWeek": "vs last week",
+      "vsPrevMonth": "vs last month",
+      "conversion": "Conversion (enrolled)",
+      "attempts": "Test attempts",
+      "downloads": "Material downloads",
+      "unread": "Unread messages",
+      "openVacancies": "Open vacancies",
+      "newApplications": "{count} new applications",
+      "latestLeads": "Latest leads",
+      "latestApplications": "Job applications",
+      "lastN": "Last {count}",
+      "noLeads": "No leads yet",
+      "call": "Call"
+    },
+    "charts": {
+      "leadsPerDay": "Leads per day (30 days)",
+      "bySource": "By source",
+      "byCourse": "Leads by course",
+      "scores": "Score distribution",
+      "topMaterials": "Most downloaded materials",
+      "noData": "No data yet"
+    },
+    "leads": {
+      "description": "{count} leads in total. Change status and owner here.",
+      "name": "Name",
+      "phone": "Phone",
+      "status": "Status",
+      "source": "Source",
+      "course": "Course",
+      "assignee": "Owner",
+      "assigneeFull": "Assigned staff member",
+      "date": "Date",
+      "searchPlaceholder": "Name or phone...",
+      "filterAll": "{label}: all",
+      "from": "From",
+      "to": "To",
+      "empty": "No leads",
+      "emptyHint": "No leads match these filters.",
+      "bulkStatus": "Change status…",
+      "bulkAssign": "Assign owner…",
+      "assigned": "Owner assigned",
+      "assigneeUpdated": "Owner updated",
+      "unassigned": "— unassigned —",
+      "createdAt": "Created: {date}",
+      "facts": "Details",
+      "statusAndOwner": "Status and owner",
+      "notes": "Notes",
+      "notesHint": "Call outcomes, agreements and so on.",
+      "notePlaceholder": "Write a note...",
+      "noteAdded": "Note added",
+      "noNotes": "No notes yet",
+      "system": "System",
+      "testResult": "Test result",
+      "purge": "Delete permanently",
+      "purgeHint": "For personal-data erasure requests. Cannot be undone.",
+      "purgeConfirm": "Delete this lead permanently? This cannot be undone.",
+      "page": "Page",
+      "locale": "Language",
+      "preferredTime": "Preferred time",
+      "message": "Message",
+      "device": "Device",
+      "email": "Email",
+      "referrer": "Referrer"
+    },
+    "apps": {
+      "description": "{count} applications in total",
+      "candidate": "Candidate",
+      "vacancy": "Vacancy",
+      "cv": "CV",
+      "download": "Download",
+      "empty": "No applications",
+      "emptyHint": "Nobody has applied yet.",
+      "notePlaceholder": "Internal note...",
+      "saveNote": "Save note",
+      "noteSaved": "Note saved"
+    },
+    "msgs": {
+      "description": "{count} unread messages",
+      "unreadOnly": "Unread",
+      "empty": "No messages",
+      "emptyHint": "No messages through the contact form.",
+      "markRead": "Mark as read",
+      "markUnread": "Mark as unread",
+      "new": "New"
+    },
+    "attempts": {
+      "description": "{count} attempts in total",
+      "count": "Attempts",
+      "average": "Average score",
+      "tracks": "Tracks",
+      "recent": "Recent attempts",
+      "track": "Track",
+      "score": "Score",
+      "level": "Level",
+      "lead": "Lead",
+      "open": "Open",
+      "empty": "No attempts yet"
+    },
+    "tests": {
+      "description": "Pick a track to edit its question bank and level bands.",
+      "questions": "Questions",
+      "levels": "Levels",
+      "attempts": "Attempts",
+      "editQuestions": "Edit questions",
+      "summary": "{questions} questions · {bands} levels",
+      "bank": "Question bank",
+      "csvHint": "CSV columns: prompt, option1…option5, correct, points, difficulty",
+      "csvExport": "Export CSV",
+      "csvImport": "Import CSV",
+      "imported": "{imported} questions added, {skipped} skipped",
+      "question": "Question",
+      "newQuestion": "New question",
+      "editQuestion": "Edit question",
+      "promptLabel": "Question text",
+      "promptHint": "Press Enter for a two-line dialogue, use _____ for a gap.",
+      "options": "Answer options",
+      "correctOption": "Correct answer {index}",
+      "addOption": "+ Option",
+      "points": "Points",
+      "difficulty": "Difficulty (1–5)",
+      "active": "Active",
+      "inactive": "Disabled",
+      "deleteQuestion": "Delete this question?",
+      "noQuestions": "No questions",
+      "bands": "Level bands",
+      "bandsHint": "The level and recommended course follow the score range",
+      "band": "Level",
+      "minScore": "Min score",
+      "maxScore": "Max score",
+      "levelName": "Level name",
+      "bandTitle": "Title",
+      "bandDescription": "Description",
+      "recommendedCourse": "Recommended course",
+      "deleteBand": "Delete this level?"
+    },
+    "users": {
+      "description": "Assign roles to staff. Roles are enforced on the server too.",
+      "staff": "Staff",
+      "name": "Name",
+      "role": "Role",
+      "lastLogin": "Last sign-in",
+      "active": "Active",
+      "blocked": "Blocked",
+      "block": "Block",
+      "blocked_toast": "Blocked",
+      "newUser": "New user",
+      "editUser": "Edit user",
+      "passwordChange": "(to change)"
+    },
+    "settings": {
+      "description": "Brand, contacts, social links, analytics and Telegram channels.",
+      "brand": "Brand",
+      "brandName": "Brand name",
+      "tagline": "Tagline",
+      "logo": "Logo",
+      "ogImage": "OG image (for social sharing)",
+      "ctaAndLms": "Primary button and LMS",
+      "ctaLabel": "Button label",
+      "ctaHref": "Button link",
+      "lmsLabel": "LMS button label",
+      "lmsUrl": "LMS link",
+      "contact": "Contact",
+      "phones": "Phone numbers",
+      "email": "Email",
+      "currency": "Currency",
+      "ticker": "Ticker",
+      "tickerHint": "The scrolling line on the homepage",
+      "tickerItems": "Phrases",
+      "analytics": "Analytics",
+      "analyticsHint": "Left empty, the script never loads",
+      "telegram": "Telegram channels",
+      "telegramHint": "A separate channel per notification type",
+      "telegramLead": "Leads",
+      "telegramApplication": "Job applications",
+      "telegramContact": "Contact messages",
+      "telegramTest": "Test results",
+      "privacy": "Privacy policy",
+      "privacyText": "Text",
+      "credit": "Footer credit",
+      "creditText": "Text",
+      "creditUrl": "Link"
+    },
+    "audit": {
+      "description": "{count} entries in total",
+      "time": "Time",
+      "user": "User",
+      "action": "Action",
+      "entity": "Entity",
+      "ip": "IP",
+      "empty": "No entries"
+    },
+    "fields": {
+      "address": "Address",
+      "answer": "Answer",
+      "authorName": "Author name",
+      "authorRole": "Who (parent / student)",
+      "avatarUrl": "Avatar",
+      "bio": "Short bio",
+      "body": "Body",
+      "categoryId": "Category",
+      "certificates": "Certificates",
+      "conditions": "Conditions",
+      "content": "Testimonial text",
+      "courses": "Courses",
+      "coverUrl": "Cover image",
+      "ctaHref": "Button link",
+      "ctaLabel": "Button label",
+      "currency": "Currency",
+      "curriculum": "Syllabus",
+      "department": "Department",
+      "description": "Description",
+      "durationLabel": "Duration",
+      "employmentType": "Employment type",
+      "endsAt": "End date",
+      "excerpt": "Excerpt",
+      "experience": "Experience (years)",
+      "externalUrl": "External link (YouTube etc.)",
+      "eyebrow": "Eyebrow",
+      "fileSize": "File size (bytes)",
+      "fileUrl": "File link",
+      "fullName": "Full name",
+      "group": "Group",
+      "groupId": "Group",
+      "hasDetailPage": "Give it its own page",
+      "headline": "Headline",
+      "href": "Link",
+      "icon": "Icon",
+      "ieltsScore": "IELTS score",
+      "imageAlt": "Image alt text",
+      "imageUrl": "Image",
+      "includes": "What is included",
+      "isActive": "Active",
+      "isFeatured": "Featured",
+      "isOpen": "Open",
+      "isPublished": "Published",
+      "isVisible": "Visible",
+      "key": "Key",
+      "label": "Label",
+      "level": "Level",
+      "mapEmbedUrl": "Map embed link",
+      "mapLinkUrl": "Map link",
+      "name": "Name",
+      "openInNew": "Open in a new tab",
+      "overallBand": "Overall band",
+      "phones": "Phone numbers",
+      "photoAlt": "Photo alt text",
+      "photoUrl": "Photo (3:4)",
+      "position": "Position",
+      "price": "Price",
+      "priceNote": "Price note",
+      "publishedAt": "Published on",
+      "publisher": "Publisher",
+      "question": "Question",
+      "quote": "Quote",
+      "rating": "Rating (1–5)",
+      "readingMinutes": "Reading time (min)",
+      "requireContact": "Ask for contact details before download",
+      "requirements": "Requirements",
+      "responsibilities": "Responsibilities",
+      "salaryFrom": "Salary (from)",
+      "salaryTo": "Salary (to)",
+      "schedule": "Lesson schedule",
+      "seoDescription": "SEO description",
+      "seoTitle": "SEO title",
+      "shortDesc": "Short description",
+      "showSalary": "Show the salary",
+      "slug": "Slug",
+      "sourceLabel": "Source (Instagram / Telegram / Google)",
+      "sourceUrl": "Source link",
+      "startsAt": "Start date",
+      "studentName": "Student name",
+      "subtitle": "Subtitle",
+      "tags": "Tags",
+      "teachers": "Teachers",
+      "title": "Title",
+      "type": "Type",
+      "value": "Value",
+      "videoUrl": "Video link (YouTube)",
+      "workingHours": "Working hours",
+      "solution": {
+        "skill": "Solution: skill",
+        "title": "Solution: title",
+        "description": "Solution: description",
+        "imageUrl": "Solution: image"
+      },
+      "downloadCount": "Downloads",
+      "viewCount": "Views"
+    },
+    "resources": {
+      "hero": {
+        "title": "Hero slides",
+        "singular": "Slide",
+        "description": "The big banner on the homepage. Multiple slides rotate automatically.",
+        "fields": {
+          "imageUrl": "Image"
+        },
+        "hints": {
+          "headline": "<mark>word</mark> to highlight it"
+        }
+      },
+      "home-sections": {
+        "title": "Homepage sections",
+        "singular": "Section",
+        "description": "Drag to reorder the sections, or switch them off.",
+        "fields": {
+          "body": "Body (for the About block)"
+        },
+        "hints": {
+          "key": "hero, about, courses … — tied to the code, do not change"
+        }
+      },
+      "stats": {
+        "title": "Statistics",
+        "singular": "Statistic",
+        "fields": {
+          "label": "Caption"
+        }
+      },
+      "advantages": {
+        "title": "Advantages",
+        "singular": "Advantage"
+      },
+      "testimonials": {
+        "title": "Testimonials",
+        "singular": "Testimonial",
+        "fields": {
+          "isFeatured": "Pin to the top"
+        }
+      },
+      "success-stories": {
+        "title": "IELTS results",
+        "singular": "Result",
+        "fields": {
+          "imageUrl": "Certificate image"
+        }
+      },
+      "promotions": {
+        "title": "Promotions",
+        "singular": "Promotion",
+        "fields": {
+          "title": "Name"
+        }
+      },
+      "faq": {
+        "title": "FAQ",
+        "singular": "Question"
+      },
+      "faq-categories": {
+        "title": "FAQ categories",
+        "singular": "Category",
+        "fields": {
+          "name": "Name"
+        }
+      },
+      "branches": {
+        "title": "Branches",
+        "singular": "Branch",
+        "fields": {
+          "name": "Name",
+          "imageUrl": "Image"
+        }
+      },
+      "navigation": {
+        "title": "Site menu",
+        "singular": "Menu item",
+        "description": "Header and footer links.",
+        "fields": {
+          "label": "Label"
+        }
+      },
+      "material-groups": {
+        "title": "Material groups",
+        "singular": "Group",
+        "fields": {
+          "name": "Name"
+        }
+      },
+      "materials": {
+        "title": "Materials",
+        "singular": "Material",
+        "fields": {
+          "title": "Name",
+          "coverUrl": "Cover image"
+        },
+        "hints": {
+          "fileUrl": "Path of the uploaded file"
+        }
+      },
+      "vacancies": {
+        "title": "Vacancies",
+        "singular": "Vacancy",
+        "fields": {
+          "description": "Full description",
+          "title": "Name"
+        }
+      },
+      "hiring-steps": {
+        "title": "Hiring steps",
+        "singular": "Step"
+      },
+      "posts": {
+        "title": "Blog",
+        "singular": "Article"
+      },
+      "courses": {
+        "title": "Courses",
+        "singular": "Course",
+        "fields": {
+          "description": "Full description",
+          "coverUrl": "Cover image",
+          "isFeatured": "Featured course",
+          "title": "Name"
+        },
+        "hints": {
+          "level": "For example: Beginner – Upper-Intermediate",
+          "durationLabel": "For example: 3 months",
+          "priceNote": "For example: per level"
+        }
+      },
+      "teachers": {
+        "title": "Teachers",
+        "singular": "Teacher"
+      },
+      "problems": {
+        "title": "Problems",
+        "singular": "Problem",
+        "description": "Each problem's solution is stored alongside it.",
+        "fields": {
+          "title": "Problem"
+        }
+      }
+    }
   },
   "course": {
     "curriculum": "Syllabus",

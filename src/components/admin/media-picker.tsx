@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { ImageOff, Loader2, Trash2, Upload } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ export function MediaPicker({
   hint?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations('admin');
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -51,11 +53,11 @@ export function MediaPicker({
       const payload = (await response.json()) as { data?: { rows: MediaItem[] } };
       setItems(payload.data?.rows ?? []);
     } catch {
-      toast.error('Media ro‘yxatini yuklab bo‘lmadi');
+      toast.error(t('errors.loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [folder]);
+  }, [folder, t]);
 
   useEffect(() => {
     if (open) void load();
@@ -72,16 +74,16 @@ export function MediaPicker({
       const response = await fetch('/api/upload', { method: 'POST', body });
       const payload = (await response.json()) as { ok: boolean; data?: MediaItem };
       if (!response.ok || !payload.data) {
-        toast.error('Faylni yuklab bo‘lmadi');
+        toast.error(t('errors.uploadFailed'));
         return;
       }
       if (file.size > WARN_BYTES) {
-        toast.warning(`Fayl hajmi ${formatBytes(file.size)} — 500 KB dan katta`);
+        toast.warning(t('media.tooLarge', { size: formatBytes(file.size) ?? '' }));
       }
       onChange(payload.data.url);
       setItems((current) => [payload.data!, ...current]);
       setOpen(false);
-      toast.success('Yuklandi');
+      toast.success(t('common.uploaded'));
     } finally {
       setUploading(false);
     }
@@ -119,7 +121,7 @@ export function MediaPicker({
               onClick={() => setOpen(true)}
               className="border-admin-border text-admin-text hover:bg-admin-hover hover:text-admin-text"
             >
-              Kutubxonadan tanlash
+              {t('media.pickFromLibrary')}
             </Button>
             <Button
               type="button"
@@ -134,7 +136,7 @@ export function MediaPicker({
               ) : (
                 <Upload aria-hidden />
               )}
-              Yuklash
+              {t('common.upload')}
             </Button>
             {value ? (
               <Button
@@ -148,7 +150,7 @@ export function MediaPicker({
                 className="text-danger hover:bg-danger/10"
               >
                 <Trash2 aria-hidden />
-                Olib tashlash
+                {t('common.remove')}
               </Button>
             ) : null}
           </div>
@@ -184,7 +186,7 @@ export function MediaPicker({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Media kutubxonasi</DialogTitle>
+            <DialogTitle>{t('media.title')}</DialogTitle>
           </DialogHeader>
 
           {loading ? (
@@ -192,7 +194,7 @@ export function MediaPicker({
               <Loader2 className="size-6 animate-spin text-brand-600" aria-hidden />
             </div>
           ) : items.length === 0 ? (
-            <p className="py-10 text-center text-sm text-ink-600">Hozircha fayl yo‘q</p>
+            <p className="py-10 text-center text-sm text-ink-600">{t('media.empty')}</p>
           ) : (
             <ul className="grid max-h-[60vh] grid-cols-3 gap-3 overflow-y-auto sm:grid-cols-4">
               {items.map((item) => (

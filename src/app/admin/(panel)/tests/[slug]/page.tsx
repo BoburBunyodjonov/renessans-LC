@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/admin/ui';
 import { QuestionBank } from '@/components/admin/question-bank';
 import { currentUser } from '@/server/actions/helpers';
@@ -23,6 +24,7 @@ export default async function QuestionBankPage({ params }: { params: Promise<{ s
   const user = await currentUser();
   if (!can(user?.role, 'viewTests')) redirect('/admin');
 
+  const t = await getTranslations('admin');
   const category = await prisma.testCategory.findUnique({
     where: { slug },
     include: {
@@ -45,7 +47,10 @@ export default async function QuestionBankPage({ params }: { params: Promise<{ s
     <>
       <PageHeader
         title={localizedUz(category.title, category.slug)}
-        description={`${category.questions.length} ta savol · ${category.bands.length} ta daraja`}
+        description={t('tests.summary', {
+          questions: category.questions.length,
+          bands: category.bands.length,
+        })}
       />
       <QuestionBank
         categoryId={category.id}

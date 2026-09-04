@@ -2,7 +2,8 @@ import type { Capability } from '@/lib/permissions';
 
 export type AdminNavItem = {
   href: string;
-  label: string;
+  /** Key under the `admin.nav` namespace — the label itself is translated. */
+  labelKey: string;
   icon: string;
   capability: Capability;
   /** Matches child routes too. */
@@ -10,18 +11,19 @@ export type AdminNavItem = {
 };
 
 export type AdminNavGroup = {
-  label: string;
+  /** Key under the `admin.navGroups` namespace. */
+  labelKey: string;
   items: AdminNavItem[];
 };
 
 /** Sidebar structure and the capability each entry requires (PROMPT.md §14). */
 export const ADMIN_NAV: AdminNavGroup[] = [
   {
-    label: 'Umumiy',
+    labelKey: 'general',
     items: [
       {
         href: '/admin',
-        label: 'Boshqaruv paneli',
+        labelKey: 'dashboard',
         icon: 'LayoutDashboard',
         capability: 'viewLeads',
         exact: true,
@@ -29,140 +31,155 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     ],
   },
   {
-    label: 'Murojaatlar',
+    labelKey: 'inbox',
     items: [
-      { href: '/admin/leads', label: 'Arizalar', icon: 'Inbox', capability: 'viewLeads' },
+      { href: '/admin/leads', labelKey: 'leads', icon: 'Inbox', capability: 'viewLeads' },
       {
         href: '/admin/applications',
-        label: 'Vakansiya arizalari',
+        labelKey: 'applications',
         icon: 'Briefcase',
         capability: 'viewLeads',
       },
-      { href: '/admin/messages', label: 'Xabarlar', icon: 'Mail', capability: 'viewLeads' },
+      { href: '/admin/messages', labelKey: 'messages', icon: 'Mail', capability: 'viewLeads' },
       {
         href: '/admin/tests/attempts',
-        label: 'Test natijalari',
+        labelKey: 'attempts',
         icon: 'ClipboardList',
         capability: 'viewTests',
       },
     ],
   },
   {
-    label: 'Kontent',
+    labelKey: 'content',
     items: [
       {
         href: '/admin/hero',
-        label: 'Hero slaydlar',
+        labelKey: 'hero',
         icon: 'Presentation',
         capability: 'contentCrud',
       },
       {
         href: '/admin/home-sections',
-        label: 'Bosh sahifa bloklari',
+        labelKey: 'homeSections',
         icon: 'Rows3',
         capability: 'contentCrud',
       },
       {
         href: '/admin/courses',
-        label: 'Kurslar',
+        labelKey: 'courses',
         icon: 'GraduationCap',
         capability: 'contentCrud',
       },
-      { href: '/admin/teachers', label: 'Ustozlar', icon: 'Users', capability: 'contentCrud' },
+      { href: '/admin/teachers', labelKey: 'teachers', icon: 'Users', capability: 'contentCrud' },
       {
         href: '/admin/success-stories',
-        label: 'IELTS natijalari',
+        labelKey: 'successStories',
         icon: 'Trophy',
         capability: 'contentCrud',
       },
-      { href: '/admin/testimonials', label: 'Fikrlar', icon: 'Quote', capability: 'contentCrud' },
+      {
+        href: '/admin/testimonials',
+        labelKey: 'testimonials',
+        icon: 'Quote',
+        capability: 'contentCrud',
+      },
       {
         href: '/admin/advantages',
-        label: 'Afzalliklar',
+        labelKey: 'advantages',
         icon: 'Sparkles',
         capability: 'contentCrud',
       },
       {
         href: '/admin/problems',
-        label: 'Muammo va yechimlar',
+        labelKey: 'problems',
         icon: 'Puzzle',
         capability: 'contentCrud',
       },
-      { href: '/admin/promotions', label: 'Aksiyalar', icon: 'Gift', capability: 'contentCrud' },
+      {
+        href: '/admin/promotions',
+        labelKey: 'promotions',
+        icon: 'Gift',
+        capability: 'contentCrud',
+      },
       {
         href: '/admin/stats',
-        label: 'Statistika raqamlari',
+        labelKey: 'stats',
         icon: 'ChartNoAxesColumn',
         capability: 'contentCrud',
       },
       {
         href: '/admin/faq',
-        label: 'FAQ',
+        labelKey: 'faq',
         icon: 'MessageCircleQuestion',
         capability: 'contentCrud',
       },
-      { href: '/admin/posts', label: 'Blog', icon: 'Newspaper', capability: 'contentCrud' },
+      { href: '/admin/posts', labelKey: 'posts', icon: 'Newspaper', capability: 'contentCrud' },
     ],
   },
   {
-    label: 'Materiallar va test',
+    labelKey: 'library',
     items: [
       {
         href: '/admin/materials',
-        label: 'Materiallar',
+        labelKey: 'materials',
         icon: 'FileText',
         capability: 'contentCrud',
       },
       {
         href: '/admin/material-groups',
-        label: 'Material bo‘limlari',
+        labelKey: 'materialGroups',
         icon: 'FolderTree',
         capability: 'contentCrud',
       },
       {
         href: '/admin/tests',
-        label: 'Test savollari',
+        labelKey: 'tests',
         icon: 'ListChecks',
         capability: 'manageTests',
       },
     ],
   },
   {
-    label: 'Karyera',
+    labelKey: 'careers',
     items: [
       {
         href: '/admin/vacancies',
-        label: 'Vakansiyalar',
+        labelKey: 'vacancies',
         icon: 'Briefcase',
         capability: 'contentCrud',
       },
       {
         href: '/admin/hiring-steps',
-        label: 'Ishga qabul bosqichlari',
+        labelKey: 'hiringSteps',
         icon: 'ListOrdered',
         capability: 'contentCrud',
       },
     ],
   },
   {
-    label: 'Sozlamalar',
+    labelKey: 'settings',
     items: [
-      { href: '/admin/branches', label: 'Filiallar', icon: 'MapPin', capability: 'contentCrud' },
-      { href: '/admin/navigation', label: 'Menyu', icon: 'Menu', capability: 'contentCrud' },
-      { href: '/admin/media', label: 'Media', icon: 'Image', capability: 'contentCrud' },
+      { href: '/admin/branches', labelKey: 'branches', icon: 'MapPin', capability: 'contentCrud' },
+      {
+        href: '/admin/navigation',
+        labelKey: 'navigation',
+        icon: 'Menu',
+        capability: 'contentCrud',
+      },
+      { href: '/admin/media', labelKey: 'media', icon: 'Image', capability: 'contentCrud' },
       {
         href: '/admin/settings',
-        label: 'Sayt sozlamalari',
+        labelKey: 'settings',
         icon: 'Settings',
         capability: 'manageSettings',
       },
       {
         href: '/admin/users',
-        label: 'Foydalanuvchilar',
+        labelKey: 'users',
         icon: 'UserCog',
         capability: 'manageUsers',
       },
-      { href: '/admin/audit', label: 'Audit jurnali', icon: 'ScrollText', capability: 'viewAudit' },
+      { href: '/admin/audit', labelKey: 'audit', icon: 'ScrollText', capability: 'viewAudit' },
     ],
   },
 ];

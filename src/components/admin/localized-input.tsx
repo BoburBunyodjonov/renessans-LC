@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { Copy } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Input, Label, Textarea } from '@/components/ui/field';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { LOCALES, LOCALE_SHORT, type Locale, type Localized } from '@/types/i18n';
@@ -33,9 +34,10 @@ function LocaleTabs({
   onCopyFromUz: () => void;
   id: string;
 }) {
+  const t = useTranslations('admin');
   return (
     <div className="flex items-center gap-1.5">
-      <div role="tablist" aria-label="Til" className="flex gap-1">
+      <div role="tablist" aria-label={t('localized.language')} className="flex gap-1">
         {LOCALES.map((locale) => {
           const filled = Boolean(value[locale]?.trim());
           return (
@@ -70,11 +72,11 @@ function LocaleTabs({
         <button
           type="button"
           onClick={onCopyFromUz}
-          title="UZ dan nusxalash"
+          title={t('localized.copyFromUzTitle')}
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-admin-muted hover:bg-admin-hover hover:text-admin-text"
         >
           <Copy className="size-3.5" aria-hidden />
-          UZ dan
+          {t('localized.copyFromUz')}
         </button>
       ) : null}
     </div>
@@ -239,6 +241,8 @@ export function LocalizedList({
   hint?: string;
   id: string;
 }) {
+  const t = useTranslations('admin');
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
@@ -248,7 +252,7 @@ export function LocalizedList({
           onClick={() => onChange([...value, { ...EMPTY_LOCALIZED }])}
           className="text-xs font-bold text-brand-600 hover:text-brand-700"
         >
-          + Qo‘shish
+          + {t('common.add')}
         </button>
       </div>
 
@@ -267,7 +271,7 @@ export function LocalizedList({
             onClick={() => onChange(value.filter((_, i) => i !== index))}
             className="mt-7 rounded-md px-2 py-1 text-xs font-bold text-danger hover:bg-danger/10"
           >
-            O‘chirish
+            {t('common.delete')}
           </button>
         </div>
       ))}

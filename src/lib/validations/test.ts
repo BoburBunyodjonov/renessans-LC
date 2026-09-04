@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { localeSchema, nameSchema, phoneSchema, utmSchema } from './common';
+import { localeSchema, nameSchema, phoneSchema, recordIdSchema, utmSchema } from './common';
 
 export const testAnswerSchema = z.object({
-  questionId: z.string().cuid(),
-  optionId: z.string().cuid(),
+  questionId: recordIdSchema,
+  optionId: recordIdSchema,
 });
 
 export const testSubmitSchema = utmSchema.extend({

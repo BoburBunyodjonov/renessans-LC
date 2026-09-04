@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Check, Minus, Pencil, Plus } from 'lucide-react';
 import { DataTable } from '@/components/admin/data-table';
@@ -12,6 +13,7 @@ import { EmptyState, StatusPill } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
 import { describeError } from '@/components/admin/form-shell';
 import { togglePublished } from '@/server/actions/content';
+import { resourceLabels } from '@/components/admin/resource-labels';
 import type { ColumnSpec, ResourceConfig } from '@/config/admin-resources';
 
 type Row = Record<string, unknown>;
@@ -24,7 +26,12 @@ function localizedText(value: unknown): string {
   return '';
 }
 
-function renderCell(spec: ColumnSpec, row: Row, onToggle?: (value: boolean) => void) {
+function renderCell(
+  spec: ColumnSpec,
+  row: Row,
+  labels: { yes: string; no: string },
+  onToggle?: (value: boolean) => void,
+) {
   const value = row[spec.name];
 
   switch (spec.kind) {
@@ -45,7 +52,7 @@ function renderCell(spec: ColumnSpec, row: Row, onToggle?: (value: boolean) => v
             ) : (
               <Minus className="size-3.5" aria-hidden />
             )}
-            {value ? 'Ha' : 'Yo‘q'}
+            {value ? labels.yes : labels.no}
           </StatusPill>
         </button>
       );
@@ -91,26 +98,29 @@ export function ResourceList({
   canEdit: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations('admin');
+  const labels = resourceLabels(config, t);
   const [pending, startTransition] = useTransition();
 
   const columns = useMemo<ColumnDef<Row, unknown>[]>(() => {
     const base: ColumnDef<Row, unknown>[] = config.columns.map((spec) => ({
       id: spec.name,
       accessorKey: spec.name,
-      header: spec.label,
+      header: labels.column(spec),
       cell: ({ row }) =>
         renderCell(
           spec,
           row.original,
+          { yes: t('common.yes'), no: t('common.no') },
           spec.kind === 'boolean' && canEdit && spec.name === config.publishField
             ? (value) =>
                 startTransition(async () => {
                   const result = await togglePublished(config.key, String(row.original.id), value);
                   if (result.ok) {
-                    toast.success(value ? 'Chop etildi' : 'Yashirildi');
+                    toast.success(value ? t('common.publishedToast') : t('common.hiddenToast'));
                     router.refresh();
                   } else {
-                    toast.error(describeError(result.error));
+                    toast.error(describeError(result.error, t));
                   }
                 })
             : undefined,
@@ -127,13 +137,13 @@ export function ResourceList({
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700"
         >
           <Pencil className="size-4" aria-hidden />
-          Tahrirlash
+          {t('common.edit')}
         </Link>
       ),
     });
 
     return base;
-  }, [canEdit, config, router, startTransition]);
+  }, [canEdit, config, labels, router, startTransition, t]);
 
   return (
     <DataTable
@@ -147,14 +157,14 @@ export function ResourceList({
       getRowId={(row) => String(row.id)}
       emptyState={
         <EmptyState
-          title="Hozircha yozuv yo‘q"
-          description={`Birinchi "${config.singular.toLowerCase()}" yozuvini qo‘shing.`}
+          title={t('common.noRecords')}
+          description={t('common.addFirst')}
           action={
             canEdit ? (
               <Button asChild size="sm">
                 <Link href={`/admin/${config.key}/new`}>
                   <Plus aria-hidden />
-                  Qo‘shish
+                  {t('common.add')}
                 </Link>
               </Button>
             ) : null

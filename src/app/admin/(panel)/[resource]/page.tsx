@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { PageHeader } from '@/components/admin/ui';
+import { resourceLabels } from '@/components/admin/resource-labels';
 import { Button } from '@/components/ui/button';
 import { ResourceList } from '@/components/admin/resource-list';
 import { ReorderPanel } from '@/components/admin/reorder-panel';
@@ -13,7 +15,11 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ resource: string }> }) {
   const { resource } = await params;
-  return { title: resourceConfig(resource)?.title ?? 'Admin' };
+  const config = resourceConfig(resource);
+  if (!config) return { title: 'Admin' };
+  // The registry title is Uzbek source text; the tab must follow the panel language.
+  const t = await getTranslations('admin');
+  return { title: resourceLabels(config, t as never).title };
 }
 
 export default async function ResourceListPage({
@@ -28,6 +34,8 @@ export default async function ResourceListPage({
   if (!config) notFound();
 
   const query = await searchParams;
+  const t = await getTranslations('admin');
+  const labels = resourceLabels(config, t as never);
   const user = await currentUser();
   const canEdit = can(user?.role, 'contentCrud');
 
@@ -42,14 +50,14 @@ export default async function ResourceListPage({
   return (
     <>
       <PageHeader
-        title={config.title}
-        description={config.description}
+        title={labels.title}
+        description={labels.description}
         actions={
           canEdit ? (
             <Button asChild size="sm">
               <Link href={`/admin/${config.key}/new`}>
                 <Plus aria-hidden />
-                {config.singular}
+                {labels.singular}
               </Link>
             </Button>
           ) : null

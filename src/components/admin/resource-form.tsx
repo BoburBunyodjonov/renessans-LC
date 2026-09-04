@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { AdminFormShell } from '@/components/admin/form-shell';
 import { Panel } from '@/components/admin/ui';
 import { ResourceField } from '@/components/admin/resource-field';
+import { resourceLabels } from '@/components/admin/resource-labels';
 import { deleteRecord, saveRecord } from '@/server/actions/content';
 import type { ResourceConfig } from '@/config/admin-resources';
 
@@ -36,6 +38,8 @@ export function ResourceForm({
   previewHref?: string;
   canDelete: boolean;
 }) {
+  const t = useTranslations('admin');
+  const labels = resourceLabels(config, t);
   const router = useRouter();
   const [values, setValues] = useState<Values>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -74,7 +78,7 @@ export function ResourceForm({
 
     if (!result.ok && result.fields) {
       setErrors(result.fields);
-      toast.error('Maydonlarni tekshiring');
+      toast.error(t('errors.validation'));
       return result;
     }
 
@@ -101,6 +105,8 @@ export function ResourceForm({
           <ResourceField
             key={field.name}
             field={field}
+            label={labels.field(field)}
+            hint={labels.hint(field)}
             error={errors[field.name]}
             relationOptions={
               field.kind === 'relation' ? (relationOptions[field.source] ?? []) : undefined

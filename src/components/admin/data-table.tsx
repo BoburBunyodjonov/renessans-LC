@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   flexRender,
@@ -43,7 +44,7 @@ export function DataTable<T>({
   page,
   pageSize,
   sort,
-  searchPlaceholder = 'Qidirish...',
+  searchPlaceholder,
   getRowId,
   toolbar,
   bulkActions,
@@ -51,6 +52,7 @@ export function DataTable<T>({
   loading = false,
 }: DataTableProps<T>) {
   const router = useRouter();
+  const t = useTranslations('admin');
   const searchParams = useSearchParams();
 
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
@@ -118,8 +120,8 @@ export function DataTable<T>({
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={searchPlaceholder}
-            aria-label={searchPlaceholder}
+            placeholder={searchPlaceholder ?? t('common.searchPlaceholder')}
+            aria-label={searchPlaceholder ?? t('common.search')}
             className="h-10 border-admin-border bg-admin-panel ps-10 text-admin-text"
           />
         </div>
@@ -134,7 +136,7 @@ export function DataTable<T>({
             className="border-admin-border text-admin-text hover:bg-admin-hover hover:text-admin-text"
           >
             <Columns3 aria-hidden />
-            Ustunlar
+            {t('common.columns')}
           </Button>
           {showColumns ? (
             <div className="absolute end-0 z-30 mt-2 w-56 rounded-lg border border-admin-border bg-admin-panel p-2 shadow-xl">
@@ -164,7 +166,9 @@ export function DataTable<T>({
 
       {bulkActions && selectedIds.length > 0 ? (
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-brand-600/40 bg-brand-50 p-3">
-          <p className="text-sm font-bold text-brand-600">{selectedIds.length} ta tanlandi</p>
+          <p className="text-sm font-bold text-brand-600">
+            {t('common.selected', { count: selectedIds.length })}
+          </p>
           {bulkActions(selectedIds, () => setSelection({}))}
         </div>
       ) : null}
@@ -242,8 +246,11 @@ export function DataTable<T>({
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-admin-muted tabular-nums">
-          {total} tadan {data.length ? (page - 1) * pageSize + 1 : 0}–
-          {(page - 1) * pageSize + data.length}
+          {t('common.rowsSummary', {
+            total,
+            from: data.length ? (page - 1) * pageSize + 1 : 0,
+            to: (page - 1) * pageSize + data.length,
+          })}
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -274,7 +281,10 @@ export function DataTable<T>({
 }
 
 /** Checkbox column used by tables that support bulk actions. */
-export function selectionColumn<T>(): ColumnDef<T, unknown> {
+export function selectionColumn<T>(label: {
+  selectAll: string;
+  selectRow: string;
+}): ColumnDef<T, unknown> {
   return {
     id: 'select',
     enableSorting: false,
@@ -282,7 +292,7 @@ export function selectionColumn<T>(): ColumnDef<T, unknown> {
     header: ({ table }) => (
       <input
         type="checkbox"
-        aria-label="Barchasini tanlash"
+        aria-label={label.selectAll}
         className="size-4 accent-brand-600"
         checked={table.getIsAllRowsSelected()}
         ref={(node) => {
@@ -295,7 +305,7 @@ export function selectionColumn<T>(): ColumnDef<T, unknown> {
     cell: ({ row }) => (
       <input
         type="checkbox"
-        aria-label="Qatorni tanlash"
+        aria-label={label.selectRow}
         className="size-4 accent-brand-600"
         checked={row.getIsSelected()}
         onChange={row.getToggleSelectedHandler()}

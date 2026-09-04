@@ -181,7 +181,585 @@
   "admin": {
     "signIn": "Войти в систему",
     "signOut": "Выйти",
-    "dashboard": "Панель управления"
+    "dashboard": "Панель управления",
+    "panelName": "Renessans Admin",
+    "openSite": "Открыть сайт",
+    "uiLanguage": "Язык интерфейса",
+    "themeDark": "Тёмная тема",
+    "themeLight": "Светлая тема",
+    "collapse": "Свернуть",
+    "menu": "Меню",
+    "close": "Закрыть",
+    "navGroups": {
+      "general": "Общее",
+      "inbox": "Обращения",
+      "content": "Контент",
+      "library": "Материалы и тест",
+      "careers": "Карьера",
+      "settings": "Настройки"
+    },
+    "nav": {
+      "dashboard": "Панель управления",
+      "leads": "Заявки",
+      "applications": "Отклики на вакансии",
+      "messages": "Сообщения",
+      "attempts": "Результаты теста",
+      "hero": "Слайды Hero",
+      "homeSections": "Блоки главной",
+      "courses": "Курсы",
+      "teachers": "Преподаватели",
+      "successStories": "Результаты IELTS",
+      "testimonials": "Отзывы",
+      "advantages": "Преимущества",
+      "problems": "Проблемы и решения",
+      "promotions": "Акции",
+      "stats": "Цифры статистики",
+      "faq": "FAQ",
+      "posts": "Блог",
+      "materials": "Материалы",
+      "materialGroups": "Разделы материалов",
+      "tests": "Вопросы теста",
+      "vacancies": "Вакансии",
+      "hiringSteps": "Этапы найма",
+      "branches": "Филиалы",
+      "navigation": "Меню сайта",
+      "media": "Медиа",
+      "settings": "Настройки сайта",
+      "users": "Пользователи",
+      "audit": "Журнал аудита"
+    },
+    "common": {
+      "save": "Сохранить",
+      "saved": "Сохранено",
+      "saveOrder": "Сохранить порядок",
+      "cancel": "Отмена",
+      "delete": "Удалить",
+      "deleted": "Удалено",
+      "edit": "Редактировать",
+      "add": "Добавить",
+      "new": "Новый",
+      "search": "Поиск",
+      "searchPlaceholder": "Поиск...",
+      "columns": "Столбцы",
+      "back": "Назад",
+      "preview": "Просмотр",
+      "yes": "Да",
+      "no": "Нет",
+      "all": "Все",
+      "selectAll": "Выбрать все",
+      "selectRow": "Выбрать строку",
+      "selected": "Выбрано: {count}",
+      "unsaved": "Несохранённые изменения",
+      "leaveConfirm": "Есть несохранённые изменения. Выйти?",
+      "deleteConfirm": "Удалить?",
+      "reorderHandle": "Изменить порядок",
+      "orderChanged": "Порядок изменён",
+      "orderSaved": "Порядок сохранён",
+      "published": "Опубликовано",
+      "hidden": "Скрыто",
+      "publishedToast": "Опубликовано",
+      "hiddenToast": "Скрыто",
+      "statusUpdated": "Статус обновлён",
+      "rowsSummary": "{from}–{to} из {total}",
+      "noRecords": "Пока нет записей",
+      "addFirst": "Добавьте первую запись.",
+      "nothingFound": "Ничего не найдено",
+      "commandHint": "Введите название раздела...",
+      "copyLink": "Скопировать ссылку",
+      "copied": "Ссылка скопирована",
+      "upload": "Загрузить файл",
+      "uploaded": "Загружено",
+      "remove": "Убрать",
+      "total": "Всего: {count}",
+      "emptyList": "Список пуст"
+    },
+    "errors": {
+      "session": "Сессия истекла — войдите заново",
+      "forbidden": "Нет прав на это действие",
+      "validation": "Проверьте поля",
+      "unknown": "Не удалось сохранить",
+      "loadFailed": "Не удалось загрузить список",
+      "uploadFailed": "Не удалось загрузить файл",
+      "required": "Обязательное поле",
+      "requiredUz": "Текст на UZ обязателен"
+    },
+    "login": {
+      "brandSubtitle": "Панель управления",
+      "email": "Email",
+      "password": "Пароль",
+      "emailRequired": "Введите email",
+      "passwordRequired": "Введите пароль",
+      "invalid": "Неверный email или пароль"
+    },
+    "localized": {
+      "language": "Язык",
+      "copyFromUz": "Из UZ",
+      "copyFromUzTitle": "Скопировать из UZ",
+      "htmlHint": "Поддерживается HTML"
+    },
+    "editor": {
+      "bold": "Жирный",
+      "italic": "Курсив",
+      "heading2": "Заголовок 2",
+      "heading3": "Заголовок 3",
+      "bulletList": "Список",
+      "orderedList": "Нумерованный список",
+      "link": "Ссылка",
+      "linkPrompt": "Адрес ссылки",
+      "undo": "Отменить",
+      "redo": "Вернуть",
+      "placeholder": "Введите текст..."
+    },
+    "media": {
+      "title": "Медиатека",
+      "pickFromLibrary": "Выбрать из медиатеки",
+      "empty": "Пока нет файлов",
+      "uploadFirst": "Загрузите первый файл.",
+      "searchPlaceholder": "Поиск по имени файла (Enter)",
+      "folder": "Папка",
+      "allFolders": "Все папки",
+      "fileCount": "Файлов: {count}",
+      "deleteConfirm": "Удалить файл?",
+      "tooLarge": "Размер файла {size} — больше 500 КБ"
+    },
+    "dash": {
+      "description": "Текущее состояние и последние обращения",
+      "leadsToday": "Заявки за сегодня",
+      "leadsWeek": "Заявки за 7 дней",
+      "leadsMonth": "Заявки за 30 дней",
+      "vsYesterday": "по сравнению со вчера",
+      "vsPrevWeek": "по сравнению с прошлой неделей",
+      "vsPrevMonth": "по сравнению с прошлым месяцем",
+      "conversion": "Конверсия (записались на обучение)",
+      "attempts": "Прошли тест",
+      "downloads": "Скачивания материалов",
+      "unread": "Непрочитанные сообщения",
+      "openVacancies": "Открытые вакансии",
+      "newApplications": "Новых откликов: {count}",
+      "latestLeads": "Новые заявки",
+      "latestApplications": "Отклики на вакансии",
+      "lastN": "Последние {count}",
+      "noLeads": "Пока нет заявок",
+      "call": "Позвонить"
+    },
+    "charts": {
+      "leadsPerDay": "Заявки по дням (30 дней)",
+      "bySource": "По источнику",
+      "byCourse": "Заявки по курсам",
+      "scores": "Распределение результатов",
+      "topMaterials": "Самые скачиваемые материалы",
+      "noData": "Пока нет данных"
+    },
+    "leads": {
+      "description": "Всего заявок: {count}. Статус и ответственного меняйте здесь.",
+      "name": "Имя",
+      "phone": "Телефон",
+      "status": "Статус",
+      "source": "Источник",
+      "course": "Курс",
+      "assignee": "Ответственный",
+      "assigneeFull": "Ответственный сотрудник",
+      "date": "Дата",
+      "searchPlaceholder": "Имя или телефон...",
+      "filterAll": "{label}: все",
+      "from": "С",
+      "to": "По",
+      "empty": "Нет заявок",
+      "emptyHint": "По выбранным фильтрам заявок нет.",
+      "bulkStatus": "Изменить статус…",
+      "bulkAssign": "Назначить ответственного…",
+      "assigned": "Ответственный назначен",
+      "assigneeUpdated": "Ответственный обновлён",
+      "unassigned": "— не назначен —",
+      "createdAt": "Создано: {date}",
+      "facts": "Данные",
+      "statusAndOwner": "Статус и ответственный",
+      "notes": "Заметки",
+      "notesHint": "Итоги звонка, договорённости и т.д.",
+      "notePlaceholder": "Напишите заметку...",
+      "noteAdded": "Заметка добавлена",
+      "noNotes": "Пока нет заметок",
+      "system": "Система",
+      "testResult": "Результат теста",
+      "purge": "Удалить полностью",
+      "purgeHint": "Для запросов на удаление персональных данных. Необратимо.",
+      "purgeConfirm": "Удалить заявку полностью? Это необратимо.",
+      "page": "Страница",
+      "locale": "Язык",
+      "preferredTime": "Удобное время",
+      "message": "Сообщение",
+      "device": "Устройство",
+      "email": "Email",
+      "referrer": "Referrer"
+    },
+    "apps": {
+      "description": "Всего откликов: {count}",
+      "candidate": "Кандидат",
+      "vacancy": "Вакансия",
+      "cv": "Резюме",
+      "download": "Скачать",
+      "empty": "Нет откликов",
+      "emptyHint": "Пока никто не откликнулся.",
+      "notePlaceholder": "Внутренняя заметка...",
+      "saveNote": "Сохранить заметку",
+      "noteSaved": "Заметка сохранена"
+    },
+    "msgs": {
+      "description": "Непрочитанных сообщений: {count}",
+      "unreadOnly": "Непрочитанные",
+      "empty": "Нет сообщений",
+      "emptyHint": "Через форму обратной связи сообщений не поступало.",
+      "markRead": "Отметить прочитанным",
+      "markUnread": "Отметить непрочитанным",
+      "new": "Новое"
+    },
+    "attempts": {
+      "description": "Всего попыток: {count}",
+      "count": "Попытки",
+      "average": "Средний результат",
+      "tracks": "Направления",
+      "recent": "Последние попытки",
+      "track": "Направление",
+      "score": "Результат",
+      "level": "Уровень",
+      "lead": "Заявка",
+      "open": "Открыть",
+      "empty": "Пока нет попыток"
+    },
+    "tests": {
+      "description": "Выберите направление, чтобы изменить банк вопросов и границы уровней.",
+      "questions": "Вопросы",
+      "levels": "Уровни",
+      "attempts": "Попытки",
+      "editQuestions": "Редактировать вопросы",
+      "summary": "Вопросов: {questions} · уровней: {bands}",
+      "bank": "Банк вопросов",
+      "csvHint": "Столбцы CSV: prompt, option1…option5, correct, points, difficulty",
+      "csvExport": "Экспорт CSV",
+      "csvImport": "Импорт CSV",
+      "imported": "Добавлено вопросов: {imported}, пропущено: {skipped}",
+      "question": "Вопрос",
+      "newQuestion": "Новый вопрос",
+      "editQuestion": "Редактировать вопрос",
+      "promptLabel": "Текст вопроса",
+      "promptHint": "Для диалога в две строки нажмите Enter, для пропуска используйте _____.",
+      "options": "Варианты ответа",
+      "correctOption": "Правильный ответ {index}",
+      "addOption": "+ Вариант",
+      "points": "Балл",
+      "difficulty": "Сложность (1–5)",
+      "active": "Активен",
+      "inactive": "Отключён",
+      "deleteQuestion": "Удалить вопрос?",
+      "noQuestions": "Нет вопросов",
+      "bands": "Границы уровней",
+      "bandsHint": "Уровень и рекомендуемый курс выбираются по диапазону баллов",
+      "band": "Уровень",
+      "minScore": "Мин. балл",
+      "maxScore": "Макс. балл",
+      "levelName": "Название уровня",
+      "bandTitle": "Заголовок",
+      "bandDescription": "Описание",
+      "recommendedCourse": "Рекомендуемый курс",
+      "deleteBand": "Удалить уровень?"
+    },
+    "users": {
+      "description": "Назначьте роли сотрудникам. Роли проверяются и на сервере.",
+      "staff": "Сотрудники",
+      "name": "Имя",
+      "role": "Роль",
+      "lastLogin": "Последний вход",
+      "active": "Активен",
+      "blocked": "Заблокирован",
+      "block": "Заблокировать",
+      "blocked_toast": "Заблокирован",
+      "newUser": "Новый пользователь",
+      "editUser": "Редактировать пользователя",
+      "passwordChange": "(чтобы изменить)"
+    },
+    "settings": {
+      "description": "Бренд, контакты, соцсети, аналитика и Telegram-каналы.",
+      "brand": "Бренд",
+      "brandName": "Название бренда",
+      "tagline": "Слоган",
+      "logo": "Логотип",
+      "ogImage": "OG-изображение (для соцсетей)",
+      "ctaAndLms": "Главная кнопка и LMS",
+      "ctaLabel": "Текст кнопки",
+      "ctaHref": "Ссылка кнопки",
+      "lmsLabel": "Текст кнопки LMS",
+      "lmsUrl": "Ссылка LMS",
+      "contact": "Контакты",
+      "phones": "Телефоны",
+      "email": "Email",
+      "currency": "Валюта",
+      "ticker": "Бегущая строка",
+      "tickerHint": "Бегущая строка на главной",
+      "tickerItems": "Фразы",
+      "analytics": "Аналитика",
+      "analyticsHint": "Если оставить пустым, скрипт не загрузится",
+      "telegram": "Telegram-каналы",
+      "telegramHint": "Отдельный канал для каждого типа уведомлений",
+      "telegramLead": "Заявки",
+      "telegramApplication": "Отклики на вакансии",
+      "telegramContact": "Сообщения обратной связи",
+      "telegramTest": "Результаты теста",
+      "privacy": "Политика конфиденциальности",
+      "privacyText": "Текст",
+      "credit": "Подпись в футере",
+      "creditText": "Текст",
+      "creditUrl": "Ссылка"
+    },
+    "audit": {
+      "description": "Всего записей: {count}",
+      "time": "Время",
+      "user": "Пользователь",
+      "action": "Действие",
+      "entity": "Объект",
+      "ip": "IP",
+      "empty": "Нет записей"
+    },
+    "fields": {
+      "address": "Адрес",
+      "answer": "Ответ",
+      "authorName": "Имя автора",
+      "authorRole": "Кто (родитель / студент)",
+      "avatarUrl": "Аватар",
+      "bio": "Краткая информация",
+      "body": "Текст",
+      "categoryId": "Раздел",
+      "certificates": "Сертификаты",
+      "conditions": "Условия",
+      "content": "Текст отзыва",
+      "courses": "Курсы",
+      "coverUrl": "Обложка",
+      "ctaHref": "Ссылка кнопки",
+      "ctaLabel": "Текст кнопки",
+      "currency": "Валюта",
+      "curriculum": "Учебная программа",
+      "department": "Отдел",
+      "description": "Описание",
+      "durationLabel": "Длительность",
+      "employmentType": "Тип занятости",
+      "endsAt": "Дата окончания",
+      "excerpt": "Кратко",
+      "experience": "Опыт (лет)",
+      "externalUrl": "Внешняя ссылка (YouTube и др.)",
+      "eyebrow": "Надзаголовок",
+      "fileSize": "Размер файла (байт)",
+      "fileUrl": "Ссылка на файл",
+      "fullName": "Полное имя",
+      "group": "Группа",
+      "groupId": "Раздел",
+      "hasDetailPage": "Отдельная страница",
+      "headline": "Заголовок",
+      "href": "Ссылка",
+      "icon": "Иконка",
+      "ieltsScore": "Балл IELTS",
+      "imageAlt": "Alt-текст изображения",
+      "imageUrl": "Изображение",
+      "includes": "Что входит в курс",
+      "isActive": "Активно",
+      "isFeatured": "Избранное",
+      "isOpen": "Открыта",
+      "isPublished": "Опубликовано",
+      "isVisible": "Видно",
+      "key": "Ключ",
+      "label": "Название",
+      "level": "Уровень",
+      "mapEmbedUrl": "Ссылка встраивания карты",
+      "mapLinkUrl": "Ссылка на карту",
+      "name": "Название",
+      "openInNew": "Открывать в новой вкладке",
+      "overallBand": "Overall band",
+      "phones": "Телефоны",
+      "photoAlt": "Alt-текст фото",
+      "photoUrl": "Фото (3:4)",
+      "position": "Должность",
+      "price": "Цена",
+      "priceNote": "Примечание к цене",
+      "publishedAt": "Дата публикации",
+      "publisher": "Издательство",
+      "question": "Вопрос",
+      "quote": "Цитата",
+      "rating": "Оценка (1–5)",
+      "readingMinutes": "Время чтения (мин)",
+      "requireContact": "Запрашивать контакты перед скачиванием",
+      "requirements": "Требования",
+      "responsibilities": "Обязанности",
+      "salaryFrom": "Зарплата (от)",
+      "salaryTo": "Зарплата (до)",
+      "schedule": "Расписание занятий",
+      "seoDescription": "SEO-описание",
+      "seoTitle": "SEO-заголовок",
+      "shortDesc": "Краткое описание",
+      "showSalary": "Показывать зарплату",
+      "slug": "Slug",
+      "sourceLabel": "Источник (Instagram / Telegram / Google)",
+      "sourceUrl": "Ссылка на источник",
+      "startsAt": "Дата начала",
+      "studentName": "Имя студента",
+      "subtitle": "Подзаголовок",
+      "tags": "Теги",
+      "teachers": "Преподаватели",
+      "title": "Заголовок",
+      "type": "Тип",
+      "value": "Значение",
+      "videoUrl": "Ссылка на видео (YouTube)",
+      "workingHours": "Часы работы",
+      "solution": {
+        "skill": "Решение: навык",
+        "title": "Решение: заголовок",
+        "description": "Решение: описание",
+        "imageUrl": "Решение: изображение"
+      },
+      "downloadCount": "Скачивания",
+      "viewCount": "Просмотры"
+    },
+    "resources": {
+      "hero": {
+        "title": "Слайды Hero",
+        "singular": "Слайд",
+        "description": "Большой баннер на главной. Несколько слайдов меняются автоматически.",
+        "fields": {
+          "imageUrl": "Изображение"
+        },
+        "hints": {
+          "headline": "<mark>слово</mark> — чтобы выделить"
+        }
+      },
+      "home-sections": {
+        "title": "Блоки главной страницы",
+        "singular": "Блок",
+        "description": "Перетащите блоки, чтобы изменить порядок, или отключите их.",
+        "fields": {
+          "body": "Текст (для блока «О нас»)"
+        },
+        "hints": {
+          "key": "hero, about, courses … — связан с кодом, не меняйте"
+        }
+      },
+      "stats": {
+        "title": "Цифры статистики",
+        "singular": "Цифра",
+        "fields": {
+          "label": "Подпись"
+        }
+      },
+      "advantages": {
+        "title": "Преимущества",
+        "singular": "Преимущество"
+      },
+      "testimonials": {
+        "title": "Отзывы клиентов",
+        "singular": "Отзыв",
+        "fields": {
+          "isFeatured": "Показывать вверху"
+        }
+      },
+      "success-stories": {
+        "title": "Результаты IELTS",
+        "singular": "Результат",
+        "fields": {
+          "imageUrl": "Изображение сертификата"
+        }
+      },
+      "promotions": {
+        "title": "Акции",
+        "singular": "Акция",
+        "fields": {
+          "title": "Название"
+        }
+      },
+      "faq": {
+        "title": "Вопросы и ответы",
+        "singular": "Вопрос"
+      },
+      "faq-categories": {
+        "title": "Разделы FAQ",
+        "singular": "Раздел",
+        "fields": {
+          "name": "Название"
+        }
+      },
+      "branches": {
+        "title": "Филиалы",
+        "singular": "Филиал",
+        "fields": {
+          "name": "Название",
+          "imageUrl": "Изображение"
+        }
+      },
+      "navigation": {
+        "title": "Меню сайта",
+        "singular": "Пункт меню",
+        "description": "Ссылки в шапке и подвале.",
+        "fields": {
+          "label": "Название"
+        }
+      },
+      "material-groups": {
+        "title": "Разделы материалов",
+        "singular": "Раздел",
+        "fields": {
+          "name": "Название"
+        }
+      },
+      "materials": {
+        "title": "Материалы",
+        "singular": "Материал",
+        "fields": {
+          "title": "Название",
+          "coverUrl": "Изображение обложки"
+        },
+        "hints": {
+          "fileUrl": "Адрес загруженного файла"
+        }
+      },
+      "vacancies": {
+        "title": "Вакансии",
+        "singular": "Вакансия",
+        "fields": {
+          "description": "Полное описание",
+          "title": "Название"
+        }
+      },
+      "hiring-steps": {
+        "title": "Этапы найма",
+        "singular": "Этап"
+      },
+      "posts": {
+        "title": "Блог",
+        "singular": "Статья"
+      },
+      "courses": {
+        "title": "Курсы",
+        "singular": "Курс",
+        "fields": {
+          "description": "Полное описание",
+          "coverUrl": "Изображение обложки",
+          "isFeatured": "Избранный курс",
+          "title": "Название"
+        },
+        "hints": {
+          "level": "Например: Beginner – Upper-Intermediate",
+          "durationLabel": "Например: 3 месяца",
+          "priceNote": "Например: за один уровень"
+        }
+      },
+      "teachers": {
+        "title": "Преподаватели",
+        "singular": "Преподаватель"
+      },
+      "problems": {
+        "title": "Проблемы",
+        "singular": "Проблема",
+        "description": "Решение каждой проблемы хранится отдельно.",
+        "fields": {
+          "title": "Проблема"
+        }
+      }
+    }
   },
   "course": {
     "curriculum": "Учебная программа",

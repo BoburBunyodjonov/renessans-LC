@@ -367,3 +367,81 @@ Re-seeding recreates test options with new ids, so a page cached from before sco
 silence — every submitted option id was unknown. `submitAttempt` now returns a stale marker when
 answers were given but none matched, the API answers `409 STALE_TEST`, and the runner clears its
 saved progress and asks the visitor to reload. Covered by a unit test.
+
+## Admin panel localisation (post-handover)
+
+The public site was translated from the start; the admin panel was not. Every label, column
+heading, button, toast and error in `/admin` now comes from the message files, and staff pick
+their own panel language from the topbar. The choice is stored in an `admin_locale` cookie, so it
+survives sessions and does not touch the public site's locale prefixes.
+
+**Why the cookie, not a URL prefix.** `/admin` is deliberately not locale-prefixed (§13), so there
+is no segment to read a locale from. `i18n/request.ts` therefore falls back to the cookie whenever
+`requestLocale` is absent, which is what makes _server_ components follow the switcher — without
+it the sidebar and page headings stayed Uzbek while the forms translated, because client
+components read the provider and server components read the request config.
+
+`messages/{uz,ru,en}.json` hold 663 keys each and stay in sync (`pnpm check:i18n`). Resource labels
+resolve through `components/admin/resource-labels.ts`, which prefers a resource-specific key, falls
+back to a shared field key, and finally to the registry's Uzbek source text — so a new content type
+works untranslated and improves as keys are added.
+
+`pnpm check:admin-i18n` is the acceptance check: for each of the three languages it drives the
+switcher and asserts the sidebar, the page heading, the document title (all server-rendered) and
+the save button and form labels (client-rendered) match that language's message file, and that no
+raw message key leaks into the page. 15 assertions, all passing.
+
+### Defects found while doing this
+
+1. **The sign-in lockout counted successful logins.** `authorize()` consumed one of five attempts
+   per 15 minutes on _every_ call, so a staff member who signed in six times — several devices, a
+   couple of tabs — locked themselves out with the correct password. Brute-force protection should
+   only care about failures: the check now peeks at the budget (`peekRateLimit`, which never
+   consumes) and only records an attempt when the email is unknown, the account is inactive, or the
+   password is wrong. The limit itself is unchanged. Covered by three unit tests, and verified end
+   to end: eight consecutive correct sign-ins all succeed, and six wrong passwords still lock the
+   account.
+
+2. **Eleven admin pages hard-coded their Uzbek browser-tab title**, and the generic resource route
+   used the registry's Uzbek label. All now build their title through `getTranslations`, so the tab
+   follows the panel language.
+
+3. **Two acceptance scripts were asserting the wrong things** and had been passing for the wrong
+   reasons. `a[href^="/admin/advantages/"]` matched the _"New"_ button before any list row, so the
+   scripts filled in a create form and then checked whichever row happened to sort first; they now
+   scope to list rows and verify the exact record they opened. The editor check also asserted the
+   address bar to prove a denied route redirects — but `redirect()` serves the dashboard without
+   always rewriting the URL, so it now asserts what actually matters: that no user or audit data
+   renders. Both scripts also waited fixed delays for a save; they now wait for the save toast,
+   which is what made them flaky on a cold dev compile.
+
+4. **The seed churned test question ids on every run.** Questions, options and bands were deleted
+   and recreated, so each `db:seed` minted fresh cuids — silently invalidating any page already
+   serving the old ids, which is what the `STALE_TEST` guard exists to catch. Seeded rows now carry
+   deterministic ids (`level-general-q1-o2`), so re-seeding is genuinely idempotent: rows are
+   upserted, anything dropped from the authored bank is removed, and past attempts keep pointing at
+   real options. Verified by seeding twice and comparing all 360 option ids. The seed also asks a
+   running server to drop its cache tags afterwards (best effort — nothing is listening during a
+   fresh bootstrap), because a seed runs outside the app and cannot call `revalidateTag` itself.
+
+5. **The submit API required ids to be cuids.** Giving seeded rows deterministic ids surfaced a
+   contract that was too narrow: `z.string().cuid()` rejected `level-general-q1-o2`, so a completed
+   test came back 422 and the visitor was told the test had changed. Ids are opaque strings — rows
+   the app creates get `cuid()`, seeded rows do not — so the schemas now use a shared
+   `recordIdSchema` that bounds length and charset instead of assuming a generator. Whether an id
+   *exists* was always settled by the lookup that follows. Applied to test answers, `courseId` and
+   `vacancyId`, and covered by tests for both id styles.
+
+6. **The admin login redirect left the host the visitor was on.** `new URL('/admin/login',
+   request.nextUrl)` resolves its origin from `AUTH_URL`/`NEXTAUTH_URL`, so an unauthenticated
+   request to `/admin` on any other hostname redirected to the configured one — visible locally as
+   a redirect from port 3111 to port 3000, and in production as staff being bounced off a preview
+   domain, an apex/www variant, or a proxied host. The middleware now builds the redirect from the
+   request's own `x-forwarded-host`/`host`, consistent with the `trustHost` already set on the auth
+   config.
+
+### Worth knowing before deploying
+
+`next build` fetches Inter and Poppins from Google Fonts. A build in a network-restricted
+environment fails at `src/lib/fonts.ts` rather than falling back — worth knowing if the Docker
+image is ever built without egress. Self-hosting the two font files would remove the dependency.

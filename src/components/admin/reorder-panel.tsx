@@ -5,11 +5,13 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Pencil } from 'lucide-react';
 import { SortableList } from '@/components/admin/sortable-list';
 import { EmptyState, StatusPill } from '@/components/admin/ui';
 import { describeError } from '@/components/admin/form-shell';
 import { reorderRecords, togglePublished } from '@/server/actions/content';
+import { resourceLabels } from '@/components/admin/resource-labels';
 import type { ResourceConfig } from '@/config/admin-resources';
 
 type Row = Record<string, unknown>;
@@ -27,13 +29,15 @@ function primaryLabel(config: ResourceConfig, row: Row): string {
 /** List + drag-reorder view for resources that carry an `order` column. */
 export function ReorderPanel({ config, rows }: { config: ResourceConfig; rows: Row[] }) {
   const router = useRouter();
+  const t = useTranslations('admin');
+  const labels = resourceLabels(config, t);
   const [, startTransition] = useTransition();
 
   if (rows.length === 0) {
     return (
       <EmptyState
-        title="Hozircha yozuv yo‘q"
-        description={`Birinchi "${config.singular.toLowerCase()}" yozuvini qo‘shing.`}
+        title={t('common.noRecords')}
+        description={`${labels.singular}: ${t('common.addFirst')}`}
       />
     );
   }
@@ -72,16 +76,18 @@ export function ReorderPanel({ config, rows }: { config: ResourceConfig; rows: R
                   startTransition(async () => {
                     const result = await togglePublished(config.key, String(row.id), !published);
                     if (result.ok) {
-                      toast.success(!published ? 'Chop etildi' : 'Yashirildi');
+                      toast.success(
+                        !published ? t('common.publishedToast') : t('common.hiddenToast'),
+                      );
                       router.refresh();
                     } else {
-                      toast.error(describeError(result.error));
+                      toast.error(describeError(result.error, t));
                     }
                   })
                 }
               >
                 <StatusPill tone={published ? 'success' : 'neutral'}>
-                  {published ? 'Chop etilgan' : 'Yashirin'}
+                  {published ? t('common.published') : t('common.hidden')}
                 </StatusPill>
               </button>
             ) : null}
@@ -91,7 +97,7 @@ export function ReorderPanel({ config, rows }: { config: ResourceConfig; rows: R
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700"
             >
               <Pencil className="size-4" aria-hidden />
-              Tahrirlash
+              {t('common.edit')}
             </Link>
           </div>
         );

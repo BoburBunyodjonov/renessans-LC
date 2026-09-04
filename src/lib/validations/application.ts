@@ -5,12 +5,11 @@ import {
   nameSchema,
   optionalEmailSchema,
   phoneSchema,
+  recordIdSchema,
 } from './common';
 
 export const applicationSchema = z.object({
-  vacancyId: z
-    .string()
-    .cuid()
+  vacancyId: recordIdSchema
     .optional()
     .or(z.literal(''))
     .transform((value) => value || undefined),

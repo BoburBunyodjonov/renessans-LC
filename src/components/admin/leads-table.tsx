@@ -3,6 +3,7 @@
 import { useMemo, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Download, Phone, Send } from 'lucide-react';
@@ -42,6 +43,7 @@ export function LeadsTable({
   canManage: boolean;
   canExport: boolean;
 }) {
+  const t = useTranslations('admin');
   const router = useRouter();
   const searchParams = useSearchParams();
   const [pending, startTransition] = useTransition();
@@ -56,13 +58,20 @@ export function LeadsTable({
 
   const columns = useMemo<ColumnDef<LeadRow, unknown>[]>(() => {
     const list: ColumnDef<LeadRow, unknown>[] = [];
-    if (canManage) list.push(selectionColumn<LeadRow>());
+    if (canManage) {
+      list.push(
+        selectionColumn<LeadRow>({
+          selectAll: t('common.selectAll'),
+          selectRow: t('common.selectRow'),
+        }),
+      );
+    }
 
     list.push(
       {
         id: 'name',
         accessorKey: 'name',
-        header: 'Ism',
+        header: t('leads.name'),
         cell: ({ row }) => (
           <Link
             href={`/admin/leads/${row.original.id}`}
@@ -75,7 +84,7 @@ export function LeadsTable({
       {
         id: 'phone',
         accessorKey: 'phone',
-        header: 'Telefon',
+        header: t('leads.phone'),
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <a href={`tel:${row.original.phone}`} className="text-admin-text tabular-nums">
@@ -83,7 +92,7 @@ export function LeadsTable({
             </a>
             <a
               href={`tel:${row.original.phone}`}
-              title="Qo‘ng‘iroq"
+              title={t('dash.call')}
               className="text-brand-600 hover:text-brand-700"
             >
               <Phone className="size-4" aria-hidden />
@@ -103,7 +112,7 @@ export function LeadsTable({
       {
         id: 'status',
         accessorKey: 'status',
-        header: 'Holat',
+        header: t('leads.status'),
         cell: ({ row }) =>
           canManage ? (
             <select
@@ -112,10 +121,10 @@ export function LeadsTable({
                 startTransition(async () => {
                   const result = await updateLeadStatus(row.original.id, event.target.value);
                   if (result.ok) {
-                    toast.success('Holat yangilandi');
+                    toast.success(t('common.statusUpdated'));
                     router.refresh();
                   } else {
-                    toast.error(describeError(result.error));
+                    toast.error(describeError(result.error, t));
                   }
                 })
               }
@@ -136,7 +145,7 @@ export function LeadsTable({
       {
         id: 'source',
         accessorKey: 'source',
-        header: 'Manba',
+        header: t('leads.source'),
         cell: ({ row }) => (
           <span className="text-xs text-admin-muted">
             {LEAD_SOURCE_LABELS[row.original.source] ?? row.original.source}
@@ -146,19 +155,19 @@ export function LeadsTable({
       {
         id: 'course',
         accessorKey: 'course',
-        header: 'Kurs',
+        header: t('leads.course'),
         cell: ({ row }) => <span className="text-sm">{row.original.course ?? '—'}</span>,
       },
       {
         id: 'assignee',
         accessorKey: 'assignee',
-        header: 'Mas’ul',
+        header: t('leads.assignee'),
         cell: ({ row }) => <span className="text-sm">{row.original.assignee ?? '—'}</span>,
       },
       {
         id: 'createdAt',
         accessorKey: 'createdAt',
-        header: 'Sana',
+        header: t('leads.date'),
         cell: ({ row }) => (
           <span className="text-xs text-admin-muted tabular-nums">
             {new Date(row.original.createdAt).toLocaleString('uz-UZ', {
@@ -171,7 +180,7 @@ export function LeadsTable({
     );
 
     return list;
-  }, [canManage, router]);
+  }, [canManage, router, t]);
 
   const exportHref = `/api/admin/export?entity=leads&${searchParams.toString()}`;
 
@@ -185,11 +194,12 @@ export function LeadsTable({
       sort={sort}
       loading={pending}
       getRowId={(row) => row.id}
-      searchPlaceholder="Ism yoki telefon..."
+      searchPlaceholder={t('leads.searchPlaceholder')}
       toolbar={
         <div className="flex flex-wrap items-center gap-2">
           <FilterSelect
-            label="Holat"
+            label={t('leads.status')}
+            allLabel={t('leads.filterAll', { label: t('leads.status') })}
             value={searchParams.get('status') ?? ''}
             options={LEAD_STATUSES.map((status) => ({
               value: status,
@@ -198,33 +208,36 @@ export function LeadsTable({
             onChange={(value) => setParam('status', value)}
           />
           <FilterSelect
-            label="Manba"
+            label={t('leads.source')}
+            allLabel={t('leads.filterAll', { label: t('leads.source') })}
             value={searchParams.get('source') ?? ''}
             options={Object.entries(LEAD_SOURCE_LABELS).map(([value, label]) => ({ value, label }))}
             onChange={(value) => setParam('source', value)}
           />
           <FilterSelect
-            label="Kurs"
+            label={t('leads.course')}
+            allLabel={t('leads.filterAll', { label: t('leads.course') })}
             value={searchParams.get('courseId') ?? ''}
             options={courses}
             onChange={(value) => setParam('courseId', value)}
           />
           <FilterSelect
-            label="Mas’ul"
+            label={t('leads.assignee')}
+            allLabel={t('leads.filterAll', { label: t('leads.assignee') })}
             value={searchParams.get('assigneeId') ?? ''}
             options={staff}
             onChange={(value) => setParam('assigneeId', value)}
           />
           <input
             type="date"
-            aria-label="Dan"
+            aria-label={t('leads.from')}
             value={searchParams.get('from') ?? ''}
             onChange={(event) => setParam('from', event.target.value)}
             className="h-10 rounded-md border border-admin-border bg-admin-panel px-2 text-xs text-admin-text"
           />
           <input
             type="date"
-            aria-label="Gacha"
+            aria-label={t('leads.to')}
             value={searchParams.get('to') ?? ''}
             onChange={(event) => setParam('to', event.target.value)}
             className="h-10 rounded-md border border-admin-border bg-admin-panel px-2 text-xs text-admin-text"
@@ -256,17 +269,17 @@ export function LeadsTable({
                     startTransition(async () => {
                       const result = await bulkUpdateLeads(ids, { status });
                       if (result.ok) {
-                        toast.success('Holat yangilandi');
+                        toast.success(t('common.statusUpdated'));
                         clear();
                         router.refresh();
                       } else {
-                        toast.error(describeError(result.error));
+                        toast.error(describeError(result.error, t));
                       }
                     });
                   }}
                   className="rounded-md border border-brand-600/40 bg-white px-2 py-1.5 text-xs font-semibold"
                 >
-                  <option value="">Holatni o‘zgartirish…</option>
+                  <option value="">{t('leads.bulkStatus')}</option>
                   {LEAD_STATUSES.map((status) => (
                     <option key={status} value={status}>
                       {LEAD_STATUS_LABELS[status]}
@@ -282,17 +295,17 @@ export function LeadsTable({
                     startTransition(async () => {
                       const result = await bulkUpdateLeads(ids, { assigneeId });
                       if (result.ok) {
-                        toast.success('Mas’ul biriktirildi');
+                        toast.success(t('leads.assigned'));
                         clear();
                         router.refresh();
                       } else {
-                        toast.error(describeError(result.error));
+                        toast.error(describeError(result.error, t));
                       }
                     });
                   }}
                   className="rounded-md border border-brand-600/40 bg-white px-2 py-1.5 text-xs font-semibold"
                 >
-                  <option value="">Mas’ul biriktirish…</option>
+                  <option value="">{t('leads.bulkAssign')}</option>
                   {staff.map((member) => (
                     <option key={member.value} value={member.value}>
                       {member.label}
@@ -303,20 +316,20 @@ export function LeadsTable({
             )
           : undefined
       }
-      emptyState={
-        <EmptyState title="Ariza yo‘q" description="Tanlangan filtrlar bo‘yicha ariza topilmadi." />
-      }
+      emptyState={<EmptyState title={t('leads.empty')} description={t('leads.emptyHint')} />}
     />
   );
 }
 
 function FilterSelect({
   label,
+  allLabel,
   value,
   options,
   onChange,
 }: {
   label: string;
+  allLabel: string;
   value: string;
   options: Option[];
   onChange: (value: string) => void;
@@ -328,7 +341,7 @@ function FilterSelect({
       onChange={(event) => onChange(event.target.value)}
       className="h-10 rounded-md border border-admin-border bg-admin-panel px-2 text-xs font-semibold text-admin-text"
     >
-      <option value="">{label}: barchasi</option>
+      <option value="">{allLabel}</option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}

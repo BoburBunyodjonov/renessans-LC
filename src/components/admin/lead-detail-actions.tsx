@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Loader2, Trash2 } from 'lucide-react';
 import { Panel, PanelTitle } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ export function LeadDetailActions({
   canPurge: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations('admin');
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState('');
 
@@ -41,7 +43,7 @@ export function LeadDetailActions({
         toast.success(success);
         router.refresh();
       } else {
-        toast.error(describeError(result.error ?? 'UNKNOWN_ERROR'));
+        toast.error(describeError(result.error ?? 'UNKNOWN_ERROR', t));
       }
     });
   }
@@ -49,15 +51,15 @@ export function LeadDetailActions({
   return (
     <div className="flex flex-col gap-4">
       <Panel>
-        <PanelTitle>Holat va mas’ul</PanelTitle>
+        <PanelTitle>{t('leads.statusAndOwner')}</PanelTitle>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label className="text-admin-text">Holat</Label>
+            <Label className="text-admin-text">{t('leads.status')}</Label>
             <select
               value={status}
               disabled={!canManage || pending}
               onChange={(event) =>
-                run(() => updateLeadStatus(leadId, event.target.value), 'Holat yangilandi')
+                run(() => updateLeadStatus(leadId, event.target.value), t('common.statusUpdated'))
               }
               className="h-11 rounded-md border border-admin-border bg-admin-panel px-3 text-sm text-admin-text"
             >
@@ -70,16 +72,19 @@ export function LeadDetailActions({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label className="text-admin-text">Mas’ul xodim</Label>
+            <Label className="text-admin-text">{t('leads.assigneeFull')}</Label>
             <select
               value={assigneeId ?? ''}
               disabled={!canManage || pending}
               onChange={(event) =>
-                run(() => assignLead(leadId, event.target.value || null), 'Mas’ul yangilandi')
+                run(
+                  () => assignLead(leadId, event.target.value || null),
+                  t('leads.assigneeUpdated'),
+                )
               }
               className="h-11 rounded-md border border-admin-border bg-admin-panel px-3 text-sm text-admin-text"
             >
-              <option value="">— biriktirilmagan —</option>
+              <option value="">{t('leads.unassigned')}</option>
               {staff.map((member) => (
                 <option key={member.value} value={member.value}>
                   {member.label}
@@ -91,7 +96,7 @@ export function LeadDetailActions({
       </Panel>
 
       <Panel>
-        <PanelTitle hint="Qo‘ng‘iroq natijasi, kelishuvlar va h.k.">Izohlar</PanelTitle>
+        <PanelTitle hint={t('leads.notesHint')}>{t('leads.notes')}</PanelTitle>
 
         {canManage ? (
           <div className="mb-4 flex flex-col gap-2">
@@ -99,7 +104,7 @@ export function LeadDetailActions({
               rows={3}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="Izoh yozing..."
+              placeholder={t('leads.notePlaceholder')}
               className="border-admin-border bg-admin-panel text-admin-text"
             />
             <Button
@@ -110,25 +115,26 @@ export function LeadDetailActions({
                   const result = await addLeadNote(leadId, note);
                   if (result.ok) setNote('');
                   return result;
-                }, 'Izoh qo‘shildi')
+                }, t('leads.noteAdded'))
               }
               className="self-start"
             >
               {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-              Qo‘shish
+              {t('common.add')}
             </Button>
           </div>
         ) : null}
 
         {notes.length === 0 ? (
-          <p className="text-sm text-admin-muted">Hozircha izoh yo‘q</p>
+          <p className="text-sm text-admin-muted">{t('leads.noNotes')}</p>
         ) : (
           <ul className="flex flex-col gap-3">
             {notes.map((item) => (
               <li key={item.id} className="rounded-md border border-admin-border p-3">
                 <p className="text-sm whitespace-pre-line text-admin-text">{item.body}</p>
                 <p className="mt-1.5 text-xs text-admin-muted">
-                  {item.author ?? 'Tizim'} · {new Date(item.createdAt).toLocaleString('uz-UZ')}
+                  {item.author ?? t('leads.system')} ·{' '}
+                  {new Date(item.createdAt).toLocaleString('uz-UZ')}
                 </p>
               </li>
             ))}
@@ -138,30 +144,27 @@ export function LeadDetailActions({
 
       {canPurge ? (
         <Panel>
-          <PanelTitle hint="Shaxsiy ma’lumotni o‘chirish so‘rovlari uchun. Qaytarib bo‘lmaydi.">
-            Butunlay o‘chirish
-          </PanelTitle>
+          <PanelTitle hint={t('leads.purgeHint')}>{t('leads.purge')}</PanelTitle>
           <Button
             variant="ghost"
             size="sm"
             className="text-danger hover:bg-danger/10"
             disabled={pending}
             onClick={() => {
-              if (!window.confirm('Ariza butunlay o‘chirilsinmi? Bu amalni qaytarib bo‘lmaydi.'))
-                return;
+              if (!window.confirm(t('leads.purgeConfirm'))) return;
               startTransition(async () => {
                 const result = await purgeLead(leadId);
                 if (result.ok) {
-                  toast.success('O‘chirildi');
+                  toast.success(t('common.deleted'));
                   router.push('/admin/leads');
                 } else {
-                  toast.error(describeError(result.error ?? 'UNKNOWN_ERROR'));
+                  toast.error(describeError(result.error ?? 'UNKNOWN_ERROR', t));
                 }
               });
             }}
           >
             <Trash2 aria-hidden />
-            Butunlay o‘chirish
+            {t('leads.purge')}
           </Button>
         </Panel>
       ) : null}

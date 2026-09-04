@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Check, Download, Loader2, Plus, Trash2, Upload } from 'lucide-react';
 import { Panel, PanelTitle, StatusPill } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,7 @@ export function QuestionBank({
   canEdit: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations('admin');
   const [pending, startTransition] = useTransition();
   const [editing, setEditing] = useState<Question | null>(null);
   const [importing, setImporting] = useState(false);
@@ -88,7 +90,7 @@ export function QuestionBank({
         setEditing(null);
         router.refresh();
       } else {
-        toast.error(describeError(result.error ?? 'UNKNOWN_ERROR'));
+        toast.error(describeError(result.error ?? 'UNKNOWN_ERROR', t));
       }
     });
   }
@@ -125,11 +127,14 @@ export function QuestionBank({
       const result = await importQuestionsCsv(categoryId, text);
       if (result.ok) {
         toast.success(
-          `${result.data?.imported} ta savol qo‘shildi, ${result.data?.skipped} ta o‘tkazib yuborildi`,
+          t('tests.imported', {
+            imported: result.data?.imported ?? 0,
+            skipped: result.data?.skipped ?? 0,
+          }),
         );
         router.refresh();
       } else {
-        toast.error(result.fields?.csv ?? describeError(result.error));
+        toast.error(result.fields?.csv ?? describeError(result.error, t));
       }
     } finally {
       setImporting(false);
@@ -140,9 +145,7 @@ export function QuestionBank({
     <div className="flex flex-col gap-4 pb-10">
       <Panel>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <PanelTitle hint="CSV ustunlari: prompt, option1…option5, correct, points, difficulty">
-            Savollar bazasi
-          </PanelTitle>
+          <PanelTitle hint={t('tests.csvHint')}>{t('tests.bank')}</PanelTitle>
 
           <div className="flex flex-wrap gap-2">
             <Button
@@ -152,7 +155,7 @@ export function QuestionBank({
               className="border-admin-border text-admin-text hover:bg-admin-hover hover:text-admin-text"
             >
               <Download aria-hidden />
-              CSV eksport
+              {t('tests.csvExport')}
             </Button>
 
             {canEdit ? (
@@ -168,7 +171,7 @@ export function QuestionBank({
                   ) : (
                     <Upload className="size-4" aria-hidden />
                   )}
-                  CSV import
+                  {t('tests.csvImport')}
                   <input
                     type="file"
                     accept=".csv,text/csv"
@@ -183,7 +186,7 @@ export function QuestionBank({
 
                 <Button size="sm" onClick={() => setEditing(blankQuestion())}>
                   <Plus aria-hidden />
-                  Savol
+                  {t('tests.question')}
                 </Button>
               </>
             ) : null}
@@ -219,7 +222,9 @@ export function QuestionBank({
                 </ul>
               </div>
 
-              {!question.isActive ? <StatusPill tone="neutral">O‘chirilgan</StatusPill> : null}
+              {!question.isActive ? (
+                <StatusPill tone="neutral">{t('tests.inactive')}</StatusPill>
+              ) : null}
 
               {canEdit ? (
                 <div className="flex shrink-0 gap-2">
@@ -228,16 +233,16 @@ export function QuestionBank({
                     onClick={() => setEditing(question)}
                     className="text-sm font-semibold text-brand-600 hover:text-brand-700"
                   >
-                    Tahrirlash
+                    {t('common.edit')}
                   </button>
                   <button
                     type="button"
                     onClick={() => {
-                      if (!window.confirm('Savol o‘chirilsinmi?')) return;
-                      run(() => deleteQuestion(question.id), 'O‘chirildi');
+                      if (!window.confirm(t('tests.deleteQuestion'))) return;
+                      run(() => deleteQuestion(question.id), t('common.deleted'));
                     }}
                     className="rounded-md px-1 text-danger hover:bg-danger/10"
-                    aria-label="O‘chirish"
+                    aria-label={t('common.delete')}
                   >
                     <Trash2 className="size-4" aria-hidden />
                   </button>
@@ -248,17 +253,17 @@ export function QuestionBank({
         </ol>
 
         {questions.length === 0 ? (
-          <p className="py-6 text-center text-sm text-admin-muted">Savol yo‘q</p>
+          <p className="py-6 text-center text-sm text-admin-muted">{t('tests.noQuestions')}</p>
         ) : null}
       </Panel>
 
       {editing ? (
         <Panel className="flex flex-col gap-4">
-          <PanelTitle>{editing.id ? 'Savolni tahrirlash' : 'Yangi savol'}</PanelTitle>
+          <PanelTitle>{editing.id ? t('tests.editQuestion') : t('tests.newQuestion')}</PanelTitle>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="q-prompt" className="text-admin-text">
-              Savol matni
+              {t('tests.promptLabel')}
             </Label>
             <Textarea
               id="q-prompt"
@@ -267,19 +272,17 @@ export function QuestionBank({
               onChange={(event) => setEditing({ ...editing, prompt: event.target.value })}
               className={inputTheme}
             />
-            <p className="text-xs text-admin-muted">
-              Ikki qatorli dialog uchun Enter bosing, bo‘sh joy uchun _____ ishlating.
-            </p>
+            <p className="text-xs text-admin-muted">{t('tests.promptHint')}</p>
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-admin-text">Javob variantlari</Label>
+            <Label className="text-admin-text">{t('tests.options')}</Label>
             {editing.options.map((option, index) => (
               <div key={index} className="flex items-center gap-2">
                 <input
                   type="radio"
                   name="correct-option"
-                  aria-label={`To‘g‘ri javob ${index + 1}`}
+                  aria-label={t('tests.correctOption', { index: index + 1 })}
                   className="size-4 accent-brand-600"
                   checked={option.isCorrect}
                   onChange={() =>
@@ -331,7 +334,7 @@ export function QuestionBank({
                 }
                 className="self-start text-xs font-bold text-brand-600"
               >
-                + Variant
+                {t('tests.addOption')}
               </button>
             ) : null}
           </div>
@@ -339,7 +342,7 @@ export function QuestionBank({
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="q-points" className="text-admin-text">
-                Ball
+                {t('tests.points')}
               </Label>
               <Input
                 id="q-points"
@@ -354,7 +357,7 @@ export function QuestionBank({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="q-difficulty" className="text-admin-text">
-                Murakkablik (1–5)
+                {t('tests.difficulty')}
               </Label>
               <Input
                 id="q-difficulty"
@@ -375,7 +378,7 @@ export function QuestionBank({
                 checked={editing.isActive}
                 onChange={(event) => setEditing({ ...editing, isActive: event.target.checked })}
               />
-              Faol
+              {t('tests.active')}
             </label>
           </div>
 
@@ -394,12 +397,12 @@ export function QuestionBank({
                       isActive: editing.isActive,
                       options: editing.options.filter((option) => option.text.trim()),
                     }),
-                  'Saqlandi',
+                  t('common.saved'),
                 )
               }
             >
               {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-              Saqlash
+              {t('common.save')}
             </Button>
             <Button
               variant="ghost"
@@ -407,7 +410,7 @@ export function QuestionBank({
               onClick={() => setEditing(null)}
               className="text-admin-muted hover:bg-admin-hover"
             >
-              Bekor qilish
+              {t('common.cancel')}
             </Button>
           </div>
         </Panel>
@@ -440,14 +443,13 @@ function BandEditor({
   pending: boolean;
   onRun: (action: () => Promise<{ ok: boolean; error?: string }>, success: string) => void;
 }) {
+  const t = useTranslations('admin');
   const [draft, setDraft] = useState<Band | null>(null);
 
   return (
     <Panel className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <PanelTitle hint="Ball oralig‘iga qarab daraja va tavsiya etilgan kurs tanlanadi">
-          Daraja chegaralari
-        </PanelTitle>
+        <PanelTitle hint={t('tests.bandsHint')}>{t('tests.bands')}</PanelTitle>
         {canEdit ? (
           <Button
             size="sm"
@@ -464,7 +466,7 @@ function BandEditor({
             }
           >
             <Plus aria-hidden />
-            Daraja
+            {t('tests.band')}
           </Button>
         ) : null}
       </div>
@@ -489,16 +491,16 @@ function BandEditor({
                   onClick={() => setDraft(band)}
                   className="text-sm font-semibold text-brand-600 hover:text-brand-700"
                 >
-                  Tahrirlash
+                  {t('common.edit')}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    if (!window.confirm('Daraja o‘chirilsinmi?')) return;
-                    onRun(() => deleteBand(band.id), 'O‘chirildi');
+                    if (!window.confirm(t('tests.deleteBand'))) return;
+                    onRun(() => deleteBand(band.id), t('common.deleted'));
                   }}
                   className="rounded-md px-1 text-danger"
-                  aria-label="O‘chirish"
+                  aria-label={t('common.delete')}
                 >
                   <Trash2 className="size-4" aria-hidden />
                 </button>
@@ -513,7 +515,7 @@ function BandEditor({
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="band-min" className="text-admin-text">
-                Min ball
+                {t('tests.minScore')}
               </Label>
               <Input
                 id="band-min"
@@ -527,7 +529,7 @@ function BandEditor({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="band-max" className="text-admin-text">
-                Max ball
+                {t('tests.maxScore')}
               </Label>
               <Input
                 id="band-max"
@@ -541,7 +543,7 @@ function BandEditor({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="band-level" className="text-admin-text">
-                Daraja nomi
+                {t('tests.levelName')}
               </Label>
               <Input
                 id="band-level"
@@ -554,13 +556,13 @@ function BandEditor({
 
           <LocalizedInput
             id="band-title"
-            label="Sarlavha"
+            label={t('tests.bandTitle')}
             value={draft.title}
             onChange={(title) => setDraft({ ...draft, title })}
           />
           <LocalizedTextarea
             id="band-description"
-            label="Tavsif"
+            label={t('tests.bandDescription')}
             rows={3}
             value={draft.description}
             onChange={(description) => setDraft({ ...draft, description })}
@@ -568,7 +570,7 @@ function BandEditor({
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="band-course" className="text-admin-text">
-              Tavsiya etiladigan kurs
+              {t('tests.recommendedCourse')}
             </Label>
             <select
               id="band-course"
@@ -600,12 +602,12 @@ function BandEditor({
                       description: draft.description,
                       courseId: draft.courseId,
                     }),
-                  'Saqlandi',
+                  t('common.saved'),
                 );
                 setDraft(null);
               }}
             >
-              Saqlash
+              {t('common.save')}
             </Button>
             <Button
               variant="ghost"
@@ -613,7 +615,7 @@ function BandEditor({
               onClick={() => setDraft(null)}
               className="text-admin-muted hover:bg-admin-hover"
             >
-              Bekor qilish
+              {t('common.cancel')}
             </Button>
           </div>
         </div>

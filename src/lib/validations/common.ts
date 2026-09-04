@@ -52,3 +52,18 @@ export const utmSchema = z.object({
 });
 
 export const localeSchema = z.enum(['uz', 'ru', 'en']).default('uz');
+
+/**
+ * A database record id as it arrives from a form or the test runner. Ids are
+ * opaque strings, not necessarily cuids: rows created by the app get `cuid()`,
+ * but seeded rows carry deterministic ids (`level-general-q1-o2`) so re-seeding
+ * does not invalidate pages already serving them. Validating the shape rather
+ * than the generator keeps the payload bounded without rejecting valid ids —
+ * whether an id *exists* is settled by the lookup that follows.
+ */
+export const recordIdSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_-]+$/, 'Invalid id');

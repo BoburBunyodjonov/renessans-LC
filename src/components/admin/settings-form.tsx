@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { AdminFormShell } from '@/components/admin/form-shell';
 import { Panel, PanelTitle } from '@/components/admin/ui';
 import { Input, Label } from '@/components/ui/field';
@@ -34,15 +35,16 @@ type Values = {
 
 const SOCIAL_KEYS = ['telegram', 'instagram', 'youtube', 'facebook', 'tiktok', 'whatsapp'] as const;
 const TELEGRAM_KEYS: [string, string][] = [
-  ['lead', 'Arizalar'],
-  ['application', 'Vakansiya arizalari'],
-  ['contact', 'Aloqa xabarlari'],
-  ['test', 'Test natijalari'],
+  ['lead', 'settings.telegramLead'],
+  ['application', 'settings.telegramApplication'],
+  ['contact', 'settings.telegramContact'],
+  ['test', 'settings.telegramTest'],
 ];
 
 const inputTheme = 'border-admin-border bg-admin-panel text-admin-text';
 
 export function SettingsForm({ initial }: { initial: Values }) {
+  const t = useTranslations('admin');
   const [values, setValues] = useState<Values>(initial);
   const [dirty, setDirty] = useState(false);
 
@@ -62,28 +64,28 @@ export function SettingsForm({ initial }: { initial: Values }) {
       }}
     >
       <Panel className="flex flex-col gap-5">
-        <PanelTitle>Brend</PanelTitle>
+        <PanelTitle>{t('settings.brand')}</PanelTitle>
         <LocalizedInput
           id="brandName"
-          label="Brend nomi"
+          label={t('settings.brandName')}
           value={values.brandName}
           onChange={(value) => update('brandName', value)}
           required
         />
         <LocalizedInput
           id="tagline"
-          label="Shior"
+          label={t('settings.tagline')}
           value={values.tagline}
           onChange={(value) => update('tagline', value)}
         />
         <MediaPicker
-          label="Logotip"
+          label={t('settings.logo')}
           folder="brand"
           value={values.logoLightUrl || null}
           onChange={(url) => update('logoLightUrl', url ?? '')}
         />
         <MediaPicker
-          label="OG rasm (ijtimoiy tarmoqlar uchun)"
+          label={t('settings.ogImage')}
           folder="brand"
           value={values.ogImageUrl || null}
           onChange={(url) => update('ogImageUrl', url ?? '')}
@@ -91,26 +93,26 @@ export function SettingsForm({ initial }: { initial: Values }) {
       </Panel>
 
       <Panel className="flex flex-col gap-5">
-        <PanelTitle>Asosiy tugma va LMS</PanelTitle>
+        <PanelTitle>{t('settings.ctaAndLms')}</PanelTitle>
         <LocalizedInput
           id="primaryCtaLabel"
-          label="Tugma matni"
+          label={t('settings.ctaLabel')}
           value={values.primaryCtaLabel}
           onChange={(value) => update('primaryCtaLabel', value)}
         />
         <Field
-          label="Tugma havolasi"
+          label={t('settings.ctaHref')}
           value={values.primaryCtaHref}
           onChange={(value) => update('primaryCtaHref', value)}
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="LMS tugmasi matni"
+            label={t('settings.lmsLabel')}
             value={values.externalLmsLabel}
             onChange={(value) => update('externalLmsLabel', value)}
           />
           <Field
-            label="LMS havolasi"
+            label={t('settings.lmsUrl')}
             value={values.externalLmsUrl}
             onChange={(value) => update('externalLmsUrl', value)}
           />
@@ -118,16 +120,16 @@ export function SettingsForm({ initial }: { initial: Values }) {
       </Panel>
 
       <Panel className="flex flex-col gap-5">
-        <PanelTitle>Aloqa</PanelTitle>
+        <PanelTitle>{t('settings.contact')}</PanelTitle>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <Label className="text-admin-text">Telefonlar</Label>
+            <Label className="text-admin-text">{t('settings.phones')}</Label>
             <button
               type="button"
               onClick={() => update('phones', [...values.phones, ''])}
               className="text-xs font-bold text-brand-600"
             >
-              + Qo‘shish
+              + {t('common.add')}
             </button>
           </div>
           {values.phones.map((phone, index) => (
@@ -158,9 +160,13 @@ export function SettingsForm({ initial }: { initial: Values }) {
           ))}
         </div>
 
-        <Field label="Email" value={values.email} onChange={(value) => update('email', value)} />
         <Field
-          label="Valyuta"
+          label={t('settings.email')}
+          value={values.email}
+          onChange={(value) => update('email', value)}
+        />
+        <Field
+          label={t('settings.currency')}
           value={values.currency}
           onChange={(value) => update('currency', value)}
         />
@@ -178,17 +184,17 @@ export function SettingsForm({ initial }: { initial: Values }) {
       </Panel>
 
       <Panel className="flex flex-col gap-5">
-        <PanelTitle hint="Bosh sahifadagi harakatlanuvchi qator">Ticker</PanelTitle>
+        <PanelTitle hint={t('settings.tickerHint')}>{t('settings.ticker')}</PanelTitle>
         <LocalizedList
           id="tickerItems"
-          label="Iboralar"
+          label={t('settings.tickerItems')}
           value={values.tickerItems}
           onChange={(value) => update('tickerItems', value)}
         />
       </Panel>
 
       <Panel className="flex flex-col gap-5">
-        <PanelTitle hint="Bo‘sh qoldirilsa, skript umuman yuklanmaydi">Analitika</PanelTitle>
+        <PanelTitle hint={t('settings.analyticsHint')}>{t('settings.analytics')}</PanelTitle>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field
             label="Google Analytics 4 ID"
@@ -209,14 +215,12 @@ export function SettingsForm({ initial }: { initial: Values }) {
       </Panel>
 
       <Panel className="flex flex-col gap-5">
-        <PanelTitle hint="Har bir bildirishnoma turi uchun alohida kanal">
-          Telegram kanallari
-        </PanelTitle>
+        <PanelTitle hint={t('settings.telegramHint')}>{t('settings.telegram')}</PanelTitle>
         <div className="grid gap-4 sm:grid-cols-2">
           {TELEGRAM_KEYS.map(([key, label]) => (
             <Field
               key={key}
-              label={label}
+              label={t(label)}
               value={values.telegramChatIds[key] ?? ''}
               onChange={(value) =>
                 update('telegramChatIds', { ...values.telegramChatIds, [key]: value })
@@ -227,25 +231,25 @@ export function SettingsForm({ initial }: { initial: Values }) {
       </Panel>
 
       <Panel className="flex flex-col gap-5">
-        <PanelTitle>Maxfiylik siyosati</PanelTitle>
+        <PanelTitle>{t('settings.privacy')}</PanelTitle>
         <LocalizedEditor
           id="privacyPolicy"
-          label="Matn"
+          label={t('settings.privacyText')}
           value={values.privacyPolicy}
           onChange={(value) => update('privacyPolicy', value)}
         />
       </Panel>
 
       <Panel className="flex flex-col gap-5">
-        <PanelTitle>Footer krediti</PanelTitle>
+        <PanelTitle>{t('settings.credit')}</PanelTitle>
         <LocalizedInput
           id="madeByLabel"
-          label="Matn"
+          label={t('settings.privacyText')}
           value={values.madeByLabel}
           onChange={(value) => update('madeByLabel', value)}
         />
         <Field
-          label="Havola"
+          label={t('settings.creditUrl')}
           value={values.madeByUrl}
           onChange={(value) => update('madeByUrl', value)}
         />

@@ -1,5 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/admin/ui';
+import { resourceLabels } from '@/components/admin/resource-labels';
 import { ResourceForm } from '@/components/admin/resource-form';
 import { relationOptions, resourceConfig } from '@/server/admin/list';
 import { emptyValues } from '@/server/admin/records';
@@ -18,6 +20,8 @@ export default async function NewResourcePage({
   const config = resourceConfig(resource);
   if (!config) notFound();
 
+  const t = await getTranslations('admin');
+  const labels = resourceLabels(config, t as never);
   const user = await currentUser();
   if (!can(user?.role, 'contentCrud')) redirect(`/admin/${resource}`);
 
@@ -35,7 +39,10 @@ export default async function NewResourcePage({
 
   return (
     <>
-      <PageHeader title={`Yangi: ${config.singular}`} description={config.description} />
+      <PageHeader
+        title={`${t('common.new')}: ${labels.singular}`}
+        description={labels.description}
+      />
       <ResourceForm
         config={config}
         id={null}

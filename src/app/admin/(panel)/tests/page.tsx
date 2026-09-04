@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { getTranslations } from 'next-intl/server';
 import { ArrowRight } from 'lucide-react';
 import { PageHeader, Panel, StatusPill } from '@/components/admin/ui';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Test savollari' };
+export async function generateMetadata() {
+  const t = await getTranslations('admin');
+  return { title: t('nav.tests') };
+}
 
 const localizedUz = (value: unknown, fallback: string): string => {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -15,6 +19,7 @@ const localizedUz = (value: unknown, fallback: string): string => {
 };
 
 export default async function TestsPage() {
+  const t = await getTranslations('admin');
   const categories = await prisma.testCategory.findMany({
     orderBy: { order: 'asc' },
     include: {
@@ -24,10 +29,7 @@ export default async function TestsPage() {
 
   return (
     <>
-      <PageHeader
-        title="Test savollari"
-        description="Yo‘nalishni tanlab savollar bazasi va daraja chegaralarini tahrirlang."
-      />
+      <PageHeader title={t('nav.tests')} description={t('tests.description')} />
 
       <ul className="grid gap-4 md:grid-cols-2">
         {categories.map((category) => (
@@ -41,25 +43,25 @@ export default async function TestsPage() {
                   <p className="mt-0.5 text-sm text-admin-muted">{category.slug}</p>
                 </div>
                 <StatusPill tone={category.isPublished ? 'success' : 'neutral'}>
-                  {category.isPublished ? 'Chop etilgan' : 'Yashirin'}
+                  {category.isPublished ? t('common.published') : t('common.hidden')}
                 </StatusPill>
               </div>
 
               <dl className="mt-4 grid grid-cols-3 gap-3 text-sm text-admin-muted">
                 <div>
-                  <dt className="text-xs uppercase">Savollar</dt>
+                  <dt className="text-xs uppercase">{t('tests.questions')}</dt>
                   <dd className="font-display text-xl font-extrabold text-admin-text tabular-nums">
                     {category._count.questions}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase">Darajalar</dt>
+                  <dt className="text-xs uppercase">{t('tests.levels')}</dt>
                   <dd className="font-display text-xl font-extrabold text-admin-text tabular-nums">
                     {category._count.bands}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase">Urinishlar</dt>
+                  <dt className="text-xs uppercase">{t('tests.attempts')}</dt>
                   <dd className="font-display text-xl font-extrabold text-admin-text tabular-nums">
                     {category._count.attempts}
                   </dd>
@@ -70,7 +72,7 @@ export default async function TestsPage() {
                 href={`/admin/tests/${category.slug}`}
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:text-brand-700"
               >
-                Savollarni tahrirlash
+                {t('tests.editQuestions')}
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
             </Panel>

@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { authConfig } from '@/lib/auth.config';
-import { rateLimit } from '@/lib/ratelimit';
+import { peekRateLimit, rateLimit } from '@/lib/ratelimit';
 import type { Role } from '@/lib/permissions';
 
 const credentialsSchema = z.object({
@@ -27,10 +27,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
 
         const { email, password, ip } = parsed.data;
+        const attemptKey = `${ip ?? 'unknown'}:${email}`;
 
-        // 5 attempts / 15 min per IP+email (PROMPT.md §14).
-        const limited = await rateLimit('admin-login', `${ip ?? 'unknown'}:${email}`, 5, '15 m');
-        if (!limited.success) return null;
+        // 5 *failed* attempts / 15 min per IP+email (PROMPT.md §14). Only
+        // failures consume the budget: a staff member who keeps signing in
+        // correctly must never be locked out.
+        const budget = await peekRateLimit('admin-login', attemptKey, 5, '15 m');
+        if (!budget.success) return null;
+
+        const recordFailure = () => rateLimit('admin-login', attemptKey, 5, '15 m');
 
         const user = await prisma.user.findUnique({
           where: { email },
@@ -43,10 +48,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             isActive: true,
           },
         });
-        if (!user || !user.isActive) return null;
+        if (!user || !user.isActive) {
+          await recordFailure();
+          return null;
+        }
 
         const valid = await bcrypt.compare(password, user.passwordHash);
-        if (!valid) return null;
+        if (!valid) {
+          await recordFailure();
+          return null;
+        }
 
         await prisma.$transaction([
           prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } }),
