@@ -74,7 +74,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
       </div>
 
       {error ? (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className="text-sm text-danger dark:text-admin-danger">
           {t('login.invalid')}
         </p>
       ) : null}

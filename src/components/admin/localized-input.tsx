@@ -112,14 +112,14 @@ function FieldFrame({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Label htmlFor={id} className="text-admin-text">
           {label}
-          {required ? <span className="ms-1 text-danger">*</span> : null}
+          {required ? <span className="ms-1 text-danger dark:text-admin-danger">*</span> : null}
         </Label>
         {tabs}
       </div>
       {children}
       {hint ? <p className="text-xs text-admin-muted">{hint}</p> : null}
       {error ? (
-        <p role="alert" className="text-xs text-danger">
+        <p role="alert" className="text-xs text-danger dark:text-admin-danger">
           {error}
         </p>
       ) : null}
@@ -250,7 +250,7 @@ export function LocalizedList({
         <button
           type="button"
           onClick={() => onChange([...value, { ...EMPTY_LOCALIZED }])}
-          className="text-xs font-bold text-brand-600 hover:text-brand-700"
+          className="text-xs font-bold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
         >
           + {t('common.add')}
         </button>
@@ -269,7 +269,7 @@ export function LocalizedList({
           <button
             type="button"
             onClick={() => onChange(value.filter((_, i) => i !== index))}
-            className="mt-7 rounded-md px-2 py-1 text-xs font-bold text-danger hover:bg-danger/10"
+            className="mt-7 rounded-md px-2 py-1 text-xs font-bold text-danger hover:bg-danger/10 dark:text-admin-danger"
           >
             {t('common.delete')}
           </button>

@@ -148,7 +148,7 @@ export function LeadDetailActions({
           <Button
             variant="ghost"
             size="sm"
-            className="text-danger hover:bg-danger/10"
+            className="text-danger hover:bg-danger/10 dark:text-admin-danger"
             disabled={pending}
             onClick={() => {
               if (!window.confirm(t('leads.purgeConfirm'))) return;

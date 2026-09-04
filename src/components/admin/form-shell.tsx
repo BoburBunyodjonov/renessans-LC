@@ -114,7 +114,7 @@ export function AdminFormShell({
         ) : null}
 
         {dirty ? (
-          <span className="text-sm font-semibold text-warning">{t('common.unsaved')}</span>
+          <span className="text-sm font-semibold text-admin-warning">{t('common.unsaved')}</span>
         ) : null}
 
         <div className="ms-auto flex flex-wrap items-center gap-2">
@@ -146,7 +146,7 @@ export function AdminFormShell({
               onClick={handleDelete}
               disabled={deleting}
               data-testid="admin-delete"
-              className="text-danger hover:bg-danger/10"
+              className="text-danger hover:bg-danger/10 dark:text-admin-danger"
             >
               {deleting ? <Loader2 className="animate-spin" aria-hidden /> : <Trash2 aria-hidden />}
               {t('common.delete')}

@@ -70,7 +70,7 @@ export default async function TestsPage() {
 
               <Link
                 href={`/admin/tests/${category.slug}`}
-                className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:text-brand-700"
+                className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
               >
                 {t('tests.editQuestions')}
                 <ArrowRight className="size-4" aria-hidden />

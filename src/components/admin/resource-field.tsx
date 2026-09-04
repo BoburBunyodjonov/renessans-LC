@@ -106,7 +106,7 @@ export function ResourceField({
             <button
               type="button"
               onClick={() => onChange([...items, ''])}
-              className="text-xs font-bold text-brand-600 hover:text-brand-700"
+              className="text-xs font-bold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
             >
               + {t('common.add')}
             </button>
@@ -123,7 +123,7 @@ export function ResourceField({
               <button
                 type="button"
                 onClick={() => onChange(items.filter((_, i) => i !== index))}
-                className="rounded-md px-3 text-xs font-bold text-danger hover:bg-danger/10"
+                className="rounded-md px-3 text-xs font-bold text-danger hover:bg-danger/10 dark:text-admin-danger"
               >
                 ✕
               </button>
@@ -276,7 +276,7 @@ export function ResourceField({
             <button
               type="button"
               onClick={() => onChange([...blocks, { title: { ...blank }, items: [] }])}
-              className="text-xs font-bold text-brand-600 hover:text-brand-700"
+              className="text-xs font-bold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
             >
               + Modul
             </button>
@@ -299,7 +299,7 @@ export function ResourceField({
                 <button
                   type="button"
                   onClick={() => onChange(blocks.filter((_, i) => i !== blockIndex))}
-                  className="mt-7 rounded-md px-2 py-1 text-xs font-bold text-danger hover:bg-danger/10"
+                  className="mt-7 rounded-md px-2 py-1 text-xs font-bold text-danger hover:bg-danger/10 dark:text-admin-danger"
                 >
                   O‘chirish
                 </button>
@@ -361,7 +361,7 @@ export function ResourceField({
           <Label htmlFor={id} className="text-admin-text">
             {fieldLabel}
             {'required' in field && field.required ? (
-              <span className="ms-1 text-danger">*</span>
+              <span className="ms-1 text-danger dark:text-admin-danger">*</span>
             ) : null}
           </Label>
           {isLong ? (
@@ -384,7 +384,7 @@ export function ResourceField({
           )}
           {fieldHint ? <p className="text-xs text-admin-muted">{fieldHint}</p> : null}
           {error ? (
-            <p role="alert" className="text-xs text-danger">
+            <p role="alert" className="text-xs text-danger dark:text-admin-danger">
               {error}
             </p>
           ) : null}

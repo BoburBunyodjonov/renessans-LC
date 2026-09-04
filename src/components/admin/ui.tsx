@@ -101,7 +101,11 @@ export function StatCard({
       </p>
       <div className="mt-1 flex items-center gap-2 text-xs">
         {delta !== null && delta !== undefined ? (
-          <span className={positive ? 'font-bold text-success' : 'font-bold text-danger'}>
+          <span
+            className={
+              positive ? 'font-bold text-success' : 'font-bold text-danger dark:text-admin-danger'
+            }
+          >
             {positive ? '+' : ''}
             {delta}%
           </span>
@@ -114,10 +118,10 @@ export function StatCard({
 
 const TONE_CLASSES = {
   neutral: 'bg-admin-hover text-admin-muted',
-  brand: 'bg-brand-50 text-brand-600',
+  brand: 'bg-brand-50 text-brand-600 dark:bg-brand-600/20 dark:text-admin-accent',
   success: 'bg-success/10 text-success',
-  warning: 'bg-warning/15 text-warning',
-  danger: 'bg-danger/10 text-danger',
+  warning: 'bg-warning/15 text-admin-warning',
+  danger: 'bg-danger/10 text-danger dark:text-admin-danger',
 } as const;
 
 export function StatusPill({

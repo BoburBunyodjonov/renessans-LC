@@ -231,7 +231,7 @@ export function QuestionBank({
                   <button
                     type="button"
                     onClick={() => setEditing(question)}
-                    className="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                    className="text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
                   >
                     {t('common.edit')}
                   </button>
@@ -241,7 +241,7 @@ export function QuestionBank({
                       if (!window.confirm(t('tests.deleteQuestion'))) return;
                       run(() => deleteQuestion(question.id), t('common.deleted'));
                     }}
-                    className="rounded-md px-1 text-danger hover:bg-danger/10"
+                    className="rounded-md px-1 text-danger hover:bg-danger/10 dark:text-admin-danger"
                     aria-label={t('common.delete')}
                   >
                     <Trash2 className="size-4" aria-hidden />
@@ -316,7 +316,7 @@ export function QuestionBank({
                         options: editing.options.filter((_, i) => i !== index),
                       })
                     }
-                    className="px-2 text-xs font-bold text-danger"
+                    className="px-2 text-xs font-bold text-danger dark:text-admin-danger"
                   >
                     ✕
                   </button>
@@ -332,7 +332,7 @@ export function QuestionBank({
                     options: [...editing.options, { text: '', isCorrect: false }],
                   })
                 }
-                className="self-start text-xs font-bold text-brand-600"
+                className="self-start text-xs font-bold text-brand-600 dark:text-admin-accent"
               >
                 {t('tests.addOption')}
               </button>
@@ -489,7 +489,7 @@ function BandEditor({
                 <button
                   type="button"
                   onClick={() => setDraft(band)}
-                  className="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                  className="text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
                 >
                   {t('common.edit')}
                 </button>
@@ -499,7 +499,7 @@ function BandEditor({
                     if (!window.confirm(t('tests.deleteBand'))) return;
                     onRun(() => deleteBand(band.id), t('common.deleted'));
                   }}
-                  className="rounded-md px-1 text-danger"
+                  className="rounded-md px-1 text-danger dark:text-admin-danger"
                   aria-label={t('common.delete')}
                 >
                   <Trash2 className="size-4" aria-hidden />

@@ -31,9 +31,12 @@
   --color-admin-text: var(--admin-text);
   --color-admin-muted: var(--admin-muted);
   --color-admin-hover: var(--admin-hover);
+  --color-admin-accent: var(--admin-accent);
+  --color-admin-danger: var(--admin-danger);
+  --color-admin-warning: var(--admin-warning);
 
   /* ---------- status ---------- */
-  --color-success: #16a34a;
+  --color-success: #15803d;
   --color-warning: #f59e0b;
   --color-danger: #dc2626;
 
@@ -104,6 +107,13 @@
   --admin-text: #0e0e10;
   --admin-muted: #4a4a52;
   --admin-hover: #f1f1f5;
+  /* Light mode never uses these; they exist so the utilities resolve. */
+  --admin-accent: var(--color-brand-600);
+  --admin-danger: #dc2626;
+  /* `--color-warning` is amber because it is also a solid background and the
+     rating-star fill; as *text* on white it is 2.15:1, so the admin uses its
+     own readable pair. */
+  --admin-warning: #b45309;
 
   /* Semantic aliases used by components and inline styles. */
   --brand-500: var(--color-brand-500);
@@ -132,11 +142,13 @@
   --admin-border: #2a2a31;
   --admin-text: #f4f4f6;
   --admin-muted: #a1a1ad;
-  --admin-hover: #21212700;
-}
-
-.dark {
   --admin-hover: #212127;
+  /* brand-600 reads at 3.15:1 on the panel and danger at 3.7:1 — both under the
+     4.5:1 normal text needs. Lightened here to 7.0:1 and 6.5:1. */
+  --admin-accent: #ff7a70;
+  --admin-danger: #f87171;
+  --admin-warning: #fbbf24;
+  --color-success: #22c55e;
 }
 
 @layer base {
@@ -173,6 +185,14 @@
     line-height: 1.08;
     color: var(--color-ink-900);
     text-wrap: balance;
+  }
+
+  /* The rule above pins headings to ink-900. In the admin's dark mode that is
+     near-black on near-black: headings authored in the rich-text editor were
+     invisible. `:where()` contributes no specificity, so an explicit `text-*`
+     utility still wins. */
+  .dark :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--admin-text);
   }
 
   p {
@@ -250,8 +270,16 @@
   }
 
   .legal-copy a {
-    color: var(--color-brand-500);
+    /* brand-600, not brand-500: the lighter red is 4.31:1 on white. */
+    color: var(--color-brand-600);
     text-decoration: underline;
+  }
+
+  /* brand-500 is 4.15:1 on the admin panel — just under the threshold for the
+     links shown inside the rich-text editor. Not wrapped in `:where()`: it has
+     to out-specify the `.legal-copy a` rule above. */
+  .dark .legal-copy a {
+    color: var(--admin-accent);
   }
 
   .hero-title mark {

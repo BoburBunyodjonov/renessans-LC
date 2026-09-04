@@ -93,7 +93,7 @@ export function LeadsTable({
             <a
               href={`tel:${row.original.phone}`}
               title={t('dash.call')}
-              className="text-brand-600 hover:text-brand-700"
+              className="text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
             >
               <Phone className="size-4" aria-hidden />
             </a>
@@ -102,7 +102,7 @@ export function LeadsTable({
               target="_blank"
               rel="noopener noreferrer"
               title="Telegram"
-              className="text-brand-600 hover:text-brand-700"
+              className="text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
             >
               <Send className="size-4" aria-hidden />
             </a>
@@ -277,7 +277,7 @@ export function LeadsTable({
                       }
                     });
                   }}
-                  className="rounded-md border border-brand-600/40 bg-white px-2 py-1.5 text-xs font-semibold"
+                  className="rounded-md border border-brand-600/40 bg-admin-panel px-2 py-1.5 text-xs font-semibold text-admin-text"
                 >
                   <option value="">{t('leads.bulkStatus')}</option>
                   {LEAD_STATUSES.map((status) => (
@@ -303,7 +303,7 @@ export function LeadsTable({
                       }
                     });
                   }}
-                  className="rounded-md border border-brand-600/40 bg-white px-2 py-1.5 text-xs font-semibold"
+                  className="rounded-md border border-brand-600/40 bg-admin-panel px-2 py-1.5 text-xs font-semibold text-admin-text"
                 >
                   <option value="">{t('leads.bulkAssign')}</option>
                   {staff.map((member) => (

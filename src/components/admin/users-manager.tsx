@@ -127,7 +127,7 @@ export function UsersManager({
                     <button
                       type="button"
                       onClick={() => edit(user)}
-                      className="me-3 text-sm font-semibold text-brand-600 hover:text-brand-700"
+                      className="me-3 text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
                     >
                       {t('common.edit')}
                     </button>
@@ -146,7 +146,7 @@ export function UsersManager({
                             }
                           })
                         }
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-danger"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-danger dark:text-admin-danger"
                       >
                         <UserX className="size-4" aria-hidden />
                         {t('users.block')}

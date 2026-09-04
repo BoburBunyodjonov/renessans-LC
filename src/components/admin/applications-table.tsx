@@ -142,7 +142,7 @@ export function ApplicationsTable({
               href={row.original.cvUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
             >
               <FileText className="size-4" aria-hidden />
               {row.original.cvName ?? t('apps.download')}

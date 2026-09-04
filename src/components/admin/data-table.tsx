@@ -165,8 +165,8 @@ export function DataTable<T>({
       </div>
 
       {bulkActions && selectedIds.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-brand-600/40 bg-brand-50 p-3">
-          <p className="text-sm font-bold text-brand-600">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-brand-600/40 bg-brand-50 p-3 text-ink-900 dark:bg-admin-panel dark:text-admin-text">
+          <p className="text-sm font-bold text-brand-600 dark:text-admin-accent">
             {t('common.selected', { count: selectedIds.length })}
           </p>
           {bulkActions(selectedIds, () => setSelection({}))}
@@ -228,7 +228,7 @@ export function DataTable<T>({
                     key={row.id}
                     className={cn(
                       'border-b border-admin-border transition-colors last:border-0 hover:bg-admin-hover/70',
-                      row.getIsSelected() && 'bg-brand-50/60',
+                      row.getIsSelected() && 'bg-brand-50/60 dark:bg-admin-hover',
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (

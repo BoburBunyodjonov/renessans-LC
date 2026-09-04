@@ -124,7 +124,7 @@ export default async function AttemptsPage({
                     {attempt.lead ? (
                       <a
                         href={`/admin/leads/${attempt.lead.id}`}
-                        className="font-semibold text-brand-600"
+                        className="font-semibold text-brand-600 dark:text-admin-accent"
                       >
                         {t('attempts.open')}
                       </a>

@@ -127,7 +127,7 @@ export function SettingsForm({ initial }: { initial: Values }) {
             <button
               type="button"
               onClick={() => update('phones', [...values.phones, ''])}
-              className="text-xs font-bold text-brand-600"
+              className="text-xs font-bold text-brand-600 dark:text-admin-accent"
             >
               + {t('common.add')}
             </button>
@@ -152,7 +152,7 @@ export function SettingsForm({ initial }: { initial: Values }) {
                     values.phones.filter((_, i) => i !== index),
                   )
                 }
-                className="px-3 text-xs font-bold text-danger"
+                className="px-3 text-xs font-bold text-danger dark:text-admin-danger"
               >
                 ✕
               </button>

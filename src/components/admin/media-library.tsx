@@ -174,7 +174,7 @@ export function MediaLibrary({
                         }
                       });
                     }}
-                    className="grid size-7 place-items-center rounded-md text-danger hover:bg-danger/10"
+                    className="grid size-7 place-items-center rounded-md text-danger hover:bg-danger/10 dark:text-admin-danger"
                   >
                     <Trash2 className="size-3.5" aria-hidden />
                   </button>

@@ -30,7 +30,11 @@ export default async function AdminRootLayout({ children }: { children: ReactNod
           }}
         />
       </head>
-      <body className="min-h-screen bg-paper-alt text-ink-900 antialiased">
+      {/* Admin surface tokens, not the public palette: `--admin-*` is what the
+          `.dark` block swaps. `bg-paper-alt`/`text-ink-900` are light-only, so in
+          dark mode the page stayed light while every child switched to light-on-dark
+          text — the dashboard heading rendered near-white on near-white. */}
+      <body className="min-h-screen bg-admin-bg text-admin-text antialiased">
         <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Tashkent">
           {children}
           <Toaster richColors position="top-right" closeButton />

@@ -94,7 +94,7 @@ export function ReorderPanel({ config, rows }: { config: ResourceConfig; rows: R
 
             <Link
               href={`/admin/${config.key}/${String(row.id)}`}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
             >
               <Pencil className="size-4" aria-hidden />
               {t('common.edit')}

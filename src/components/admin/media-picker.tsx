@@ -147,7 +147,7 @@ export function MediaPicker({
                   onChange(null);
                   setDimensions(null);
                 }}
-                className="text-danger hover:bg-danger/10"
+                className="text-danger hover:bg-danger/10 dark:text-admin-danger"
               >
                 <Trash2 aria-hidden />
                 {t('common.remove')}
@@ -191,10 +191,13 @@ export function MediaPicker({
 
           {loading ? (
             <div className="grid h-64 place-items-center">
-              <Loader2 className="size-6 animate-spin text-brand-600" aria-hidden />
+              <Loader2
+                className="size-6 animate-spin text-brand-600 dark:text-admin-accent"
+                aria-hidden
+              />
             </div>
           ) : items.length === 0 ? (
-            <p className="py-10 text-center text-sm text-ink-600">{t('media.empty')}</p>
+            <p className="py-10 text-center text-sm text-admin-muted">{t('media.empty')}</p>
           ) : (
             <ul className="grid max-h-[60vh] grid-cols-3 gap-3 overflow-y-auto sm:grid-cols-4">
               {items.map((item) => (
@@ -209,12 +212,12 @@ export function MediaPicker({
                       'relative block aspect-square w-full overflow-hidden rounded-md border-2 transition-colors',
                       value === item.url
                         ? 'border-brand-600'
-                        : 'border-transparent hover:border-ink-300',
+                        : 'border-transparent hover:border-admin-border',
                     )}
                   >
                     <Image src={item.url} alt="" fill sizes="150px" className="object-cover" />
                   </button>
-                  <p className="mt-1 truncate text-[0.6875rem] text-ink-600">
+                  <p className="mt-1 truncate text-[0.6875rem] text-admin-muted">
                     {formatBytes(item.size)}
                   </p>
                 </li>

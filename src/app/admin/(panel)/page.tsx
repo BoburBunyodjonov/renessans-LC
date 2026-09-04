@@ -122,7 +122,7 @@ export default async function AdminDashboardPage() {
                   </StatusPill>
                   <a
                     href={`tel:${lead.phone}`}
-                    className="text-xs font-bold text-brand-600 hover:text-brand-700"
+                    className="text-xs font-bold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
                   >
                     {t('dash.call')}
                   </a>

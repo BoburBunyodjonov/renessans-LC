@@ -494,3 +494,44 @@ production bundle reports only the minified code, so the failing element is not 
 
 `pnpm check:responsive` now prints console errors in full rather than truncating them at 60
 characters, which is what made this visible in the first place.
+
+## Admin dark mode (post-handover)
+
+Dark mode is admin-only and driven by the `--admin-*` tokens that the `.dark` block swaps
+(PROMPT.md §5). It was broken in a way that is easy to miss on a quick look, because the sidebar,
+topbar and cards paint their own surfaces and therefore looked right — the failures were in the
+places that paint nothing and inherit.
+
+**The admin document never switched.** `app/admin/layout.tsx` set `<body className="bg-paper-alt
+text-ink-900">`, which are public-site colours with no dark counterpart. So in dark mode the page
+stayed light grey while every child switched to light-on-dark text: the dashboard heading rendered
+near-white on near-white at **1.02:1**, and the topbar labels, breadcrumb and user name with it.
+The body now uses `bg-admin-bg text-admin-text`, whose light values are identical to the old ones —
+light mode is byte-for-byte unchanged.
+
+Four more, all the same root cause of reaching for a colour that does not flip:
+
+1. **Headings inside the rich-text editor were invisible.** The base rule pins `h1`–`h6` to
+   `ink-900`; admin page headings override it, but content authored in Tiptap does not, so editing
+   the privacy policy in dark mode showed near-black headings on a near-black panel (1.08:1). A
+   `.dark :where(h1, …)` rule now defaults them to the admin text colour — `:where()` contributes
+   no specificity, so an explicit `text-*` utility still wins.
+2. **The leads bulk-action selects** were `bg-white` with no text colour, so they inherited the
+   near-white admin text: white on white.
+3. **`text-brand-600` and `text-danger`** read at 3.15:1 and 3.7:1 on the admin panel — action
+   links like "Tahrirlash", "O‘chirish" and required-field markers. Both now have lightened
+   dark-mode counterparts (`--admin-accent`, `--admin-danger`) applied through `dark:` variants at
+   the call sites, because the same tokens are also used as _backgrounds_ with white text, where
+   lightening them would push contrast the other way.
+4. **The media picker** used `text-ink-600` (2.3:1 on a dark panel) and duplicate `.dark` blocks in
+   `globals.css` left `--admin-hover` defined twice, the first fully transparent.
+
+Two pre-existing **light**-mode failures surfaced in the same components and are fixed too:
+`text-success` was 3.3:1 on white (now 5.02:1, with a lighter green in dark mode where the dark
+value would have failed instead), and rich-text links used `brand-500` at 4.31:1 (now `brand-600`
+at 5.68:1). `--color-warning` was deliberately left alone: it is also the draft banner's background
+and the rating-star fill, so darkening it for text would have regressed both.
+
+`pnpm check:admin-theme` walks seven admin pages in **both** themes and fails on any text under the
+AA threshold for its size, or any large near-white surface while dark mode is on. 14 assertions,
+all passing. Public accessibility is unchanged at 100 on `/uz` and `/uz/privacy`.

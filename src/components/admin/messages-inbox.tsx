@@ -88,7 +88,7 @@ export function MessagesInbox({
                   {message.phone ? (
                     <a
                       href={`tel:${message.phone}`}
-                      className="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:text-brand-700"
+                      className="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
                     >
                       <Phone className="size-4" aria-hidden />
                       {message.phone}
@@ -97,7 +97,7 @@ export function MessagesInbox({
                   {message.email ? (
                     <a
                       href={`mailto:${message.email}?subject=${encodeURIComponent(message.subject ?? 'Renessans English School')}`}
-                      className="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:text-brand-700"
+                      className="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:text-brand-700 dark:text-admin-accent dark:hover:text-admin-accent"
                     >
                       <Mail className="size-4" aria-hidden />
                       {message.email}
