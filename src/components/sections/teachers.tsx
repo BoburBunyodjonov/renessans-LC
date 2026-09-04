@@ -5,7 +5,21 @@ import { Reveal } from '@/components/shared/reveal';
 import type { HomeSectionView, SuccessStoryView, TeacherView } from '@/types/content';
 import { cn } from '@/lib/utils';
 
-export function TeacherCard({ teacher, className }: { teacher: TeacherView; className?: string }) {
+export function TeacherCard({
+  teacher,
+  className,
+  priority = false,
+}: {
+  teacher: TeacherView;
+  className?: string;
+  /**
+   * Set on the first card of the teachers page, where the photo is the largest
+   * element above the fold. Without it the image is lazy-loaded and the fetch
+   * only starts after layout, which cost ~1.5s of load delay on a throttled
+   * connection. Cards further down stay lazy.
+   */
+  priority?: boolean;
+}) {
   return (
     <article
       className={cn(
@@ -21,6 +35,7 @@ export function TeacherCard({ teacher, className }: { teacher: TeacherView; clas
             fill
             sizes="(min-width: 1024px) 300px, 70vw"
             className="object-cover"
+            priority={priority}
           />
         ) : null}
         {teacher.ieltsScore ? (

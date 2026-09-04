@@ -315,12 +315,11 @@ link. Closing the gap would mean removing the next-intl client provider or hand-
 trades real maintainability for a synthetic number; the remaining practical levers are a CDN for
 images and HTTP/2 in production.
 
-### Known deviation
+### Known deviation — resolved
 
-The **admin panel UI is hardcoded Uzbek** (28 files), not routed through `messages/*.json`. The
-public site is fully localized and grep-clean of hardcoded content strings; the admin is staff-facing
-and single-language by design. Extracting it into the `admin` namespace is a mechanical change if
-Russian or English staff UI is ever needed.
+The admin panel UI was hardcoded Uzbek (28 files) at handover, on the reasoning that it is
+staff-facing and single-language. It is now fully localised in all three languages; see
+**Admin panel localisation** below.
 
 ## Post-handover fixes (reported from the running site)
 
@@ -429,11 +428,11 @@ raw message key leaks into the page. 15 assertions, all passing.
    test came back 422 and the visitor was told the test had changed. Ids are opaque strings — rows
    the app creates get `cuid()`, seeded rows do not — so the schemas now use a shared
    `recordIdSchema` that bounds length and charset instead of assuming a generator. Whether an id
-   *exists* was always settled by the lookup that follows. Applied to test answers, `courseId` and
+   _exists_ was always settled by the lookup that follows. Applied to test answers, `courseId` and
    `vacancyId`, and covered by tests for both id styles.
 
 6. **The admin login redirect left the host the visitor was on.** `new URL('/admin/login',
-   request.nextUrl)` resolves its origin from `AUTH_URL`/`NEXTAUTH_URL`, so an unauthenticated
+request.nextUrl)` resolves its origin from `AUTH_URL`/`NEXTAUTH_URL`, so an unauthenticated
    request to `/admin` on any other hostname redirected to the configured one — visible locally as
    a redirect from port 3111 to port 3000, and in production as staff being bounced off a preview
    domain, an apex/www variant, or a proxied host. The middleware now builds the redirect from the
@@ -445,3 +444,53 @@ raw message key leaks into the page. 15 assertions, all passing.
 `next build` fetches Inter and Poppins from Google Fonts. A build in a network-restricted
 environment fails at `src/lib/fonts.ts` rather than falling back — worth knowing if the Docker
 image is ever built without egress. Self-hosting the two font files would remove the dependency.
+
+## Performance (post-handover)
+
+The handover left the homepage and teachers page at 85–91 against the ≥90 mobile target, with the
+gap attributed to Lighthouse's _simulated_ throttling. Re-measuring with **real** throttling
+(`--throttling-method=devtools`) split that claim in two: the homepage was fine (93, LCP 2.1s), and
+the teachers page was worse than the simulation suggested — **77, LCP 5.1s**. There was a real
+defect hiding behind the "it's only the simulation" explanation.
+
+Two causes, both about content that is on screen at load:
+
+1. **The LCP image was lazy-loaded.** The first teacher photo is the largest element above the fold,
+   but carried `loading="lazy"`, so the fetch only started after layout — 1.5s of pure load delay.
+   `TeacherCard` now takes a `priority` prop, set on the first card of the teachers page and the
+   first cover on the blog index.
+
+2. **Above-the-fold content waited for JavaScript to become visible.** The scroll-reveal hides
+   `.reveal` elements via CSS gated on `html[data-js='1']`, so anything inside a reveal stayed at
+   `opacity: 0` until the main bundle executed and the observer fired — 3.4s of render delay on the
+   teachers page, where the first grid _is_ the opening viewport. `Reveal`/`RevealItem` now accept
+   `immediate`, used for the first row. Content already on screen should not animate in anyway, so
+   this is also the better behaviour.
+
+| Page           | Before        | After         |
+| -------------- | ------------- | ------------- |
+| `/uz/teachers` | 77 (LCP 5.1s) | 98 (LCP 2.0s) |
+| `/uz`          | 93 (LCP 2.1s) | 95 (LCP 2.1s) |
+
+Accessibility is back to **100** on the homepage. Two contrast failures had crept in: testimonial
+avatar initials (white on `hsl(H 65% 45%)`, 3.8:1 — the generated colour is now capped at 28%
+lightness, which clears 4.5:1 for every hue), and the decorative card index on the advantages
+cards (`#e8e8ee` on white, 1.22:1), which is now a CSS pseudo-element rather than a text node,
+since it carries no information and `aria-hidden` does not excuse a contrast failure.
+
+### Open item — an intermittent hydration mismatch
+
+Roughly one Lighthouse run in three logs React error #418 ("the server rendered HTML didn't match
+the client"), and when it fires React discards the server markup and re-renders: the homepage drops
+from ~95 to ~78 and LCP from 2.1s to 4.5s. It is not a scoring artefact — it is the single largest
+remaining performance variable.
+
+It has not been reproduced outside Lighthouse: 60+ loads across dev and production, with and
+without network and 4× CPU throttling, stay clean. Ruled out so far — the hero headline (the DOM
+and the RSC payload in the same response carry identical HTML), every rich-text body (none is
+re-normalised by the browser's parser), the consent banner and the reduced-motion hook (both read
+browser APIs only inside effects), and non-deterministic initial state (there is none). The
+production bundle reports only the minified code, so the failing element is not named.
+
+`pnpm check:responsive` now prints console errors in full rather than truncating them at 60
+characters, which is what made this visible in the first place.

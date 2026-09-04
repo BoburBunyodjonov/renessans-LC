@@ -58,9 +58,11 @@ export default async function TeachersPage({ params }: { params: Promise<{ local
       <Section tone="paper" className="pt-8 md:pt-10">
         <SectionHeader title={t('teachersTitle')} subtitle={t('teachersSubtitle')} />
         <RevealGroup as="ul" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {teachers.map((teacher) => (
-            <RevealItem as="li" key={teacher.id}>
-              <TeacherCard teacher={teacher} />
+          {teachers.map((teacher, index) => (
+            // The first row is inside the opening viewport: it renders visible
+            // so the LCP photo does not wait for the reveal observer.
+            <RevealItem as="li" key={teacher.id} immediate={index < 4}>
+              <TeacherCard teacher={teacher} priority={index === 0} />
             </RevealItem>
           ))}
         </RevealGroup>

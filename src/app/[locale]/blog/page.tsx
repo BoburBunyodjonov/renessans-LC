@@ -66,8 +66,9 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
           </p>
         ) : (
           <RevealGroup as="ul" className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <RevealItem as="li" key={post.id}>
+            {posts.map((post, index) => (
+              // First row is above the fold; see the teachers page.
+              <RevealItem as="li" key={post.id} immediate={index < 3}>
                 <Link
                   href={`/blog/${post.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-lg border border-ink-300/40 bg-white shadow-card transition-transform hover:-translate-y-1"
@@ -80,6 +81,9 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
                         fill
                         sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw"
                         className="object-cover"
+                        // First cover is above the fold and is the page's LCP
+                        // element; lazy-loading it delays the fetch until layout.
+                        priority={index === 0}
                       />
                     </div>
                   ) : null}

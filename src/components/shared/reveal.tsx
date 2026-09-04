@@ -30,12 +30,12 @@ function getObserver(): IntersectionObserver | null {
   return sharedObserver;
 }
 
-function useReveal() {
+function useReveal(immediate = false) {
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) return;
+    if (!node || immediate) return;
 
     const observer = getObserver();
     if (!observer) {
@@ -45,7 +45,7 @@ function useReveal() {
 
     observer.observe(node);
     return () => observer.unobserve(node);
-  }, []);
+  }, [immediate]);
 
   return ref;
 }
@@ -56,7 +56,22 @@ type RevealProps = {
   /** Extra delay in seconds, on top of the group stagger. */
   delay?: number;
   as?: 'div' | 'li' | 'section' | 'article' | 'ul' | 'ol';
+  /**
+   * Renders already visible, for content inside the first viewport.
+   *
+   * The hidden state is CSS gated on `html[data-js='1']`, so a revealed element
+   * stays invisible until the main bundle executes and the observer fires. For
+   * above-the-fold content that puts LCP behind the JS download — 3.4s of pure
+   * render delay on the teachers page over a throttled connection. Content
+   * already on screen should not animate in anyway; it should simply be there.
+   */
+  immediate?: boolean;
 };
+
+function revealClass(className?: string, immediate?: boolean): string {
+  const base = immediate ? 'reveal is-visible' : 'reveal';
+  return className ? `${base} ${className}` : base;
+}
 
 function delayStyle(delay?: number): CSSProperties | undefined {
   return delay
@@ -64,13 +79,19 @@ function delayStyle(delay?: number): CSSProperties | undefined {
     : undefined;
 }
 
-export function Reveal({ children, className, delay, as: Component = 'div' }: RevealProps) {
-  const ref = useReveal();
+export function Reveal({
+  children,
+  className,
+  delay,
+  immediate,
+  as: Component = 'div',
+}: RevealProps) {
+  const ref = useReveal(immediate);
 
   return (
     <Component
       ref={ref as Ref<never>}
-      className={className ? `reveal ${className}` : 'reveal'}
+      className={revealClass(className, immediate)}
       style={delayStyle(delay)}
     >
       {children}
@@ -87,13 +108,19 @@ export function RevealGroup({ children, className, as: Component = 'div' }: Reve
   );
 }
 
-export function RevealItem({ children, className, delay, as: Component = 'div' }: RevealProps) {
-  const ref = useReveal();
+export function RevealItem({
+  children,
+  className,
+  delay,
+  immediate,
+  as: Component = 'div',
+}: RevealProps) {
+  const ref = useReveal(immediate);
 
   return (
     <Component
       ref={ref as Ref<never>}
-      className={className ? `reveal ${className}` : 'reveal'}
+      className={revealClass(className, immediate)}
       style={delayStyle(delay)}
     >
       {children}

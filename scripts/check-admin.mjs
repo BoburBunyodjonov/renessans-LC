@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
 
 const base = process.env.BASE_URL ?? 'http://localhost:3111';
@@ -41,10 +42,18 @@ await page.waitForURL(/\/admin(?!\/login)/, { timeout: 20_000 });
 say('valid credentials sign in', !page.url().includes('/admin/login'), page.url());
 
 // ---------- dashboard ----------
-const dashboardText = await page.locator('body').innerText();
+// Wait for the panel to actually render: waitForURL resolves while the
+// dashboard is still streaming, and the labels come from the message files
+// rather than being hardcoded here, so a translation change cannot fail this.
+const uz = JSON.parse(readFileSync(new URL('../messages/uz.json', import.meta.url), 'utf8'));
+const leadsToday = uz.admin.dash.leadsToday;
+await page.waitForSelector('main h1', { timeout: 20_000 });
+await page.getByText(leadsToday, { exact: false }).first().waitFor({ timeout: 20_000 });
+const dashboardText = await page.locator('main').innerText();
 say(
   'dashboard renders KPI cards',
-  dashboardText.includes('Bugungi arizalar') && dashboardText.includes('Konversiya'),
+  dashboardText.includes(leadsToday) && dashboardText.includes(uz.admin.dash.attempts),
+  leadsToday,
 );
 
 // ---------- generic resource list + reorder view ----------
