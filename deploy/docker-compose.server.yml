@@ -1,0 +1,64 @@
+# Renessans LC — production stack for the shared host.
+#
+# The host runs Caddy, which terminates TLS and proxies to the app on
+# 127.0.0.1:${APP_PORT}. Nothing is published on a public interface: the
+# database is reachable only over the compose network.
+#
+# Deployed by deploy/deploy.sh; secrets live in ${DEPLOY_PATH}/.env on the
+# server and are never committed here.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: renessans_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: school
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d school']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # The host has no daemon-wide log rotation: a crash-looping container on
+    # this box grew a 242 MB log file. Cap it per service instead.
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  app:
+    image: renessans-school:prod
+    container_name: renessans_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/school?schema=public
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET is required}
+      IP_SALT: ${IP_SALT:?IP_SALT is required}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+    ports:
+      # Localhost only — Caddy is the sole way in from outside.
+      - '127.0.0.1:${APP_PORT:-3020}:3000'
+    volumes:
+      - uploads:/app/public/uploads
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+volumes:
+  db_data:
+  uploads:

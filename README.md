@@ -131,6 +131,40 @@ Analytics ids (GA4, Meta Pixel, Yandex) are **not** environment variables — th
 
 ## Deployment
 
+### The live site: `./deploy/deploy.sh`
+
+One command builds, ships and restarts production:
+
+```bash
+./deploy/deploy.sh
+```
+
+It builds the image **locally** rather than on the server on purpose: that host has ~1 GB of free
+RAM and no swap, and `next build` does not fit. Both machines are arm64, so the image is copied
+over as-is (`docker save | ssh docker load`).
+
+Before starting the new container it retags the running image as `renessans-school:previous`, and
+if the app does not answer 200 within 90 s it puts that image back and exits non-zero — so a bad
+build rolls itself back.
+
+Secrets are never transferred. They live in `/opt/renessans-lc/.env` on the server, written once by
+hand; the script only reads them there. Override any setting from the environment:
+
+| Variable      | Default                                       |
+| ------------- | --------------------------------------------- |
+| `REMOTE_HOST` | `root@46.225.113.117`                         |
+| `REMOTE_PATH` | `/opt/renessans-lc`                           |
+| `SITE_URL`    | `https://renessans-lc.uz`                     |
+| `APP_PORT`    | `3020` (localhost only — Caddy proxies to it) |
+
+`NEXT_PUBLIC_SITE_URL` is baked into the image at build time, so changing the domain means a
+rebuild, not just an env change.
+
+The host shares Caddy with other projects. Its site block lives in `/etc/caddy/Caddyfile` between
+`# === renessans-lc start ===` and `# === renessans-lc end ===`; TLS is issued automatically.
+`deploy/docker-compose.server.yml` is the stack that runs there — it publishes only on
+`127.0.0.1`, and caps container logs at 10 MB × 3, since the box has no daemon-wide rotation.
+
 ### Docker (app + database)
 
 ```bash
