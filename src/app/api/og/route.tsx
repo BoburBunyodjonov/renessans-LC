@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
+import { getBrandScale } from '@/server/queries/site';
 
 export const runtime = 'nodejs';
 
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
   const title = (params.get('title') ?? 'Renessans English School').slice(0, 120);
   const subtitle = (params.get('subtitle') ?? '').slice(0, 160);
   const badge = (params.get('badge') ?? '').slice(0, 40);
-  const font = await loadBoldFont();
+  const [font, brand] = await Promise.all([loadBoldFont(), getBrandScale()]);
 
   return new ImageResponse(
     <div
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        background: '#C42A21',
+        background: brand[600],
         padding: '72px',
         color: '#ffffff',
         fontFamily: 'sans-serif',
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
             height: 72,
             borderRadius: 20,
             background: '#ffffff',
-            color: '#C42A21',
+            color: brand[600],
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

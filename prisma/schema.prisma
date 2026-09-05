@@ -86,6 +86,9 @@ model SiteSetting {
   privacyPolicy    Json? // Localized rich text
   madeByLabel      Json? // Localized "Made by ..." footer credit
   madeByUrl        String?
+  // Single brand colour as `#rrggbb`; the palette is derived from it at render
+  // time by src/lib/theme.ts. Null means the shipped default.
+  brandColor       String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -5,6 +5,8 @@ import { Toaster } from 'sonner';
 import { inter, poppins } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 import { getAdminLocale, getAdminMessages } from '@/i18n/admin';
+import { getBrandScale } from '@/server/queries/site';
+import { themeCss } from '@/lib/theme';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -18,7 +20,7 @@ export const metadata: Metadata = {
  */
 export default async function AdminRootLayout({ children }: { children: ReactNode }) {
   const locale = await getAdminLocale();
-  const messages = await getAdminMessages(locale);
+  const [messages, brand] = await Promise.all([getAdminMessages(locale), getBrandScale()]);
 
   return (
     <html lang={locale} className={cn(inter.variable, poppins.variable)} suppressHydrationWarning>
@@ -29,6 +31,8 @@ export default async function AdminRootLayout({ children }: { children: ReactNod
             __html: `try{var t=localStorage.getItem('admin-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`,
           }}
         />
+        {/* The panel wears the same brand as the site it edits. */}
+        <style dangerouslySetInnerHTML={{ __html: themeCss(brand) }} />
       </head>
       {/* Admin surface tokens, not the public palette: `--admin-*` is what the
           `.dark` block swaps. `bg-paper-alt`/`text-ink-900` are light-only, so in

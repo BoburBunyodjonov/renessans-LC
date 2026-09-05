@@ -5,11 +5,12 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 import { routing } from '@/i18n/routing';
 import { inter, poppins } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
-import { getNavigation, getSiteSettings } from '@/server/queries/site';
+import { getBrandScale, getNavigation, getSiteSettings } from '@/server/queries/site';
 import { getCourses } from '@/server/queries/courses';
 import { Header } from '@/components/shared/header';
 import { Footer } from '@/components/shared/footer';
 import { LeadModalProvider } from '@/components/shared/lead-modal';
+import { themeCss } from '@/lib/theme';
 import { DeferredChrome } from '@/components/shared/deferred-chrome';
 import { DraftBanner } from '@/components/shared/draft-banner';
 import type { Locale } from '@/types/i18n';
@@ -89,10 +90,11 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   const typedLocale = locale as Locale;
-  const [settings, nav, courses, t] = await Promise.all([
+  const [settings, nav, courses, brand, t] = await Promise.all([
     getSiteSettings(typedLocale),
     getNavigation(typedLocale),
     getCourses(typedLocale),
+    getBrandScale(),
     getTranslations({ locale, namespace: 'common' }),
   ]);
 
@@ -115,6 +117,9 @@ export default async function LocaleLayout({
         {/* Marks the document as script-enabled so scroll-reveal elements may
             start hidden. Without JS they simply render. */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.dataset.js='1'" }} />
+        {/* Brand palette chosen in the admin. Inline rather than a stylesheet
+            so it lands before first paint and never flashes the old colour. */}
+        <style dangerouslySetInnerHTML={{ __html: themeCss(brand) }} />
       </head>
       <body className="min-h-screen bg-paper text-ink-600 antialiased">
         <NextIntlClientProvider messages={clientMessages}>

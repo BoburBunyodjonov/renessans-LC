@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { TAGS, cachedQuery } from '@/lib/cache';
+import { DEFAULT_BRAND, deriveBrandScale, type BrandScale } from '@/lib/theme';
 import { loc, locList, locOrNull } from '@/lib/localize';
 import type { Locale } from '@/types/i18n';
 import type { NavGroups, NavItemView, SiteSettingsView, SocialLinks } from '@/types/content';
@@ -34,6 +35,22 @@ const rawNavItems = cachedQuery(
   [TAGS.nav],
   { fallback: [] },
 );
+
+/**
+ * The palette both layouts paint with. Derived rather than stored so a change
+ * to the derivation rules reaches every deployment without a data migration,
+ * and cached on the settings tag so saving in the admin repaints the site.
+ */
+export async function getBrandScale(): Promise<BrandScale> {
+  const row = await rawSettings();
+  return deriveBrandScale(row?.brandColor ?? DEFAULT_BRAND);
+}
+
+/** The raw stored colour, for the admin form's own inputs. */
+export async function getBrandColor(): Promise<string> {
+  const row = await rawSettings();
+  return row?.brandColor ?? DEFAULT_BRAND;
+}
 
 /** Used until an admin fills in the settings row; never rendered once seeded. */
 const FALLBACK_SETTINGS: SiteSettingsView = {

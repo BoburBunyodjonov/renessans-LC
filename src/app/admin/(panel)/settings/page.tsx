@@ -6,6 +6,7 @@ import { SettingsForm } from '@/components/admin/settings-form';
 import { currentUser } from '@/server/actions/helpers';
 import { can } from '@/lib/permissions';
 import { asLocalized, asLocalizedList, type Localized } from '@/types/i18n';
+import { DEFAULT_BRAND } from '@/lib/theme';
 
 export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
@@ -58,6 +59,7 @@ export default async function SettingsPage() {
           madeByUrl: settings?.madeByUrl ?? '',
           logoLightUrl: settings?.logoLightUrl ?? '',
           ogImageUrl: settings?.ogImageUrl ?? '',
+          brandColor: settings?.brandColor ?? DEFAULT_BRAND,
         }}
       />
     </>

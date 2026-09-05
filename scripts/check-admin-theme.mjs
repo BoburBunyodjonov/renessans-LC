@@ -72,6 +72,10 @@ const SCAN = `(() => {
     const rect = el.getBoundingClientRect();
     if (rect.width < 4 || rect.height < 4) continue;
 
+    // The brand picker's preview deliberately renders on white in both themes,
+    // because the public site it previews has no dark mode.
+    if (el.closest('[data-color-preview]')) continue;
+
     if (dark) {
       const own = parse(cs.backgroundColor);
       if (own && own.a > 0.8 && lum(own) > 0.75 && rect.width > 20 && rect.height > 12) {

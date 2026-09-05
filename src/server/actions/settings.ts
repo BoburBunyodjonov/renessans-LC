@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { sanitizeLocalizedHtml } from '@/lib/sanitize';
+import { normalizeHex } from '@/lib/theme';
 import {
   actionError,
   requireCapability,
@@ -38,6 +39,16 @@ const settingsSchema = z.object({
   madeByUrl: z.string().max(300).nullable().optional(),
   logoLightUrl: z.string().max(300).nullable().optional(),
   ogImageUrl: z.string().max(300).nullable().optional(),
+  // Stored as `#rrggbb`; the rest of the palette is derived from it at render
+  // time, so nothing here can produce an unreadable button.
+  brandColor: z
+    .string()
+    .max(9)
+    .nullable()
+    .optional()
+    .refine((value) => !value || normalizeHex(value) !== null, {
+      message: 'Not a hex colour',
+    }),
 });
 
 export type SettingsInput = z.infer<typeof settingsSchema>;
@@ -72,6 +83,8 @@ export async function saveSettings(input: SettingsInput): Promise<ActionResult> 
       madeByUrl: value.madeByUrl || null,
       logoLightUrl: value.logoLightUrl || null,
       ogImageUrl: value.ogImageUrl || null,
+      // Null means "the shipped default", which is how the reset button works.
+      brandColor: value.brandColor ? normalizeHex(value.brandColor) : null,
     } satisfies Prisma.SiteSettingUncheckedUpdateInput;
 
     await prisma.siteSetting.upsert({
@@ -88,6 +101,9 @@ export async function saveSettings(input: SettingsInput): Promise<ActionResult> 
     });
     await revalidate(['settings', 'nav', 'home']);
     revalidatePath('/admin/settings');
+    // The palette is injected by the root layouts, so a colour change has to
+    // drop every cached page rather than just the ones settings usually touch.
+    revalidatePath('/', 'layout');
 
     return { ok: true };
   } catch (error) {

@@ -32,6 +32,7 @@
     "check:admin-editor": "node scripts/check-admin-editor.mjs",
     "check:admin-i18n": "node scripts/check-admin-i18n.mjs",
     "check:admin-theme": "node scripts/check-admin-theme.mjs",
+    "check:theme": "node scripts/check-theme.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

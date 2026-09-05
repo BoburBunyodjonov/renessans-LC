@@ -1,11 +1,11 @@
 import type { MetadataRoute } from 'next';
-import { getSiteSettings } from '@/server/queries/site';
+import { getBrandScale, getSiteSettings } from '@/server/queries/site';
 import { DEFAULT_LOCALE } from '@/types/i18n';
 
 export const revalidate = 3600;
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  const settings = await getSiteSettings(DEFAULT_LOCALE);
+  const [settings, brand] = await Promise.all([getSiteSettings(DEFAULT_LOCALE), getBrandScale()]);
 
   return {
     name: settings.brandName,
@@ -14,7 +14,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     start_url: `/${DEFAULT_LOCALE}`,
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#C42A21',
+    theme_color: brand[600],
     lang: DEFAULT_LOCALE,
     icons: [
       { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' },

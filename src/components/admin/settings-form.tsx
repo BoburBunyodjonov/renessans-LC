@@ -7,6 +7,7 @@ import { Panel, PanelTitle } from '@/components/admin/ui';
 import { Input, Label } from '@/components/ui/field';
 import { LocalizedEditor, LocalizedInput, LocalizedList } from '@/components/admin/localized-input';
 import { MediaPicker } from '@/components/admin/media-picker';
+import { BrandColorPicker } from '@/components/admin/brand-color-picker';
 import { saveSettings, type SettingsInput } from '@/server/actions/settings';
 import { DEFAULT_LOCALE, type Localized } from '@/types/i18n';
 
@@ -31,6 +32,7 @@ type Values = {
   madeByUrl: string;
   logoLightUrl: string;
   ogImageUrl: string;
+  brandColor: string;
 };
 
 const SOCIAL_KEYS = ['telegram', 'instagram', 'youtube', 'facebook', 'tiktok', 'whatsapp'] as const;
@@ -89,6 +91,10 @@ export function SettingsForm({ initial }: { initial: Values }) {
           folder="brand"
           value={values.ogImageUrl || null}
           onChange={(url) => update('ogImageUrl', url ?? '')}
+        />
+        <BrandColorPicker
+          value={values.brandColor}
+          onChange={(next) => update('brandColor', next)}
         />
       </Panel>
 

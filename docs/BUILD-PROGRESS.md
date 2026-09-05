@@ -535,3 +535,38 @@ and the rating-star fill, so darkening it for text would have regressed both.
 `pnpm check:admin-theme` walks seven admin pages in **both** themes and fails on any text under the
 AA threshold for its size, or any large near-white surface while dark mode is on. 14 assertions,
 all passing. Public accessibility is unchanged at 100 on `/uz` and `/uz/privacy`.
+
+## Brand colour in the admin (post-handover)
+
+The site's palette is now chosen in the admin instead of living in `globals.css`.
+
+**One colour is editable, not five.** The brand stops are not independent: `brand-600` carries white
+text on buttons _and_ is the link colour on white, and `brand-50` is the chip background that
+`brand-600` sits on. Exposing those separately is how a site ends up with an unreadable button, so
+`src/lib/theme.ts` takes the single colour an admin picks and generates the scale, darkening every
+stop that carries text until it clears 4.5:1 against the lightest surface it appears on.
+
+Lightness is adjusted in OKLCH rather than sRGB so a blue and a red produce scales of the same
+visual weight, and chroma is reduced when a lightness change would push a saturated hue outside the
+display gamut — clamping the channels instead would shift the hue visibly.
+
+Picking the shipped red returns the **hand-tuned** palette verbatim rather than a regenerated
+near-miss (`#c42a21` at 5.68:1 against the generated `#d61d18` at 5.19:1). Adding this feature
+therefore changes nothing for a site whose owner never picks a colour, and the accessibility scores
+measured before it remain valid.
+
+The palette is injected as an inline `<style>` by both root layouts — inline so it lands before
+first paint and never flashes the old colour, and behind a doubled `:root:root` selector so it wins
+over Tailwind's own `@theme` block whatever order the stylesheets land in. The admin panel wears the
+same brand, deriving its dark-mode accent from the same hue. `manifest.ts` and the OG image follow
+too. Saving revalidates the root layout, since a colour change invalidates every cached page rather
+than only the ones settings usually touch.
+
+Two checks cover it. `tests/theme.test.ts` holds the contrast promise across the hue circle
+including the awkward cases — yellow has to travel a long way before white text works on it — and
+`pnpm check:theme` changes the colour for real through the admin, reads what the public site
+actually paints, and puts it back.
+
+Writing the tests first paid: they caught that `600` was being measured against white when the chip
+tint it sits on is the stricter constraint (4.19:1 for the shipped red), and that a pure-black pick
+produced identical `600` and `700`, leaving hover with nothing to show.
