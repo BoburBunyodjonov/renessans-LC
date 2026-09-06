@@ -81,6 +81,10 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['isomorphic-dompurify', 'jsdom'],
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    inlineCss: true,
+    // The stylesheet is render-blocking: on a slow connection the HTML arrived
+    // at 0.8s but nothing painted until 2.4s, because the browser was still
+    // fetching 68 KB of CSS. Inlining it removes that round trip.
   },
   async headers() {
     return [

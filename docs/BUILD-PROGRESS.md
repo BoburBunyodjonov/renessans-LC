@@ -671,27 +671,35 @@ the slug.
 
 ## Loading states (post-handover)
 
-Two separate things were missing, and they turn out to cover different moments.
+**The route skeletons were wrong, and measuring showed why.** A `loading.tsx` only paints when its
+segment suspends. Every public route here is prerendered, so the content arrives in the same response
+as the placeholder and replaces it before the browser paints — timed on a throttled phone, the
+skeleton was never visible for a single frame. Eleven route skeletons were built, verified as dead,
+and removed. What stays is the admin panel's (its routes are `force-dynamic`, and its skeleton does
+render — twelve blocks, observed) and the materials Suspense boundary that already existed.
 
-**Route skeletons.** There was one `loading.tsx` for the whole locale segment, shaped like the home
-page — a red hero over a card grid — so every inner page flashed a hero it does not have. Each route
-now has its own placeholder shaped like the page that follows, built from primitives in
-`src/components/ui/skeleton.tsx`, and the locale-level fallback is neutral.
+**A navigation bar covers what the skeletons could not.** Client navigation between prerendered pages
+never suspends, so a click looks like nothing happened until the new page swaps in. A thin bar at the
+top now covers that gap. It listens in the **capture** phase: Next's Link calls `preventDefault` in
+its own click handler, so a bubble-phase listener sees every internal navigation as already cancelled
+— the first version showed nothing at all for exactly that reason.
 
-These stream with the first paint of a page, which is where they earn their keep: on a slow
-connection the reader sees the page's shape while it arrives. They also cover a page rendered on
-demand, such as a post added in the admin after the last build.
+**The real first-load problem was the stylesheet.** The complaint was that nothing happens when the
+site is first opened, and the numbers agreed: on a throttled phone the HTML finished arriving at
+789 ms but the screen stayed blank until 2420 ms, because 68 KB of render-blocking CSS was still in
+flight. `experimental.inlineCss` puts it in the document and removes that round trip:
 
-**A navigation bar.** Client navigation between prerendered pages does not suspend, so no skeleton
-appears — the click looks like nothing happened until the new page swaps in. A thin bar across the
-top now covers that gap. The App Router exposes no global "navigating" flag (`useLinkStatus` only
-works inside one Link), so it watches clicks on internal links and clears when the path changes.
-It has to listen in the **capture** phase: Next's Link calls `preventDefault` in its own handler, so
-a listener on the bubble phase sees every internal navigation as already cancelled. The two hand
-over to each other — on a dynamic route the bar shows, then `usePathname` updates as the route
-commits and the skeleton takes over.
+|                   | First paint (real slow 3G, median of 3) |
+| ----------------- | --------------------------------------- |
+| Linked stylesheet | 2412 ms                                 |
+| Inlined           | **892 ms**                              |
 
-The skeletons are markup on the critical path, so the size was measured rather than guessed: the
-first version cost `/uz/teachers` 12 KB and dropped it from 86 to 84 on mobile Lighthouse. Halving
-the number of placeholder cards — four is what a phone shows anyway — brought it back to 86 with LCP
-4.2 s, matching the page without any skeleton at all.
+Mobile Lighthouse scores the inlined version one point _lower_ (85 against 86) because its simulation
+penalises the larger document. The observed 1.5-second gain is what a person actually experiences, so
+the trade is taken deliberately — the same disagreement between Lantern's simulation and observed
+metrics noted earlier in this file. Accessibility and best practices stay at 100.
+
+Two measurements in this round were taken against a build made while the local database was down,
+which quietly produced empty pages and meaningless numbers — including a "skeletons cost two
+Lighthouse points" result that vanished once the data was back. Anything measured here is worth
+re-checking against a page that actually has content on it.
