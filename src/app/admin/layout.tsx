@@ -6,6 +6,7 @@ import { getAdminLocale, getAdminMessages } from '@/i18n/admin';
 import { getBrandScale } from '@/server/queries/site';
 import { themeCss } from '@/lib/theme';
 import '../globals.css';
+import { NavProgress } from '@/components/shared/nav-progress';
 
 export const metadata: Metadata = {
   title: { default: 'Admin', template: '%s · Admin' },
@@ -38,6 +39,7 @@ export default async function AdminRootLayout({ children }: { children: ReactNod
           text — the dashboard heading rendered near-white on near-white. */}
       <body className="min-h-screen bg-admin-bg text-admin-text antialiased">
         <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Tashkent">
+          <NavProgress />
           {children}
           <Toaster richColors position="top-right" closeButton />
         </NextIntlClientProvider>

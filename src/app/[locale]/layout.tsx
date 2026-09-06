@@ -14,6 +14,7 @@ import { DraftBanner } from '@/components/shared/draft-banner';
 import type { Locale } from '@/types/i18n';
 import '../globals.css';
 import { FONT_PRELOADS } from '@/lib/fonts';
+import { NavProgress } from '@/components/shared/nav-progress';
 
 /** Namespaces used by `'use client'` components (see the layout body). */
 const CLIENT_NAMESPACES = [
@@ -132,6 +133,7 @@ export default async function LocaleLayout({
             >
               {t('skipToContent')}
             </a>
+            <NavProgress />
             <DraftBanner />
             <Header settings={settings} nav={nav} locale={typedLocale} />
             <main id="main">{children}</main>

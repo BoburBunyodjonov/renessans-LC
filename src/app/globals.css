@@ -284,6 +284,22 @@
     color: var(--admin-accent);
   }
 
+  /* Navigation bar fill. It never reaches 100%: the bar disappears when the
+     new route renders, so finishing early would claim the page had arrived. */
+  @keyframes nav-progress {
+    from {
+      transform: scaleX(0.02);
+    }
+    to {
+      transform: scaleX(0.9);
+    }
+  }
+
+  .nav-progress {
+    transform-origin: left;
+    animation: nav-progress 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
   .hero-title mark {
     background: var(--color-ink-900);
     color: #fff;

@@ -668,3 +668,30 @@ migration.
 An e2e test broke here in a way worth recording: it opened "choose your level" and clicked the _last_
 "continue" link, which stopped being the General paper the moment a third card existed. It now targets
 the slug.
+
+## Loading states (post-handover)
+
+Two separate things were missing, and they turn out to cover different moments.
+
+**Route skeletons.** There was one `loading.tsx` for the whole locale segment, shaped like the home
+page — a red hero over a card grid — so every inner page flashed a hero it does not have. Each route
+now has its own placeholder shaped like the page that follows, built from primitives in
+`src/components/ui/skeleton.tsx`, and the locale-level fallback is neutral.
+
+These stream with the first paint of a page, which is where they earn their keep: on a slow
+connection the reader sees the page's shape while it arrives. They also cover a page rendered on
+demand, such as a post added in the admin after the last build.
+
+**A navigation bar.** Client navigation between prerendered pages does not suspend, so no skeleton
+appears — the click looks like nothing happened until the new page swaps in. A thin bar across the
+top now covers that gap. The App Router exposes no global "navigating" flag (`useLinkStatus` only
+works inside one Link), so it watches clicks on internal links and clears when the path changes.
+It has to listen in the **capture** phase: Next's Link calls `preventDefault` in its own handler, so
+a listener on the bubble phase sees every internal navigation as already cancelled. The two hand
+over to each other — on a dynamic route the bar shows, then `usePathname` updates as the route
+commits and the skeleton takes over.
+
+The skeletons are markup on the critical path, so the size was measured rather than guessed: the
+first version cost `/uz/teachers` 12 KB and dropped it from 86 to 84 on mobile Lighthouse. Halving
+the number of placeholder cards — four is what a phone shows anyway — brought it back to 86 with LCP
+4.2 s, matching the page without any skeleton at all.
