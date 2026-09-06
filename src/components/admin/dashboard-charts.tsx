@@ -14,12 +14,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useEffect, useState } from 'react';
 import { Panel, PanelTitle } from '@/components/admin/ui';
 import { useTranslations } from 'next-intl';
 
 type Point = { name: string; value: number };
 
-/** Categorical palette: brand red first, then distinguishable hues. */
+/** Categorical palette: the brand colour first, then distinguishable hues. */
 const PALETTE = [
   '#C42A21',
   '#0E7490',
@@ -39,6 +40,27 @@ const axisProps = {
   style: { fontSize: 11, opacity: 0.65 },
 } as const;
 
+/**
+ * The brand colour as a concrete value.
+ *
+ * Recharts passes `fill`/`stroke` straight through as SVG attributes, and an
+ * attribute cannot resolve `var(--…)` — so the palette entry is read off the
+ * document instead. Without this the charts keep the shipped red after someone
+ * picks a new brand colour in settings.
+ */
+function useBrandColor(): string {
+  const [brand, setBrand] = useState(PALETTE[0]!);
+
+  useEffect(() => {
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-brand-600')
+      .trim();
+    if (value) setBrand(value);
+  }, []);
+
+  return brand;
+}
+
 function ChartFrame({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Panel>
@@ -54,6 +76,7 @@ function EmptyChart() {
 }
 
 export function LeadsPerDayChart({ data }: { data: { date: string; count: number }[] }) {
+  const brand = useBrandColor();
   const t = useTranslations('admin');
   const hasData = data.some((point) => point.count > 0);
   return (
@@ -75,7 +98,7 @@ export function LeadsPerDayChart({ data }: { data: { date: string; count: number
             <Line
               type="monotone"
               dataKey="count"
-              stroke={PALETTE[0]}
+              stroke={brand}
               strokeWidth={2.5}
               dot={false}
               activeDot={{ r: 4 }}
@@ -90,6 +113,7 @@ export function LeadsPerDayChart({ data }: { data: { date: string; count: number
 }
 
 export function LeadsBySourceChart({ data }: { data: Point[] }) {
+  const brand = useBrandColor();
   const t = useTranslations('admin');
   return (
     <ChartFrame title={t('charts.bySource')}>
@@ -105,7 +129,10 @@ export function LeadsBySourceChart({ data }: { data: Point[] }) {
               paddingAngle={2}
             >
               {data.map((entry, index) => (
-                <Cell key={entry.name} fill={PALETTE[index % PALETTE.length]} />
+                <Cell
+                  key={entry.name}
+                  fill={index === 0 ? brand : PALETTE[index % PALETTE.length]!}
+                />
               ))}
             </Pie>
             <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />

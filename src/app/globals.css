@@ -50,7 +50,10 @@
 
   /* ---------- shadows ---------- */
   --shadow-card: 0 8px 30px rgba(14, 14, 16, 0.08);
-  --shadow-brand: 0 12px 40px rgba(230, 51, 41, 0.28);
+  /* Mixed from the brand token rather than written out, so a colour chosen in
+     the admin recolours the glow too. It used to be a fixed red, which left
+     brand-coloured cards sitting in a red halo. */
+  --shadow-brand: 0 12px 40px color-mix(in srgb, var(--color-brand-500) 28%, transparent);
 
   /* ---------- typography ---------- */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
