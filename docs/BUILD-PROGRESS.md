@@ -592,3 +592,41 @@ Poppins and body in Inter with both fallback faces loaded, and Lighthouse deskto
 100 / 100 / 100 performance, accessibility and best practices with LCP 0.8 s and CLS 0.035. (The SEO
 92 in that run is a localhost artefact: the canonical URL is baked to the real domain and cannot
 match `localhost:3111`.)
+
+## Real placement tests (post-handover)
+
+Both papers now hold the school's own questions, replacing the sample bank the seed shipped with.
+
+**General English — 45 multiple-choice questions.** The wording, the options and the answer key come
+from the school's PDF, and a check compares every keyed letter against the seed rather than trusting
+the transcription. The bands follow the paper: 0–8 Beginner, 9–18 Elementary, 19–27 Pre-Intermediate,
+28–36 Intermediate, 37–45 Upper-Intermediate.
+
+**Kids — 35 written answers.** This one did not fit the schema at all: the paper asks a child to name
+a picture, translate a word, answer questions about a text and put words back in order. None of that
+is a choice between options, so `TestQuestion` gained an `answerType` and a list of `acceptedAnswers`,
+and the runner renders a text field for those questions.
+
+Grading them has to forgive what a human marker forgives. `src/lib/answer-match.ts` normalises case,
+trailing punctuation, collapsed whitespace and — the one that matters locally — the several
+apostrophes Uzbek is typed with, so `o'tirmoq`, `oʻtirmoq` and `o‘tirmoq` are one answer. It stays
+exact after normalising rather than fuzzy: `swim` never passes for `swimming` unless a teacher listed
+both. Translations accept either Russian or Uzbek, and comprehension questions accept both the full
+sentence and the short answer a child is likely to write.
+
+Verified by taking both papers in a browser: the General key scores 45/45 → Upper-Intermediate, the
+Kids key scores 35/35 → Level 04, the same Kids answers typed casually — lower case, no full stops,
+a plain apostrophe — still score 35/35, and 18 correct lands on Level 02 as the paper says.
+
+Part 3 shows the reading passage above each of its questions, since the runner puts one question on a
+screen and the text has to travel with them.
+
+**Outstanding:** the six Part 1 pictures are not in the repo. Those questions are seeded with their
+answers and no image; attach the pictures under Media and paste the link into each question. The
+admin question editor now handles this — answer type, accepted answers and an image URL are editable
+per question.
+
+Two answers in the school's key look wrong and were kept as the school marks them, not silently
+changed: **Q20** is keyed A (`mustn't`) where "we've still got twenty minutes" points to D
+(`needn't`), and **Q25** is keyed D (`A few`) where "\_\_\_ people know this" idiomatically takes C
+(`Few`). Both are one edit away in the admin if the school agrees.

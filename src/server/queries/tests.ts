@@ -45,6 +45,7 @@ const rawQuestions = cachedQuery(
       select: {
         id: true,
         prompt: true,
+        answerType: true,
         imageUrl: true,
         audioUrl: true,
         points: true,
@@ -127,6 +128,7 @@ export async function getTestRunner(slug: string, locale: Locale): Promise<TestR
     questions: questions.map((question) => ({
       id: question.id,
       prompt: question.prompt,
+      answerType: question.answerType,
       imageUrl: question.imageUrl,
       audioUrl: question.audioUrl,
       options: question.options,
@@ -176,6 +178,8 @@ export async function getAnswerKey(slug: string) {
     select: {
       id: true,
       points: true,
+      answerType: true,
+      acceptedAnswers: true,
       options: { select: { id: true, isCorrect: true } },
     },
   });

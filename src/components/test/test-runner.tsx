@@ -148,10 +148,12 @@ export function TestRunner({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            answers: Object.entries(progress.answers).map(([questionId, optionId]) => ({
-              questionId,
-              optionId,
-            })),
+            answers: Object.entries(progress.answers).map(([questionId, value]) => {
+              const answered = runner.questions.find((item) => item.id === questionId);
+              return answered?.answerType === 'TEXT'
+                ? { questionId, text: value }
+                : { questionId, optionId: value };
+            }),
             name: contact?.name,
             phone: contact?.phone,
             durationSec: Math.round((Date.now() - progress.startedAt) / 1000),
@@ -195,7 +197,7 @@ export function TestRunner({
         submitted.current = false;
       }
     },
-    [locale, progress, slug],
+    [locale, progress, slug, runner.questions],
   );
 
   const finishQuiz = useCallback(() => {
@@ -239,7 +241,8 @@ export function TestRunner({
   );
 
   const goNext = useCallback(() => {
-    if (!progress || !question || !progress.answers[question.id]) return;
+    if (!progress || !question) return;
+    if (!(progress.answers[question.id] ?? '').trim()) return;
     if (isLast) {
       finishQuiz();
       return;
@@ -261,7 +264,7 @@ export function TestRunner({
       const target = event.target as HTMLElement | null;
       if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
 
-      if (/^[1-9]$/.test(event.key)) {
+      if (question.answerType === 'CHOICE' && /^[1-9]$/.test(event.key)) {
         const option = question.options[Number(event.key) - 1];
         if (option) {
           event.preventDefault();
@@ -344,7 +347,9 @@ export function TestRunner({
 
   if (!question) return null;
 
-  const progressPercent = Math.round(((index + (selected ? 1 : 0)) / questions.length) * 100);
+  const progressPercent = Math.round(
+    ((index + (selected?.trim() ? 1 : 0)) / questions.length) * 100,
+  );
 
   return (
     <div className="pb-20">
@@ -393,37 +398,64 @@ export function TestRunner({
           </p>
         </div>
 
-        <ul className="mt-8 flex flex-col gap-3">
-          {question.options.map((option, optionIndex) => {
-            const isSelected = selected === option.id;
-            return (
-              <li key={option.id}>
-                <button
-                  type="button"
-                  onClick={() => choose(option.id)}
-                  aria-pressed={isSelected}
-                  className={cn(
-                    'flex w-full items-center gap-3 rounded-full border-2 px-5 py-4 text-start text-base transition-all',
-                    isSelected
-                      ? 'border-brand-600 bg-brand-50 font-semibold text-ink-900'
-                      : 'border-ink-300/70 bg-white text-ink-600 hover:border-ink-900',
-                  )}
-                >
-                  <span
-                    aria-hidden
+        {question.answerType === 'TEXT' ? (
+          <div className="mt-8">
+            <label htmlFor="answer" className="sr-only">
+              {t('yourAnswer')}
+            </label>
+            <input
+              id="answer"
+              type="text"
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              value={selected ?? ''}
+              onChange={(event) => choose(event.target.value)}
+              onKeyDown={(event) => {
+                // Enter moves on, matching the keyboard flow of the choice
+                // questions; the global handler ignores typing in inputs.
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  goNext();
+                }
+              }}
+              placeholder={t('yourAnswer')}
+              className="w-full rounded-2xl border-2 border-ink-300/70 bg-white px-5 py-4 text-base text-ink-900 outline-none focus:border-brand-600"
+            />
+          </div>
+        ) : (
+          <ul className="mt-8 flex flex-col gap-3">
+            {question.options.map((option, optionIndex) => {
+              const isSelected = selected === option.id;
+              return (
+                <li key={option.id}>
+                  <button
+                    type="button"
+                    onClick={() => choose(option.id)}
+                    aria-pressed={isSelected}
                     className={cn(
-                      'grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold',
-                      isSelected ? 'bg-brand-600 text-white' : 'bg-ink-100 text-ink-600',
+                      'flex w-full items-center gap-3 rounded-full border-2 px-5 py-4 text-start text-base transition-all',
+                      isSelected
+                        ? 'border-brand-600 bg-brand-50 font-semibold text-ink-900'
+                        : 'border-ink-300/70 bg-white text-ink-600 hover:border-ink-900',
                     )}
                   >
-                    {optionIndex + 1}
-                  </span>
-                  {option.text}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold',
+                        isSelected ? 'bg-brand-600 text-white' : 'bg-ink-100 text-ink-600',
+                      )}
+                    >
+                      {optionIndex + 1}
+                    </span>
+                    {option.text}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
         {error ? (
           <p role="alert" className="mt-6 text-sm text-danger">
@@ -441,7 +473,7 @@ export function TestRunner({
             <span />
           )}
 
-          <Button size="lg" onClick={goNext} disabled={!selected || submitting}>
+          <Button size="lg" onClick={goNext} disabled={!selected?.trim() || submitting}>
             {submitting ? (
               <>
                 <Loader2 className="animate-spin" aria-hidden />
@@ -456,7 +488,10 @@ export function TestRunner({
           </Button>
         </div>
 
-        <p className="mt-6 hidden text-xs text-ink-600 md:block">{t('keyboardHint')}</p>
+        {/* The number keys pick an option, which a typed question has none of. */}
+        <p className="mt-6 hidden text-xs text-ink-600 md:block">
+          {question.answerType === 'TEXT' ? t('keyboardHintText') : t('keyboardHint')}
+        </p>
         <p className="mt-2 text-xs text-ink-600 tabular-nums">
           {tCommon('all')}: {answeredCount}/{questions.length}
         </p>

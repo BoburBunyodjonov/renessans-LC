@@ -5,6 +5,8 @@ const key: AnswerKeyQuestion[] = [
   {
     id: 'q1',
     points: 1,
+    answerType: 'CHOICE',
+    acceptedAnswers: [],
     options: [
       { id: 'a1', isCorrect: true },
       { id: 'a2', isCorrect: false },
@@ -13,6 +15,8 @@ const key: AnswerKeyQuestion[] = [
   {
     id: 'q2',
     points: 1,
+    answerType: 'CHOICE',
+    acceptedAnswers: [],
     options: [
       { id: 'b1', isCorrect: false },
       { id: 'b2', isCorrect: true },
@@ -21,6 +25,8 @@ const key: AnswerKeyQuestion[] = [
   {
     id: 'q3',
     points: 2,
+    answerType: 'CHOICE',
+    acceptedAnswers: [],
     options: [
       { id: 'c1', isCorrect: true },
       { id: 'c2', isCorrect: false },
@@ -118,5 +124,94 @@ describe('findBand', () => {
 
   it('returns null when there are no bands', () => {
     expect(findBand([], 5)).toBeNull();
+  });
+});
+
+describe('scoreAttempt with typed answers', () => {
+  const kidsKey: AnswerKeyQuestion[] = [
+    {
+      id: 't1',
+      points: 1,
+      answerType: 'TEXT',
+      acceptedAnswers: ['car'],
+      options: [],
+    },
+    {
+      id: 't2',
+      points: 1,
+      answerType: 'TEXT',
+      acceptedAnswers: ['Сидеть', "o'tirmoq"],
+      options: [],
+    },
+    {
+      id: 't3',
+      points: 1,
+      answerType: 'TEXT',
+      acceptedAnswers: ['She is playing.'],
+      options: [],
+    },
+  ];
+
+  it('marks typed answers against the accepted list, forgiving case and punctuation', () => {
+    const result = scoreAttempt(kidsKey, [
+      { questionId: 't1', text: ' Car ' },
+      { questionId: 't2', text: 'Oʻtirmoq' },
+      { questionId: 't3', text: 'she is playing' },
+    ]);
+
+    expect(result.score).toBe(3);
+    expect(result.correctCount).toBe(3);
+    expect(result.graded.every((answer) => answer.isCorrect)).toBe(true);
+  });
+
+  it('keeps what was typed so an admin can read the attempt back', () => {
+    const result = scoreAttempt(kidsKey, [{ questionId: 't1', text: 'bus' }]);
+
+    expect(result.graded).toEqual([{ questionId: 't1', text: 'bus', isCorrect: false }]);
+    expect(result.score).toBe(0);
+  });
+
+  it('scores a blank answer as wrong rather than skipping it', () => {
+    const result = scoreAttempt(kidsKey, [
+      { questionId: 't1', text: '' },
+      { questionId: 't2', text: '   ' },
+    ]);
+
+    expect(result.score).toBe(0);
+    // Both are recorded: a blank is an answer the child gave, not a missing one.
+    expect(result.graded).toHaveLength(2);
+  });
+
+  it('ignores an option id sent for a typed question', () => {
+    const result = scoreAttempt(kidsKey, [{ questionId: 't1', optionId: 'nonsense' }]);
+
+    expect(result.score).toBe(0);
+    expect(result.graded[0]?.optionId).toBeUndefined();
+  });
+
+  it('grades a mixed paper', () => {
+    const mixed: AnswerKeyQuestion[] = [
+      {
+        id: 'm1',
+        points: 1,
+        answerType: 'CHOICE',
+        acceptedAnswers: [],
+        options: [
+          { id: 'x1', isCorrect: true },
+          { id: 'x2', isCorrect: false },
+        ],
+      },
+      ...kidsKey,
+    ];
+
+    const result = scoreAttempt(mixed, [
+      { questionId: 'm1', optionId: 'x1' },
+      { questionId: 't1', text: 'car' },
+      { questionId: 't2', text: 'wrong' },
+    ]);
+
+    expect(result.score).toBe(2);
+    expect(result.maxScore).toBe(4);
+    expect(result.questionCount).toBe(4);
   });
 });

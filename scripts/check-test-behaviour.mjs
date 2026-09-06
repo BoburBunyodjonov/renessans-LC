@@ -42,9 +42,11 @@ let pass = true;
 }
 
 // ---------- 2. keyboard control ----------
+// Checked on the General paper: number keys pick an option, and the Kids paper
+// is answered in writing.
 {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await page.goto(`${base}/uz/tests/level-kids`, { waitUntil: 'load' });
+  await page.goto(`${base}/uz/tests/level-general`, { waitUntil: 'load' });
   await page.waitForSelector('button[aria-pressed]');
   await page.keyboard.press('2');
   const pressed = await page.locator('button[aria-pressed="true"]').count();
@@ -74,8 +76,8 @@ if (process.env.TIMEOUT_BASE) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto(`${process.env.TIMEOUT_BASE}/uz/tests/level-kids`, { waitUntil: 'load' });
-  await page.waitForSelector('button[aria-pressed]', { timeout: 60_000 });
-  await page.locator('button[aria-pressed]').first().click();
+  await page.waitForSelector('#answer', { timeout: 60_000 });
+  await page.fill('#answer', 'car');
 
   const shown = await page.evaluate(() => document.body.innerText.match(/\d+:\d\d/)?.[0] ?? null);
   const before = await prisma.testAttempt.count();

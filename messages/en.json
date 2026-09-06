@@ -87,6 +87,7 @@
     "estimatedTime": "~{minutes} minutes",
     "start": "Start the test",
     "progress": "{current} / {total}",
+    "yourAnswer": "Your answer",
     "timeLeft": "Time left",
     "finish": "Finish",
     "resultTitle": "Your result",
@@ -107,6 +108,7 @@
     "resume": "Continue",
     "startOver": "Start again",
     "keyboardHint": "Press 1–5 to choose an answer, Enter for the next question.",
+    "keyboardHintText": "Type your answer; Enter moves to the next question.",
     "gateSubmit": "See my result",
     "skipGate": "Skip",
     "correctAnswers": "Correct answers",
@@ -461,7 +463,15 @@
       "bandTitle": "Title",
       "bandDescription": "Description",
       "recommendedCourse": "Recommended course",
-      "deleteBand": "Delete this level?"
+      "deleteBand": "Delete this level?",
+      "answerType": "Answer type",
+      "answerTypeChoice": "Choose an option",
+      "answerTypeText": "Written answer",
+      "acceptedAnswers": "Accepted answers",
+      "acceptedAnswersHint": "One per line. Case, punctuation and the different apostrophes are ignored when marking.",
+      "addAnswer": "+ Add answer",
+      "imageUrl": "Image URL",
+      "imageUrlHint": "For questions answered from a picture. Upload it under Media and paste the link here."
     },
     "users": {
       "description": "Assign roles to staff. Roles are enforced on the server too.",

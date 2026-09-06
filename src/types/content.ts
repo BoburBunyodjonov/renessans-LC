@@ -331,6 +331,8 @@ export type TestOptionView = {
 export type TestQuestionView = {
   id: string;
   prompt: string;
+  /** TEXT questions are typed into rather than chosen from, and carry no options. */
+  answerType: 'CHOICE' | 'TEXT';
   imageUrl: string | null;
   audioUrl: string | null;
   options: TestOptionView[];

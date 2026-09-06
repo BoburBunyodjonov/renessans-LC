@@ -400,12 +400,23 @@ async function seedTests() {
     // to score a visitor's answers. Stable ids also keep past attempts readable.
     const questionIds: string[] = [];
 
-    for (const [index, [prompt, options, correct]] of category.questions.entries()) {
+    for (const [index, authored] of category.questions.entries()) {
       const questionId = `${category.slug}-q${index + 1}`;
       questionIds.push(questionId);
+
+      // A question is either a choice with options or a written answer graded
+      // against a list of accepted spellings.
+      const isText = !Array.isArray(authored);
+      const prompt = isText ? authored.prompt : authored[0];
+      const options = isText ? [] : authored[1];
+      const correct = isText ? -1 : authored[2];
+
       const question = {
         categoryId: saved.id,
         prompt,
+        answerType: isText ? ('TEXT' as const) : ('CHOICE' as const),
+        acceptedAnswers: isText ? authored.answers : [],
+        imageUrl: isText ? (authored.image ?? null) : null,
         order: index + 1,
         difficulty: Math.min(5, Math.floor(index / 9) + 1),
       };

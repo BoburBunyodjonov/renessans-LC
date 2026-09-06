@@ -472,20 +472,32 @@ model TestCategory {
   @@index([isPublished, order])
 }
 
+enum TestAnswerType {
+  CHOICE // pick one of the options
+  TEXT // type the answer; graded against `acceptedAnswers`
+}
+
 model TestQuestion {
-  id          String       @id @default(cuid())
-  categoryId  String
-  category    TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  prompt      String // English; supports two-line dialogue and "_____" gaps
-  imageUrl    String?
-  audioUrl    String?
-  explanation String?
-  points      Int          @default(1)
-  difficulty  Int          @default(1) // 1..5
-  order       Int          @default(0)
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id              String         @id @default(cuid())
+  categoryId      String
+  category        TestCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  prompt          String // English; supports two-line dialogue and "_____" gaps
+  // The Kids paper asks for written answers — a word for a picture, a
+  // translation, a sentence put back in order — so a question is either a
+  // choice or free text. TEXT questions carry no options.
+  answerType      TestAnswerType @default(CHOICE)
+  // Every spelling that counts as right, compared after normalisation (case,
+  // punctuation and the several apostrophes Uzbek is written with).
+  acceptedAnswers String[]
+  imageUrl        String?
+  audioUrl        String?
+  explanation     String?
+  points          Int            @default(1)
+  difficulty      Int            @default(1) // 1..5
+  order           Int            @default(0)
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   options TestOption[]
 

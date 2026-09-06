@@ -1,14 +1,20 @@
+import { matchesAcceptedAnswer } from '@/lib/answer-match';
 import type { TestAnswerInput } from '@/lib/validations/test';
 
 export type AnswerKeyQuestion = {
   id: string;
   points: number;
+  answerType: 'CHOICE' | 'TEXT';
   options: { id: string; isCorrect: boolean }[];
+  acceptedAnswers: string[];
 };
 
 export type GradedAnswer = {
   questionId: string;
-  optionId: string;
+  /** Present for CHOICE questions. */
+  optionId?: string;
+  /** What the visitor typed, kept so an admin can read the paper back. */
+  text?: string;
   isCorrect: boolean;
 };
 
@@ -38,16 +44,24 @@ export function scoreAttempt(key: AnswerKeyQuestion[], answers: TestAnswerInput[
     if (!question || seen.has(answer.questionId)) continue;
     seen.add(answer.questionId);
 
-    const option = question.options.find((item) => item.id === answer.optionId);
-    if (!option) continue;
+    let isCorrect: boolean;
+    if (question.answerType === 'TEXT') {
+      // A blank is simply wrong; storing it keeps the attempt readable.
+      const text = answer.text ?? '';
+      isCorrect = matchesAcceptedAnswer(text, question.acceptedAnswers);
+      graded.push({ questionId: question.id, text, isCorrect });
+    } else {
+      const option = question.options.find((item) => item.id === answer.optionId);
+      // An option that does not belong to this question is not an answer.
+      if (!option) {
+        seen.delete(question.id);
+        continue;
+      }
+      isCorrect = option.isCorrect;
+      graded.push({ questionId: question.id, optionId: option.id, isCorrect });
+    }
 
-    graded.push({
-      questionId: question.id,
-      optionId: option.id,
-      isCorrect: option.isCorrect,
-    });
-
-    if (option.isCorrect) {
+    if (isCorrect) {
       score += question.points;
       correctCount += 1;
     }

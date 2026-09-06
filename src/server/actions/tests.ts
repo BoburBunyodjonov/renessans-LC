@@ -18,12 +18,16 @@ const optionSchema = z.object({
 });
 
 const questionSchema = z.object({
-  prompt: z.string().trim().min(1).max(1000),
+  prompt: z.string().trim().min(1).max(2000),
   explanation: z.string().trim().max(1000).optional().or(z.literal('')),
   points: z.number().int().min(1).max(20),
   difficulty: z.number().int().min(1).max(5),
   isActive: z.boolean(),
-  options: z.array(optionSchema).min(2).max(5),
+  answerType: z.enum(['CHOICE', 'TEXT']),
+  // A written question is graded against these instead of options.
+  acceptedAnswers: z.array(z.string().trim().max(400)).max(20),
+  imageUrl: z.string().trim().max(300).optional().or(z.literal('')),
+  options: z.array(optionSchema).max(5),
 });
 
 export type QuestionInput = z.infer<typeof questionSchema>;
@@ -39,12 +43,33 @@ export async function saveQuestion(
     if (!parsed.success) return { ok: false, error: 'VALIDATION_ERROR' };
 
     const data = parsed.data;
-    if (!data.options.some((option) => option.isCorrect)) {
-      return {
-        ok: false,
-        error: 'VALIDATION_ERROR',
-        fields: { options: 'To‘g‘ri javobni belgilang' },
-      };
+    const isText = data.answerType === 'TEXT';
+
+    // A question nobody can answer correctly is a scoring bug waiting to
+    // happen, so each kind is checked for the answer it is graded against.
+    if (isText) {
+      if (data.acceptedAnswers.filter((answer) => answer.trim()).length === 0) {
+        return {
+          ok: false,
+          error: 'VALIDATION_ERROR',
+          fields: { acceptedAnswers: 'Kamida bitta to‘g‘ri javob kiriting' },
+        };
+      }
+    } else {
+      if (data.options.length < 2) {
+        return {
+          ok: false,
+          error: 'VALIDATION_ERROR',
+          fields: { options: 'Kamida ikkita variant kerak' },
+        };
+      }
+      if (!data.options.some((option) => option.isCorrect)) {
+        return {
+          ok: false,
+          error: 'VALIDATION_ERROR',
+          fields: { options: 'To‘g‘ri javobni belgilang' },
+        };
+      }
     }
 
     const base = {
@@ -53,7 +78,12 @@ export async function saveQuestion(
       points: data.points,
       difficulty: data.difficulty,
       isActive: data.isActive,
+      answerType: data.answerType,
+      acceptedAnswers: isText ? data.acceptedAnswers.filter((answer) => answer.trim()) : [],
+      imageUrl: data.imageUrl || null,
     };
+    // A written question carries no options; a choice keeps only its own.
+    const options = isText ? [] : data.options;
 
     let id = questionId;
 
@@ -63,7 +93,7 @@ export async function saveQuestion(
         prisma.testQuestion.update({ where: { id: questionId }, data: base }),
         prisma.testOption.deleteMany({ where: { questionId } }),
         prisma.testOption.createMany({
-          data: data.options.map((option, index) => ({
+          data: options.map((option, index) => ({
             questionId,
             text: option.text,
             isCorrect: option.isCorrect,
@@ -83,7 +113,7 @@ export async function saveQuestion(
           categoryId,
           order: (last?.order ?? 0) + 1,
           options: {
-            create: data.options.map((option, index) => ({
+            create: options.map((option, index) => ({
               text: option.text,
               isCorrect: option.isCorrect,
               order: index + 1,

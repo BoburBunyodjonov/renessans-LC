@@ -30,6 +30,9 @@ type Question = {
   points: number;
   difficulty: number;
   isActive: boolean;
+  answerType: 'CHOICE' | 'TEXT';
+  acceptedAnswers: string[];
+  imageUrl: string | null;
   options: Option[];
 };
 
@@ -53,6 +56,9 @@ const blankQuestion = (): Question => ({
   points: 1,
   difficulty: 1,
   isActive: true,
+  answerType: 'CHOICE',
+  acceptedAnswers: [],
+  imageUrl: null,
   options: [
     { text: '', isCorrect: true },
     { text: '', isCorrect: false },
@@ -275,69 +281,146 @@ export function QuestionBank({
             <p className="text-xs text-admin-muted">{t('tests.promptHint')}</p>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label className="text-admin-text">{t('tests.options')}</Label>
-            {editing.options.map((option, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="correct-option"
-                  aria-label={t('tests.correctOption', { index: index + 1 })}
-                  className="size-4 accent-brand-600"
-                  checked={option.isCorrect}
-                  onChange={() =>
-                    setEditing({
-                      ...editing,
-                      options: editing.options.map((item, i) => ({
-                        ...item,
-                        isCorrect: i === index,
-                      })),
-                    })
-                  }
-                />
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="q-answer-type" className="text-admin-text">
+              {t('tests.answerType')}
+            </Label>
+            <select
+              id="q-answer-type"
+              value={editing.answerType}
+              onChange={(event) =>
+                setEditing({ ...editing, answerType: event.target.value as 'CHOICE' | 'TEXT' })
+              }
+              className="h-10 rounded-md border border-admin-border bg-admin-panel px-3 text-sm text-admin-text"
+            >
+              <option value="CHOICE">{t('tests.answerTypeChoice')}</option>
+              <option value="TEXT">{t('tests.answerTypeText')}</option>
+            </select>
+          </div>
+
+          {editing.answerType === 'TEXT' ? (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="q-image" className="text-admin-text">
+                  {t('tests.imageUrl')}
+                </Label>
                 <Input
-                  value={option.text}
-                  onChange={(event) =>
-                    setEditing({
-                      ...editing,
-                      options: editing.options.map((item, i) =>
-                        i === index ? { ...item, text: event.target.value } : item,
-                      ),
-                    })
-                  }
+                  id="q-image"
+                  value={editing.imageUrl ?? ''}
+                  onChange={(event) => setEditing({ ...editing, imageUrl: event.target.value })}
+                  placeholder="https://..."
                   className={inputTheme}
                 />
-                {editing.options.length > 2 ? (
-                  <button
-                    type="button"
-                    onClick={() =>
+                <p className="text-xs text-admin-muted">{t('tests.imageUrlHint')}</p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label className="text-admin-text">{t('tests.acceptedAnswers')}</Label>
+                <p className="text-xs text-admin-muted">{t('tests.acceptedAnswersHint')}</p>
+                {editing.acceptedAnswers.map((answer, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      value={answer}
+                      onChange={(event) =>
+                        setEditing({
+                          ...editing,
+                          acceptedAnswers: editing.acceptedAnswers.map((item, i) =>
+                            i === index ? event.target.value : item,
+                          ),
+                        })
+                      }
+                      className={inputTheme}
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditing({
+                          ...editing,
+                          acceptedAnswers: editing.acceptedAnswers.filter((_, i) => i !== index),
+                        })
+                      }
+                      className="px-2 text-xs font-bold text-danger dark:text-admin-danger"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditing({ ...editing, acceptedAnswers: [...editing.acceptedAnswers, ''] })
+                  }
+                  className="self-start text-xs font-bold text-brand-600 dark:text-admin-accent"
+                >
+                  {t('tests.addAnswer')}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Label className="text-admin-text">{t('tests.options')}</Label>
+              {editing.options.map((option, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="correct-option"
+                    aria-label={t('tests.correctOption', { index: index + 1 })}
+                    className="size-4 accent-brand-600"
+                    checked={option.isCorrect}
+                    onChange={() =>
                       setEditing({
                         ...editing,
-                        options: editing.options.filter((_, i) => i !== index),
+                        options: editing.options.map((item, i) => ({
+                          ...item,
+                          isCorrect: i === index,
+                        })),
                       })
                     }
-                    className="px-2 text-xs font-bold text-danger dark:text-admin-danger"
-                  >
-                    ✕
-                  </button>
-                ) : null}
-              </div>
-            ))}
-            {editing.options.length < 5 ? (
-              <button
-                type="button"
-                onClick={() =>
-                  setEditing({
-                    ...editing,
-                    options: [...editing.options, { text: '', isCorrect: false }],
-                  })
-                }
-                className="self-start text-xs font-bold text-brand-600 dark:text-admin-accent"
-              >
-                {t('tests.addOption')}
-              </button>
-            ) : null}
-          </div>
+                  />
+                  <Input
+                    value={option.text}
+                    onChange={(event) =>
+                      setEditing({
+                        ...editing,
+                        options: editing.options.map((item, i) =>
+                          i === index ? { ...item, text: event.target.value } : item,
+                        ),
+                      })
+                    }
+                    className={inputTheme}
+                  />
+                  {editing.options.length > 2 ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditing({
+                          ...editing,
+                          options: editing.options.filter((_, i) => i !== index),
+                        })
+                      }
+                      className="px-2 text-xs font-bold text-danger dark:text-admin-danger"
+                    >
+                      ✕
+                    </button>
+                  ) : null}
+                </div>
+              ))}
+              {editing.options.length < 5 ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditing({
+                      ...editing,
+                      options: [...editing.options, { text: '', isCorrect: false }],
+                    })
+                  }
+                  className="self-start text-xs font-bold text-brand-600 dark:text-admin-accent"
+                >
+                  {t('tests.addOption')}
+                </button>
+              ) : null}
+            </div>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
@@ -395,7 +478,13 @@ export function QuestionBank({
                       points: editing.points,
                       difficulty: editing.difficulty,
                       isActive: editing.isActive,
-                      options: editing.options.filter((option) => option.text.trim()),
+                      answerType: editing.answerType,
+                      acceptedAnswers: editing.acceptedAnswers.filter((answer) => answer.trim()),
+                      imageUrl: editing.imageUrl ?? '',
+                      options:
+                        editing.answerType === 'TEXT'
+                          ? []
+                          : editing.options.filter((option) => option.text.trim()),
                     }),
                   t('common.saved'),
                 )

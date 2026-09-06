@@ -87,6 +87,7 @@
     "estimatedTime": "~{minutes} минут",
     "start": "Начать тест",
     "progress": "{current} / {total}",
+    "yourAnswer": "Ваш ответ",
     "timeLeft": "Осталось времени",
     "finish": "Завершить",
     "resultTitle": "Ваш результат",
@@ -107,6 +108,7 @@
     "resume": "Продолжить",
     "startOver": "Начать заново",
     "keyboardHint": "Выбирайте ответ клавишами 1–5, Enter — следующий вопрос.",
+    "keyboardHintText": "Введите ответ, Enter — следующий вопрос.",
     "gateSubmit": "Посмотреть результат",
     "skipGate": "Пропустить",
     "correctAnswers": "Правильных ответов",
@@ -461,7 +463,15 @@
       "bandTitle": "Заголовок",
       "bandDescription": "Описание",
       "recommendedCourse": "Рекомендуемый курс",
-      "deleteBand": "Удалить уровень?"
+      "deleteBand": "Удалить уровень?",
+      "answerType": "Тип ответа",
+      "answerTypeChoice": "Выбор варианта",
+      "answerTypeText": "Письменный ответ",
+      "acceptedAnswers": "Правильные ответы",
+      "acceptedAnswersHint": "По одному варианту в строке. Регистр, знаки препинания и разные апострофы не учитываются.",
+      "addAnswer": "+ Добавить ответ",
+      "imageUrl": "Ссылка на картинку",
+      "imageUrlHint": "Для заданий, где ответ пишут по картинке. Загрузите её в раздел «Медиа» и вставьте ссылку сюда."
     },
     "users": {
       "description": "Назначьте роли сотрудникам. Роли проверяются и на сервере.",

@@ -1,157 +1,364 @@
 import { L } from './common';
 
 /** [prompt, options, index of the correct option] */
-export type SeedQuestion = [string, string[], number];
+export type SeedChoiceQuestion = [string, string[], number];
 
+/** A written answer, graded against every spelling a marker would accept. */
+export type SeedTextQuestion = {
+  prompt: string;
+  answers: string[];
+  /** Attached in the admin for the picture questions. */
+  image?: string;
+};
+
+export type SeedQuestion = SeedChoiceQuestion | SeedTextQuestion;
+
+/**
+ * The reading passage for Part 3. The runner shows one question per screen, so
+ * the text travels with each of its questions rather than sitting on a page of
+ * its own.
+ */
+const MOLLY = [
+  "I am Molly. I'm fourteen. My hobbies are swimming, cooking and skiing. I have got a dog and a cat.",
+  'We have five family members in our family including me. My mother is a model. She is 180 cm tall.',
+  'My father is a pilot. He had to arrive from America yesterday, but his flight was canceled and he',
+  'went to Turkey. My brother is an artist. He can draw well. My sister is a cute girl. She is playing now.',
+  "I'm older than my sister, so I don't like playing dolls. I have a lot of dreams. I have never been",
+  "abroad. I would like to go to Egypt, Japan and China. I'm going to learn Japanese next year.",
+].join(' ');
+
+const reading = (question: string, answers: string[]): SeedTextQuestion => ({
+  prompt: `${MOLLY}\n\n${question}`,
+  answers,
+});
+
+/**
+ * The Kids paper is written by hand, so every question here is typed rather
+ * than chosen. `answers` lists the spellings that count as correct; a marker
+ * forgives case and punctuation, and so does the grader.
+ *
+ * Part 1 needs its six pictures attached in the admin — the words cannot be
+ * guessed from the prompt alone, which is the point of the exercise.
+ */
 export const KIDS_QUESTIONS: SeedQuestion[] = [
-  ['Hello! What ____ your name?', ['is', 'are', 'am', 'be'], 0],
-  ['I ____ seven years old.', ['is', 'am', 'are', 'be'], 1],
-  ['This is a cat. ____ is black.', ['He', 'She', 'It', 'They'], 2],
-  ['Choose the colour: the sun is ____.', ['yellow', 'purple', 'green', 'grey'], 0],
-  ['How many legs has a dog got? It has got ____ legs.', ['two', 'three', 'four', 'five'], 2],
-  ['— Good morning!\n— ____', ['Good night!', 'Good morning!', 'Goodbye!', 'Thank you!'], 1],
-  ['My mother and father are my ____.', ['friends', 'parents', 'teachers', 'pets'], 1],
-  ['We ____ at school now.', ['is', 'am', 'are', 'be'], 2],
-  ['Look! The birds ____ in the sky.', ['fly', 'flies', 'flying', 'is fly'], 0],
-  ['I have got two ____.', ['foot', 'feet', 'foots', 'feets'], 1],
-  ['Where do you sleep? In the ____.', ['kitchen', 'bathroom', 'bedroom', 'garden'], 2],
-  ['— How old are you?\n— I ____ nine.', ['have', 'am', 'is', 'do'], 1],
-  ['The apple is ____ the table.', ['on', 'at', 'of', 'to'], 0],
-  ['She ____ milk every morning.', ['drink', 'drinks', 'drinking', 'is drink'], 1],
-  ['Choose the animal: it says "meow".', ['a dog', 'a cow', 'a cat', 'a duck'], 2],
-  ['I can ____ a bike.', ['ride', 'rides', 'riding', 'to ride'], 0],
-  ['These are my books. They are ____.', ['my', 'mine', 'me', 'I'], 1],
-  ['— Whose pencil is this?\n— It is ____ pencil.', ['Toms', "Tom's", 'Tom', 'of Tom'], 1],
-  ['There ____ four chairs in the room.', ['is', 'are', 'am', 'be'], 1],
-  ['We go to school ____ Monday.', ['in', 'at', 'on', 'of'], 2],
-  ['My sister ____ TV now.', ['watch', 'watches', 'is watching', 'watching'], 2],
-  ['Winter is ____ than summer.', ['cold', 'colder', 'coldest', 'more cold'], 1],
-  ['I like ice cream, ____ I do not like onions.', ['and', 'but', 'or', 'so'], 1],
-  [
-    '— Can I have some water, please?\n— ____',
-    ['Yes, you can.', 'Yes, I do.', 'No, I am not.', 'Yes, it is.'],
-    0,
-  ],
-  ['Yesterday we ____ to the zoo.', ['go', 'goes', 'went', 'going'], 2],
-  ['He has got ____ orange juice.', ['a', 'an', 'some', 'many'], 2],
-  ['Look at the clock: it is half ____ three.', ['past', 'to', 'at', 'on'], 0],
-  ['There are ____ apples in the basket.', ['much', 'many', 'a', 'any'], 1],
-  ['She is the ____ girl in the class.', ['tall', 'taller', 'tallest', 'most tall'], 2],
-  ['I ____ my homework yesterday evening.', ['do', 'did', 'does', 'doing'], 1],
-  ['We must ____ quiet in the library.', ['be', 'are', 'being', 'is'], 0],
-  ['— What is the weather like?\n— It ____ raining.', ['is', 'are', 'has', 'does'], 0],
-  ['My birthday is ____ May.', ['on', 'at', 'in', 'to'], 2],
-  ['He is good ____ football.', ['in', 'at', 'on', 'for'], 1],
-  ['They ____ not like fish.', ['does', 'do', 'is', 'are'], 1],
-  ['Tomorrow I ____ visit my grandmother.', ['am', 'will', 'was', 'did'], 1],
-  [
-    'Put the words in order: (bag / is / my / this)',
-    ['This is my bag.', 'My bag this is.', 'Is this my bag.', 'This my bag is.'],
-    0,
-  ],
-  ['I have never ____ a lion.', ['see', 'saw', 'seen', 'seeing'], 2],
-  ['If it rains, we ____ at home.', ['stay', 'will stay', 'stayed', 'staying'], 1],
-  ['The cake ____ by my mother.', ['made', 'was made', 'is make', 'makes'], 1],
-  ['She asked me where I ____ from.', ['come', 'came', 'coming', 'comes'], 1],
-  ['I am looking forward ____ the holidays.', ['to', 'for', 'at', 'on'], 0],
-  ['This is the boy ____ won the competition.', ['which', 'who', 'whose', 'whom'], 1],
-  [
-    'You ____ eat so many sweets — it is bad for your teeth.',
-    ['should not', 'must to', 'do not have', 'are not'],
-    0,
-  ],
-  [
-    '— How long have you studied English?\n— ____ two years.',
-    ['Since', 'For', 'During', 'From'],
-    1,
-  ],
+  // ---- Part 1: look at the picture, write a word ----
+  { prompt: 'Look at the picture and write the word.', answers: ['car'] },
+  { prompt: 'Look at the picture and write the word.', answers: ['swim', 'swimming'] },
+  { prompt: 'Look at the picture and write the word.', answers: ['suitcase', 'a suitcase'] },
+  { prompt: 'Look at the picture and write the word.', answers: ['newspaper', 'a newspaper'] },
+  { prompt: 'Look at the picture and write the word.', answers: ['anchor', 'an anchor'] },
+  { prompt: 'Look at the picture and write the word.', answers: ['elbow', 'an elbow'] },
+
+  // ---- Part 2: translate the word ----
+  {
+    prompt: 'Translate the word into Russian or Uzbek: Sit',
+    answers: ['сидеть', "o'tirmoq", "o'tirish"],
+  },
+  {
+    prompt: 'Translate the word into Russian or Uzbek: Cups',
+    answers: ['чашка', 'чашки', 'chashka', 'chashkalar'],
+  },
+  {
+    prompt: 'Translate the word into Russian or Uzbek: Drop',
+    answers: ['ронять', 'tushirib yubormoq', 'tushirmoq'],
+  },
+  { prompt: 'Translate the word into Russian or Uzbek: Meat', answers: ['мясо', "go'sht"] },
+  {
+    prompt: 'Translate the word into Russian or Uzbek: Audience',
+    answers: ['зрители', 'tomoshabinlar', 'tomoshabin'],
+  },
+  { prompt: 'Translate the word into Russian or Uzbek: Steam', answers: ['пар', "bug'", 'par'] },
+
+  // ---- Part 3: read the text, answer the questions ----
+  reading("What's her name?", ['her name is molly', 'molly']),
+  reading('How old is she?', ['she is fourteen', 'fourteen', '14', 'she is 14']),
+  reading('What is her sister doing at the moment?', ['she is playing', 'playing']),
+  reading('What does her father do?', ['he is a pilot', 'a pilot', 'pilot']),
+  reading("What's her future plan?", [
+    'she is going to learn japanese',
+    'to learn japanese',
+    'learn japanese',
+  ]),
+  reading("What's her mother's job?", ['she is a model', 'a model', 'model']),
+  reading('What did her father do yesterday?', ['he went to turkey', 'went to turkey', 'turkey']),
+  reading('Does she have any pets?', ['yes she does', 'yes', 'yes, she does']),
+  reading('Which countries does she want to visit?', [
+    'egypt japan and china',
+    'egypt, japan and china',
+    'china japan',
+    'china, japan',
+  ]),
+  reading('How tall is her mother?', ['she is 180 cm tall', '180 cm', '180']),
+  reading('What can her brother do?', ['he can draw well', 'he can draw', 'draw']),
+  reading('Which countries has Molly been to?', [
+    'she has never been abroad',
+    'none',
+    'no countries',
+    'nowhere',
+  ]),
+  reading('Who is younger? Molly or her sister?', [
+    'her sister',
+    'sister',
+    'her sister is younger',
+  ]),
+  reading('How many people are there in her family?', [
+    'there are 5 people',
+    'five',
+    '5',
+    'there are five people',
+  ]),
+  reading('What does Molly like doing?', [
+    'swimming cooking and singing',
+    'swimming, cooking and singing',
+    'swimming cooking and skiing',
+    'swimming, cooking and skiing',
+  ]),
+
+  // ---- Part 4: put the words in the correct order ----
+  {
+    prompt: 'Put the words in the correct order:\nloudly / singing / she / is',
+    answers: ['she is singing loudly'],
+  },
+  {
+    prompt: 'Put the words in the correct order:\nbananas / I / like',
+    answers: ['i like bananas'],
+  },
+  {
+    prompt: 'Put the words in the correct order:\ndoes / do / evening / he / what / in / the',
+    answers: ['what does he do in the evening'],
+  },
+  {
+    prompt: 'Put the words in the correct order:\nalways / milk / my sister / drinks',
+    answers: ['my sister always drinks milk'],
+  },
+  {
+    prompt: 'Put the words in the correct order:\ndid / listen / not / to / I / music',
+    answers: ['i did not listen to music'],
+  },
+  {
+    prompt: 'Put the words in the correct order:\nis / he / play / to / football / going',
+    answers: ['he is going to play football'],
+  },
+  {
+    prompt:
+      'Put the words in the correct order:\nmy / sister / something / reading / interesting / was',
+    answers: ['my sister was reading something interesting'],
+  },
+  {
+    prompt: 'Put the words in the correct order:\nwill / in / car / the / I / not / put / it',
+    answers: ['i will not put it in the car'],
+  },
 ];
 
 export const GENERAL_QUESTIONS: SeedQuestion[] = [
-  ['Nice to meet you. My name ____ Aziz.', ['am', 'is', 'are', 'be'], 1],
-  ['Where ____ you from?', ['is', 'am', 'are', 'do'], 2],
-  ['She ____ in a bank.', ['work', 'works', 'working', 'is work'], 1],
-  ['They ____ got a new car.', ['has', 'have', 'is', 'are'], 1],
-  ['There is ____ milk in the fridge.', ['a', 'an', 'some', 'many'], 2],
-  ['I usually get up ____ 7 o’clock.', ['in', 'on', 'at', 'to'], 2],
   [
-    'This book is ____ than that one.',
-    ['interesting', 'more interesting', 'most interesting', 'interestinger'],
-    1,
-  ],
-  ['— What are you doing?\n— I ____ dinner.', ['cook', 'cooks', 'am cooking', 'cooked'], 2],
-  ['We ____ to Samarkand last summer.', ['go', 'went', 'gone', 'going'], 1],
-  ['He can ____ three languages.', ['speaks', 'speak', 'speaking', 'to speak'], 1],
-  ['How ____ sugar do you take in your tea?', ['many', 'much', 'few', 'lots'], 1],
-  ['I am not very good ____ maths.', ['in', 'on', 'at', 'for'], 2],
-  ['She has lived here ____ 2015.', ['for', 'since', 'from', 'during'], 1],
-  ['If I ____ time, I will call you.', ['have', 'will have', 'had', 'having'], 0],
-  ['The film was ____ boring that I fell asleep.', ['such', 'so', 'too', 'very'], 1],
-  ['This is the restaurant ____ we met.', ['which', 'where', 'who', 'when'], 1],
-  [
-    'You ____ smoke here. It is forbidden.',
-    ['must not', 'do not have to', 'need not', 'should'],
+    "Manager: Where's Mr Davidson?\nAssistant: Oh, he's _____ London today.",
+    ['in', 'on', 'to', 'at'],
     0,
   ],
-  ['My car ____ last week.', ['stole', 'was stolen', 'is stolen', 'has stole'], 1],
-  ['He said he ____ tired.', ['is', 'was', 'has been', 'will be'], 1],
-  ['I would rather ____ at home tonight.', ['stay', 'to stay', 'staying', 'stayed'], 0],
   [
-    'By the time we arrived, the concert ____.',
-    ['started', 'has started', 'had started', 'was starting'],
+    'Shop Assistant: Can I help you?\nCustomer: Yes, I\u2019d like to buy _____ trousers.',
+    ['a', 'an', 'this', 'these'],
+    3,
+  ],
+  ['My mother and father _____ both very tall.', ['is', "isn't", 'are', "aren't"], 2],
+  [
+    "Ayla: That's a nice table, Sophie! Is it new?\nSophie: Oh no, it's my _____ old table.",
+    ['mother', 'mothers', "mother's", "mothers'"],
     2,
   ],
-  ['She is used ____ early.', ['to get up', 'to getting up', 'get up', 'getting up'], 1],
-  ['Neither of the answers ____ correct.', ['are', 'is', 'were', 'be'], 1],
-  ['I wish I ____ how to drive.', ['know', 'knew', 'have known', 'will know'], 1],
   [
-    'The report ____ by Friday.',
-    ['must finish', 'must be finished', 'must finished', 'must to finish'],
+    "Father: Are we ready to go?\nDaughter: No, Mum can't find _____ hat.",
+    ['she', 'his', 'her', 'their'],
+    2,
+  ],
+  [
+    'A: _____ you like cats?\nB: No, I _____',
+    ['Do / do', "Do / don't", "Does / don't", "Do / doesn't"],
     1,
   ],
-  ['He apologised ____ being late.', ['of', 'for', 'about', 'to'], 1],
-  ['It is high time we ____ a decision.', ['make', 'made', 'will make', 'making'], 1],
   [
-    'Hardly ____ the door when the phone rang.',
-    ['I had opened', 'had I opened', 'I opened', 'did I open'],
+    "Mother: Where's that fish? It was on the table.\nDaughter: Oh no! The cat _____ it.",
+    ['eat', 'eats', 'is eating', 'are eating'],
+    2,
+  ],
+  [
+    "Alicia: I'm going to the supermarket. Do you want anything?\nPeter: Can you get _____ milk, please?",
+    ['a', 'any', 'some', 'every'],
+    2,
+  ],
+  [
+    'Amanda: I like your new sofa.\nFahima: Thanks. It\u2019s _____ comfortable than the other one we had.',
+    ['the most', 'very', 'much', 'more'],
+    3,
+  ],
+  [
+    'Tom got the _____ marks in the class for his homework.',
+    ['worse', 'worst', 'baddest', 'most bad'],
     1,
   ],
-  ['She denied ____ the money.', ['to take', 'taking', 'take', 'taken'], 1],
-  ['The more you practise, ____ you become.', ['the better', 'better', 'the best', 'good'], 0],
-  ['I look forward to ____ from you.', ['hear', 'hearing', 'heard', 'be heard'], 1],
   [
-    'If I had studied harder, I ____ the exam.',
-    ['would pass', 'would have passed', 'will pass', 'passed'],
+    'Manisha: What did you do at the weekend?\nNicola: I _____ tennis with my friend on Saturday.',
+    ['play', 'played', 'plays', 'playing'],
     1,
   ],
-  ['He is responsible ____ the marketing department.', ['of', 'to', 'for', 'with'], 2],
+  ['The beach was very crowded _____ Monday.', ['in', 'on', 'at', 'to'], 1],
   [
-    'Not only ____ late, but he also forgot the documents.',
-    ['he was', 'was he', 'he is', 'is he'],
-    1,
+    "Wife: Have we got any cheese in the fridge?\nHusband: No, we haven't. I'm _____ buy some this afternoon.",
+    ['going', 'go to', 'go', 'going to'],
+    3,
   ],
-  ['The meeting was put ____ until next Monday.', ['off', 'on', 'up', 'out'], 0],
+  ['Where _____ you last Tuesday? I tried to phone you.', ['were', 'was', 'are', 'is'], 0],
   [
-    'She speaks English ____ fluently ____ her brother.',
-    ['as / as', 'so / as', 'more / than', 'as / than'],
+    "Lucas: Do you play the piano, Natasha?\nNatasha: Well, I _____ play when I was younger, but I can't.",
+    ['can', "can't", 'could', "couldn't"],
+    2,
+  ],
+  [
+    'Our teacher speaks English to us _____ so that we can understand her.',
+    ['slow', 'slower', 'more slow', 'slowly'],
+    3,
+  ],
+  [
+    'I _____ the new Batman film yet. Is it any good?',
+    ["haven't seen", "didn't see", "don't see", 'am not seen'],
     0,
   ],
-  ['I would appreciate it if you ____ me know.', ['let', 'would let', 'will let', 'have let'], 1],
-  ['There is no point ____ about it now.', ['to worry', 'worrying', 'worry', 'in worry'], 1],
-  ['He came across ____ arrogant during the interview.', ['as', 'like', 'for', 'to'], 0],
-  ['The proposal was turned ____ by the board.', ['down', 'off', 'over', 'in'], 0],
-  ['Little ____ that she was already famous.', ['I knew', 'did I know', 'I did know', 'knew I'], 1],
   [
-    'Under no circumstances ____ the machine unattended.',
-    ['you should leave', 'should you leave', 'you leave', 'leave you'],
+    'Sophie: How long _____ married?\nYing Yue: Two years. I met my husband in New York.',
+    ['had you got', 'did you get', 'have you been', 'are you being'],
+    2,
+  ],
+  [
+    'Which train _____ for when I saw you on the platform on Sunday?',
+    ['did you wait', 'were you waiting', 'have you waited', 'are you waiting'],
     1,
   ],
-  ['She is entitled ____ a full refund.', ['for', 'to', 'of', 'with'], 1],
-  ['The results were, ____ and large, satisfactory.', ['by', 'in', 'at', 'on'], 0],
   [
-    'Were it not for your help, the project ____ failed.',
-    ['would have', 'will have', 'had', 'would'],
+    "You _____ hurry as we've still got twenty minutes before the film starts.",
+    ["mustn't", "can't", 'may not', "needn't"],
     0,
+  ],
+  [
+    "Juliana: Do you like Brazilian coffee?\nMiriodere: No I don't, because it's _____ strong.",
+    ['too', 'such', 'much', 'enough'],
+    0,
+  ],
+  [
+    'Daughter: Mum, my computer is broken again. Can you buy me a new one?\nMother: Ok, I _____ buy you one tomorrow, but not now.',
+    ['will', 'may', 'should', 'would'],
+    0,
+  ],
+  [
+    'My father has been a pilot _____ twenty years and he still loves his job.',
+    ['since', 'for', 'until', 'by'],
+    1,
+  ],
+  [
+    "I really enjoy _____ new languages and I'd like to learn Italian soon.",
+    ['to learn', 'learning', 'learn', 'learned'],
+    1,
+  ],
+  [
+    '_____ people know this but our school has a gym today.',
+    ['any', 'A little', 'Few', 'A few'],
+    3,
+  ],
+  ["That's the office _____ my dad works.", ['who', 'where', 'that', 'which'], 1],
+  [
+    'Wife: Advertising is a big business for musicians.\nHusband: Yes, musicians _____ a lot of money for writing short pieces of music.',
+    ['pay', 'paid', 'are paid', 'are paying'],
+    2,
+  ],
+  [
+    "Could I possibly _____ some money for the bus fare home? I've lost my bag.",
+    ['lend', 'owe', 'borrow', 'need'],
+    2,
+  ],
+  [
+    'The studio lights went out, while the footballer _____.',
+    ['been interviewed', 'was interviewed', 'was being interviewed', 'was interviewing'],
+    2,
+  ],
+  [
+    "Natalia: My new smartphone doesn't seem to work.\nKatie: Oh dear! Perhaps you should take it _____ and ask for a refund.",
+    ['up', 'out', 'away', 'back'],
+    3,
+  ],
+  [
+    "Shop Assistant: Excuse me, please. Could I get past?\nCustomer: Oh, I'm sorry. I'm getting in the way, _____ I?",
+    ["don't", "aren't", "can't", "haven't"],
+    1,
+  ],
+  [
+    "Miriam: Are you coming to my party on Tuesday?\nBrian: I'm really sorry, but I _____ to take my daughter to the airport.",
+    ['must', 'had', 'have', 'having'],
+    2,
+  ],
+  [
+    'Stephen: The concert was fantastic yesterday. You _____ come.\nYuuto: I know. I wanted to, but I had to work late.',
+    ['must have', 'could have', 'ought have', 'should have'],
+    3,
+  ],
+  [
+    "Look out for a petrol station because I think we're going to run _____ of petrol soon.",
+    ['down', 'out', 'off', 'through'],
+    1,
+  ],
+  [
+    "Laura: How was the meeting?\nRicardo: It finished late because Victor didn't arrive until 5 pm. He told me he _____ woken up late.",
+    ['has', 'had been', 'have', 'had'],
+    3,
+  ],
+  [
+    'Son: I had a bit of a stomachache this morning.\nMother: Oh dear! You _____ eaten that chicken last night.',
+    ["wouldn't have", "couldn't have", "mustn't have", "shouldn't have"],
+    3,
+  ],
+  [
+    "Liam: So, your Dad's got a laptop!\nCian: Yes, I bought it for him last year \u2013 until then he _____ a typewriter!",
+    ['used', 'has used', 'has been using', 'had been using'],
+    3,
+  ],
+  [
+    "Isabella: The flight is fully booked, so I won't be able to go to Barbados next week.\nSafia: If you _____ the ticket sooner, you'd have found a seat.",
+    ['had booked', 'were booking', 'booked', 'would have booked'],
+    0,
+  ],
+  [
+    "I think there isn't anyone at home. They _____ gone to the school.",
+    ['will have', 'should have', 'might have', 'would have'],
+    2,
+  ],
+  [
+    'Sophie: Have they finished interviewing for the manager\u2019s position yet?\nRafi: No, but they _____ all the candidates by next Friday.',
+    ["won't see", 'would see', "haven't seen", 'will have seen'],
+    3,
+  ],
+  [
+    'Andrew: I picked up some of that cat food you wanted.\nPedro: Oh good. Once _____ to these new cat biscuits, they won\u2019t want to go back to the other stuff.',
+    ["we've switched", "we'll be switching", "we'll have switched", "we've been switched"],
+    0,
+  ],
+  [
+    'Assistant: What would you do if you _____ in my position?\nManager: Oh, I think I _____ continue.',
+    ['was / will be', 'were / will', 'was / had been', 'were / would'],
+    3,
+  ],
+  [
+    'David: Did you see the headline this evening?\nNicola: Yes \u2013 the Prime Minister was _____ to resign today.',
+    ['charged', 'argued', 'struggled', 'forced'],
+    3,
+  ],
+  [
+    'I _____ for arriving so late but I was caught up in a traffic jam in the town centre.',
+    ['sorry', 'regret', 'apologize', 'afraid'],
+    2,
+  ],
+  [
+    "Daughter: Joanna has been really supportive. I'm so lucky to have her as a friend.\nMother: Yes. Just think \u2013 if you hadn't sat next to her in class at school, you _____ so close.",
+    ["won't be", "wouldn't be", "wouldn't have been", "aren't"],
+    2,
   ],
 ];
 
@@ -174,53 +381,53 @@ export const TEST_CATEGORIES = [
     bands: [
       {
         minScore: 0,
-        maxScore: 11,
-        levelName: 'Starter',
+        maxScore: 9,
+        levelName: 'Level 01',
         courseSlug: 'kids-english',
-        title: L('Starter darajasi', 'Уровень Starter', 'Starter level'),
+        title: L('Level 01', 'Level 01', 'Level 01'),
         description: L(
-          "Alifbo va birinchi so'zlardan boshlaymiz. Kids English 1-daraja guruhi sizga mos.",
-          'Начинаем с алфавита и первых слов. Подойдёт группа Kids English 1 уровня.',
-          'We start with the alphabet and first words. The Kids English level 1 group is right for you.',
+          'Boshlang‘ich daraja. Harflar, sonlar va kundalik so‘zlardan boshlaymiz.',
+          'Начальный уровень. Начнём с букв, цифр и повседневных слов.',
+          'A starting level. We begin with letters, numbers and everyday words.',
         ),
         order: 1,
       },
       {
-        minScore: 12,
-        maxScore: 22,
-        levelName: 'Beginner',
+        minScore: 10,
+        maxScore: 18,
+        levelName: 'Level 02',
         courseSlug: 'kids-english',
-        title: L('Beginner darajasi', 'Уровень Beginner', 'Beginner level'),
+        title: L('Level 02', 'Level 02', 'Level 02'),
         description: L(
-          "Asosiy so'zlarni bilasiz, endi gap tuzishni mashq qilamiz. Kids English 2-daraja.",
-          'Вы знаете базовые слова, теперь тренируем построение предложений. Kids English 2 уровень.',
-          'You know the basic words; next we practise building sentences. Kids English level 2.',
+          'Oddiy gaplarni tushunasiz. Grammatika asoslari ustida ishlaymiz.',
+          'Вы понимаете простые предложения. Поработаем над основами грамматики.',
+          'You understand simple sentences. We work on the basics of grammar.',
         ),
         order: 2,
       },
       {
-        minScore: 23,
-        maxScore: 33,
-        levelName: 'Elementary',
+        minScore: 19,
+        maxScore: 25,
+        levelName: 'Level 03',
         courseSlug: 'kids-english',
-        title: L('Elementary darajasi', 'Уровень Elementary', 'Elementary level'),
+        title: L('Level 03', 'Level 03', 'Level 03'),
         description: L(
-          "O'tgan zamon va qisqa hikoyalar ustida ishlaymiz. Kids English 3-daraja.",
-          'Работаем над прошедшим временем и короткими рассказами. Kids English 3 уровень.',
-          'We work on past tenses and short stories. Kids English level 3.',
+          'Yaxshi natija. Matn o‘qiy olasiz va gap tuza olasiz.',
+          'Хороший результат. Вы читаете текст и строите предложения.',
+          'A good result. You can read a text and build sentences.',
         ),
         order: 3,
       },
       {
-        minScore: 34,
-        maxScore: 45,
-        levelName: 'Flyers',
+        minScore: 26,
+        maxScore: 35,
+        levelName: 'Level 04',
         courseSlug: 'kids-english',
-        title: L('Flyers darajasi', 'Уровень Flyers', 'Flyers level'),
+        title: L('Level 04', 'Level 04', 'Level 04'),
         description: L(
-          "Ajoyib natija! Cambridge YLE imtihoniga tayyorgarlik guruhiga qo'shilishingiz mumkin.",
-          'Отличный результат! Можно присоединиться к группе подготовки к Cambridge YLE.',
-          'Excellent result! You can join the Cambridge YLE preparation group.',
+          'Ajoyib! Yuqori guruhda o‘qishingiz mumkin.',
+          'Отлично! Вы можете заниматься в старшей группе.',
+          'Excellent! You can join a higher group.',
         ),
         order: 4,
       },
@@ -244,7 +451,7 @@ export const TEST_CATEGORIES = [
     bands: [
       {
         minScore: 0,
-        maxScore: 9,
+        maxScore: 8,
         levelName: 'Beginner',
         courseSlug: 'general-english',
         title: L('Beginner (A1)', 'Beginner (A1)', 'Beginner (A1)'),
@@ -256,7 +463,7 @@ export const TEST_CATEGORIES = [
         order: 1,
       },
       {
-        minScore: 10,
+        minScore: 9,
         maxScore: 18,
         levelName: 'Elementary',
         courseSlug: 'general-english',

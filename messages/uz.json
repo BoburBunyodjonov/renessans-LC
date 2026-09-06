@@ -87,6 +87,7 @@
     "estimatedTime": "~{minutes} daqiqa",
     "start": "Testni boshlash",
     "progress": "{current} / {total}",
+    "yourAnswer": "Javobingiz",
     "timeLeft": "Qolgan vaqt",
     "finish": "Yakunlash",
     "resultTitle": "Sizning natijangiz",
@@ -107,6 +108,7 @@
     "resume": "Davom ettirish",
     "startOver": "Boshidan boshlash",
     "keyboardHint": "Javobni 1–5 raqamlari bilan tanlang, Enter — keyingi savol.",
+    "keyboardHintText": "Javobni yozing, Enter — keyingi savol.",
     "gateSubmit": "Natijani ko‘rish",
     "skipGate": "O‘tkazib yuborish",
     "correctAnswers": "To‘g‘ri javoblar",
@@ -461,7 +463,15 @@
       "bandTitle": "Sarlavha",
       "bandDescription": "Tavsif",
       "recommendedCourse": "Tavsiya etiladigan kurs",
-      "deleteBand": "Daraja o‘chirilsinmi?"
+      "deleteBand": "Daraja o‘chirilsinmi?",
+      "answerType": "Javob turi",
+      "answerTypeChoice": "Variantlardan tanlash",
+      "answerTypeText": "Yozma javob",
+      "acceptedAnswers": "To'g'ri javoblar",
+      "acceptedAnswersHint": "Har bir qatorga bitta variant. Katta-kichik harf, tinish belgilari va o' / oʻ / o‘ farqi hisobga olinmaydi.",
+      "addAnswer": "+ Javob qo'shish",
+      "imageUrl": "Rasm havolasi",
+      "imageUrlHint": "Rasmga qarab javob yoziladigan savollar uchun. Media bo'limiga yuklab, havolasini shu yerga qo'ying."
     },
     "users": {
       "description": "Xodimlarga rol biriktiring. Rollar server tomonida ham tekshiriladi.",

@@ -63,6 +63,9 @@ export default async function QuestionBankPage({ params }: { params: Promise<{ s
           points: question.points,
           difficulty: question.difficulty,
           isActive: question.isActive,
+          answerType: question.answerType,
+          acceptedAnswers: question.acceptedAnswers,
+          imageUrl: question.imageUrl,
           options: question.options.map((option) => ({
             id: option.id,
             text: option.text,
