@@ -42,12 +42,36 @@ const reading = (question: string, answers: string[]): SeedTextQuestion => ({
  */
 export const KIDS_QUESTIONS: SeedQuestion[] = [
   // ---- Part 1: look at the picture, write a word ----
-  { prompt: 'Look at the picture and write the word.', answers: ['car'] },
-  { prompt: 'Look at the picture and write the word.', answers: ['swim', 'swimming'] },
-  { prompt: 'Look at the picture and write the word.', answers: ['suitcase', 'a suitcase'] },
-  { prompt: 'Look at the picture and write the word.', answers: ['newspaper', 'a newspaper'] },
-  { prompt: 'Look at the picture and write the word.', answers: ['anchor', 'an anchor'] },
-  { prompt: 'Look at the picture and write the word.', answers: ['elbow', 'an elbow'] },
+  {
+    prompt: 'Look at the picture and write the word.',
+    answers: ['car'],
+    image: '/tests/kids/car.png',
+  },
+  {
+    prompt: 'Look at the picture and write the word.',
+    answers: ['swim', 'swimming'],
+    image: '/tests/kids/swim.png',
+  },
+  {
+    prompt: 'Look at the picture and write the word.',
+    answers: ['suitcase', 'a suitcase'],
+    image: '/tests/kids/suitcase.png',
+  },
+  {
+    prompt: 'Look at the picture and write the word.',
+    answers: ['newspaper', 'a newspaper'],
+    image: '/tests/kids/newspaper.png',
+  },
+  {
+    prompt: 'Look at the picture and write the word.',
+    answers: ['anchor', 'an anchor'],
+    image: '/tests/kids/anchor.png',
+  },
+  {
+    prompt: 'Look at the picture and write the word.',
+    answers: ['elbow', 'an elbow'],
+    image: '/tests/kids/elbow.png',
+  },
 
   // ---- Part 2: translate the word ----
   {

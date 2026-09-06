@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft, ArrowRight, Clock, Loader2 } from 'lucide-react';
@@ -397,6 +398,23 @@ export function TestRunner({
             {question.prompt}
           </p>
         </div>
+
+        {question.imageUrl ? (
+          <div className="mt-6 flex justify-center">
+            {/* The picture *is* the question, so it gets a fixed box and eager
+                loading — a lazy image below the fold would leave the child
+                looking at a prompt with nothing to name. */}
+            <Image
+              src={question.imageUrl}
+              alt=""
+              width={320}
+              height={240}
+              priority
+              unoptimized
+              className="h-auto w-full max-w-[320px] rounded-xl border border-ink-300/50 bg-white object-contain p-3"
+            />
+          </div>
+        ) : null}
 
         {question.answerType === 'TEXT' ? (
           <div className="mt-8">

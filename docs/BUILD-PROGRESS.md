@@ -621,10 +621,15 @@ a plain apostrophe — still score 35/35, and 18 correct lands on Level 02 as th
 Part 3 shows the reading passage above each of its questions, since the runner puts one question on a
 screen and the text has to travel with them.
 
-**Outstanding:** the six Part 1 pictures are not in the repo. Those questions are seeded with their
-answers and no image; attach the pictures under Media and paste the link into each question. The
-admin question editor now handles this — answer type, accepted answers and an image URL are editable
-per question.
+The six Part 1 pictures live in `public/tests/kids`, versioned with the questions they belong to
+rather than uploaded, since they are part of the paper rather than editable content. The runner
+renders a question's image above its answer field, eagerly and at a fixed size — a lazy image here
+would leave a child looking at "write the word" with nothing to name. The admin question editor can
+still point a question at a different image, along with its answer type and accepted answers.
+
+Worth knowing when changing seeded test content: `next build` reuses the tagged query results in
+`.next/cache`, so a local re-seed followed by a build serves the _old_ questions. `rm -rf .next/cache`
+before rebuilding. Docker builds start with no cache and are unaffected.
 
 Two answers in the school's key look wrong and were kept as the school marks them, not silently
 changed: **Q20** is keyed A (`mustn't`) where "we've still got twenty minutes" points to D
