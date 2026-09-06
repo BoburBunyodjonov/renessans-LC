@@ -77,7 +77,19 @@ ssh_do "cd $REMOTE_PATH && docker compose --env-file .env up -d" 2>&1 | sed 's/^
 # request. Without this the first real visitor after a deploy gets the empty
 # copy: ISR serves the stale page and regenerates behind it, so each path is
 # fetched twice — once to trigger the rebuild, once to confirm it took.
-bold "6/7  Sahifalarni isitish"
+bold "6/7  Keshni bekor qilish va sahifalarni isitish"
+# Purge first. A page prerendered by the build is *fresh*, not stale, so ISR
+# will not regenerate it for the whole revalidate window — warming alone would
+# just fetch the empty copy twice. /api/revalidate drops every known tag, which
+# marks the pages stale so the fetches below actually rebuild them.
+secret=$(ssh_do "grep '^REVALIDATE_SECRET=' $REMOTE_PATH/.env | cut -d= -f2" | tr -d '\r')
+if [ -n "$secret" ]; then
+  ssh_do "curl -s -o /dev/null -X POST -H 'Content-Type: application/json' -H 'x-revalidate-secret: $secret' -d '{}' http://127.0.0.1:$APP_PORT/api/revalidate --max-time 20" || true
+  echo "  kesh teglari bekor qilindi"
+else
+  echo "  diqqat: REVALIDATE_SECRET yo'q, kesh bekor qilinmadi"
+fi
+
 WARM_PATHS="/uz /ru /en /uz/choose-level /uz/teachers /uz/materials /uz/blog /uz/contact /uz/join-team /uz/tests/level-kids /uz/tests/level-general /uz/tests/learning-style /uz/tests/temperament"
 warm=0
 for path in $WARM_PATHS; do
