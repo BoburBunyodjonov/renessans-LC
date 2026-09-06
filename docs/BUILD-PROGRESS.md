@@ -639,3 +639,32 @@ Two answers in the school's key look wrong and were kept as the school marks the
 changed: **Q20** is keyed A (`mustn't`) where "we've still got twenty minutes" points to D
 (`needn't`), and **Q25** is keyed D (`A few`) where "\_\_\_ people know this" idiomatically takes C
 (`Few`). Both are one edit away in the admin if the school agrees.
+
+## The two questionnaires (post-handover)
+
+The school also runs a learning-style test and a temperament test, shown once a placement paper is
+finished. Neither has a right answer, which the schema had no way to express: it counted correct
+options and matched a score against a range.
+
+`TestCategory.resultMode` now distinguishes `SCORE` from `PROFILE`. A profile question's options each
+carry a `profileKey`, a band matches on that key instead of a score range, and `tallyProfile` counts
+the answers per key and picks the commonest — breaking a tie by the order the paper lists the
+profiles, which is what a person marking by hand does and keeps the result stable. The share of each
+profile is stored on the attempt and shown as a bar, matching the printed sheet's "multiply each
+count by ten".
+
+They are reached from the result screen of a placement paper rather than from "choose your level":
+`getTestRunner` returns every published `PROFILE` category as a follow-up, so publishing another
+questionnaire in the admin adds it to that list without a code change, and `getTestCategories` leaves
+them out of the front page for the same reason.
+
+**One thing to know about the learning-style paper.** It is scored by letter — mostly A means visual,
+B auditory, C kinesthetic — but in questions 4, 5, 8 and 10 the options are not printed in that
+order. Question 4's option A is "Ovoz (kimningdir ovozi)", which describes the _auditory_ learner. The
+letters are kept as the school marks them today rather than silently re-mapped, and because each
+option carries its own key in the database, correcting it is an edit in the admin rather than a
+migration.
+
+An e2e test broke here in a way worth recording: it opened "choose your level" and clicked the _last_
+"continue" link, which stopped being the General paper the moment a third card existed. It now targets
+the slug.

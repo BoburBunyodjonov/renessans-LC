@@ -339,6 +339,10 @@ export type TestQuestionView = {
 };
 
 export type TestRunnerView = TestCategoryCardView & {
+  /** SCORE shows a mark out of the paper; PROFILE shows the shares. */
+  resultMode: 'SCORE' | 'PROFILE';
+  /** Questionnaires offered once a scored paper is finished. */
+  followUps: { slug: string; title: string; subtitle: string | null }[];
   shuffle: boolean;
   questions: TestQuestionView[];
   maxScore: number;
@@ -346,6 +350,8 @@ export type TestRunnerView = TestCategoryCardView & {
 
 export type TestBandView = {
   id: string;
+  /** PROFILE tests match a band on this instead of a score range. */
+  profileKey: string | null;
   minScore: number;
   maxScore: number;
   levelName: string;

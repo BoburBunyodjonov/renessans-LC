@@ -115,7 +115,10 @@
     "retake": "Testni qayta topshirish",
     "shareText": "Men Renessans English School darajani aniqlash testida {score}/{max} ball to‘pladim!",
     "errorLoading": "Testni yuklab bo‘lmadi",
-    "staleTest": "Test yangilangan. Sahifani yangilab, qaytadan boshlang."
+    "staleTest": "Test yangilangan. Sahifani yangilab, qaytadan boshlang.",
+    "followUpTitle": "Yana ikkita qisqa test",
+    "followUpIntro": "Qanday o‘rganishingiz va tabiatingizni bilib oling — har biri 10 ta savol, 3 daqiqa.",
+    "whatItMeans": "Bu nimani anglatadi"
   },
   "materials": {
     "title": "Bepul materiallar",

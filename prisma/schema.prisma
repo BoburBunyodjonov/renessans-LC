@@ -449,21 +449,29 @@ model MaterialDownload {
 
 // ---------------------------------------------------- placement test ----
 
+enum TestResultMode {
+  SCORE // count correct answers, pick the band whose range contains the score
+  PROFILE // tally the answers by key, pick the band for the commonest one
+}
+
 model TestCategory {
-  id             String   @id @default(cuid())
-  slug           String   @unique // level-kids | level-general
+  id             String         @id @default(cuid())
+  slug           String         @unique // level-kids | level-general | learning-style | temperament
   title          Json
   subtitle       Json?
   imageUrl       String?
   icon           String?
   timeLimitSec   Int?
-  shuffle        Boolean  @default(false)
-  allowBack      Boolean  @default(true)
-  requireContact Boolean  @default(true)
-  isPublished    Boolean  @default(true)
-  order          Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  // Placement papers are scored; the style and temperament questionnaires have
+  // no right answer and are read as a profile instead.
+  resultMode     TestResultMode @default(SCORE)
+  shuffle        Boolean        @default(false)
+  allowBack      Boolean        @default(true)
+  requireContact Boolean        @default(true)
+  isPublished    Boolean        @default(true)
+  order          Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   questions TestQuestion[]
   bands     TestLevelBand[]
@@ -511,6 +519,10 @@ model TestOption {
   question   TestQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   text       String
   isCorrect  Boolean      @default(false)
+  // PROFILE tests only: which profile this option counts towards ("A", "b", …).
+  // Kept per option rather than derived from position so a mis-ordered paper can
+  // be corrected in the admin without a migration.
+  profileKey String?
   order      Int          @default(0)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
@@ -522,6 +534,8 @@ model TestLevelBand {
   id          String       @id @default(cuid())
   categoryId  String
   category    TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  // SCORE tests match on the range; PROFILE tests match on the key instead.
+  profileKey  String?
   minScore    Int
   maxScore    Int
   levelName   String // Beginner / Elementary / ...
@@ -543,6 +557,8 @@ model TestAttempt {
   name        String?
   phone       String?
   answers     Json // [{ questionId, optionId, isCorrect }]
+  // PROFILE tests only: [{ key, count, percent }], commonest first.
+  profile     Json?
   score       Int
   maxScore    Int
   bandId      String?

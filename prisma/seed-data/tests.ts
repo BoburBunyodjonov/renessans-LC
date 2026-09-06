@@ -1,4 +1,11 @@
 import { L } from './common';
+import {
+  LEARNING_STYLE,
+  LEARNING_STYLE_BANDS,
+  TEMPERAMENT,
+  TEMPERAMENT_BANDS,
+  type ProfileBand,
+} from './profile-tests';
 
 /** [prompt, options, index of the correct option, optional image] */
 export type SeedChoiceQuestion = [string, string[], number] | [string, string[], number, string];
@@ -11,7 +18,19 @@ export type SeedTextQuestion = {
   image?: string;
 };
 
-export type SeedQuestion = SeedChoiceQuestion | SeedTextQuestion;
+/** A profile question: every option counts towards a profile key. */
+export type SeedProfileQuestion = { prompt: string; options: [string, string][] };
+
+export type SeedQuestion = SeedChoiceQuestion | SeedTextQuestion | SeedProfileQuestion;
+
+export const isChoiceQuestion = (question: SeedQuestion): question is SeedChoiceQuestion =>
+  Array.isArray(question);
+
+export const isTextQuestion = (question: SeedQuestion): question is SeedTextQuestion =>
+  !Array.isArray(question) && 'answers' in question;
+
+export const isProfileQuestion = (question: SeedQuestion): question is SeedProfileQuestion =>
+  !Array.isArray(question) && 'options' in question;
 
 /**
  * The reading passage for Part 3. The runner shows one question per screen, so
@@ -399,6 +418,20 @@ export const GENERAL_QUESTIONS: SeedQuestion[] = [
   ],
 ];
 
+/** Profile bands match on their key, so the score range is unused. */
+function profileBands(bands: ProfileBand[]) {
+  return bands.map((band, index) => ({
+    profileKey: band.key,
+    minScore: 0,
+    maxScore: 0,
+    levelName: band.levelName,
+    courseSlug: undefined,
+    title: band.title,
+    description: band.description,
+    order: index + 1,
+  }));
+}
+
 export const TEST_CATEGORIES = [
   {
     slug: 'level-kids',
@@ -552,5 +585,47 @@ export const TEST_CATEGORIES = [
         order: 5,
       },
     ],
+  },
+  {
+    slug: 'learning-style',
+    title: L(
+      'Axborotni qabul qilish uslubi',
+      'Стиль восприятия информации',
+      'How you take in information',
+    ),
+    subtitle: L(
+      'Qaysi yo‘l bilan osonroq o‘rganishingizni aniqlang — 10 ta savol',
+      'Узнайте, каким способом вам легче учиться — 10 вопросов',
+      'Find out how you learn most easily — 10 questions',
+    ),
+    icon: 'Eye',
+    timeLimitSec: null,
+    resultMode: 'PROFILE' as const,
+    shuffle: false,
+    allowBack: true,
+    // The contact details were already taken by the placement paper this
+    // follows, so the result appears straight away.
+    requireContact: false,
+    order: 3,
+    questions: LEARNING_STYLE,
+    bands: profileBands(LEARNING_STYLE_BANDS),
+  },
+  {
+    slug: 'temperament',
+    title: L('Temperament aniqlash testi', 'Определение темперамента', 'Temperament test'),
+    subtitle: L(
+      '12 yoshdan kattalar uchun — 10 ta savol',
+      'Для тех, кому больше 12 лет — 10 вопросов',
+      'For ages 12 and up — 10 questions',
+    ),
+    icon: 'Smile',
+    timeLimitSec: null,
+    resultMode: 'PROFILE' as const,
+    shuffle: false,
+    allowBack: true,
+    requireContact: false,
+    order: 4,
+    questions: TEMPERAMENT,
+    bands: profileBands(TEMPERAMENT_BANDS),
   },
 ];

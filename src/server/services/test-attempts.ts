@@ -4,7 +4,7 @@ import { absoluteUrl } from '@/lib/utils';
 import { loc } from '@/lib/localize';
 import { getAnswerKey, getTestBands } from '@/server/queries/tests';
 import { createLead } from '@/server/services/leads';
-import { findBand, scoreAttempt } from '@/server/services/test-scoring';
+import { findBand, scoreAttempt, tallyProfile } from '@/server/services/test-scoring';
 import type { TestSubmitPayload } from '@/lib/validations/test';
 import type { CourseCardView } from '@/types/content';
 import type { Locale } from '@/types/i18n';
@@ -18,6 +18,8 @@ export type AttemptResult = {
   maxScore: number;
   correctCount: number;
   questionCount: number;
+  /** Questionnaires only: every profile with its share, commonest first. */
+  profile: { key: string; label: string; count: number; percent: number }[] | null;
   band: {
     levelName: string;
     title: string;
@@ -37,7 +39,7 @@ export async function submitAttempt(
 ): Promise<AttemptResult | StaleAttempt | null> {
   const category = await prisma.testCategory.findFirst({
     where: { slug, isPublished: true },
-    select: { id: true, title: true, requireContact: true },
+    select: { id: true, title: true, requireContact: true, resultMode: true },
   });
   if (!category) return null;
 
@@ -47,10 +49,27 @@ export async function submitAttempt(
   ]);
   if (key.length === 0) return null;
 
-  const { graded, score, maxScore, correctCount, questionCount } = scoreAttempt(
-    key,
-    payload.answers,
-  );
+  // A questionnaire has no right answers: it is read as a profile, and the band
+  // is chosen by the commonest key rather than by a score.
+  const isProfile = category.resultMode === 'PROFILE';
+
+  const profileResult = isProfile
+    ? tallyProfile(
+        key,
+        payload.answers,
+        bands.map((item) => item.profileKey).filter((item): item is string => Boolean(item)),
+      )
+    : null;
+
+  const scored = isProfile ? null : scoreAttempt(key, payload.answers);
+
+  const graded = profileResult ? profileResult.graded : scored!.graded;
+  const questionCount = profileResult ? profileResult.questionCount : scored!.questionCount;
+  // For a profile the "score" is how many answers landed on the winning key,
+  // which keeps the stored attempt readable next to a scored one.
+  const score = profileResult ? (profileResult.tally[0]?.count ?? 0) : scored!.score;
+  const maxScore = profileResult ? profileResult.questionCount : scored!.maxScore;
+  const correctCount = profileResult ? profileResult.answered : scored!.correctCount;
 
   // Every answer referenced an option that no longer exists — the visitor is
   // holding a cached page from before the question bank changed. Storing this
@@ -59,7 +78,9 @@ export async function submitAttempt(
     return { stale: true };
   }
 
-  const band = findBand(bands, score);
+  const band = profileResult
+    ? (bands.find((item) => item.profileKey === profileResult.topKey) ?? null)
+    : findBand(bands, score);
 
   // Contact details are optional at the schema level; when present they become a
   // lead so the attempt shows up in the same pipeline as every other enquiry.
@@ -95,6 +116,12 @@ export async function submitAttempt(
       name: payload.name ?? null,
       phone: payload.phone ?? null,
       answers: graded,
+      profile: profileResult
+        ? profileResult.tally.map((item) => ({
+            ...item,
+            label: bands.find((band) => band.profileKey === item.key)?.levelName ?? item.key,
+          }))
+        : undefined,
       score,
       maxScore,
       bandId: band?.id ?? null,
@@ -121,7 +148,7 @@ export async function submitAttempt(
       ['Yo‘nalish', loc(category.title, payload.locale as Locale)],
       ['Ism', payload.name],
       ['Telefon', payload.phone],
-      ['Natija', `${score}/${maxScore}`],
+      ['Natija', isProfile ? (band?.levelName ?? '—') : `${score}/${maxScore}`],
       ['Daraja', band?.levelName],
       ['Tavsiya', band?.course?.title],
       ['Til', payload.locale],
@@ -135,6 +162,12 @@ export async function submitAttempt(
     maxScore,
     correctCount,
     questionCount,
+    // Present only for questionnaires; the result screen shows the shares.
+    profile:
+      profileResult?.tally.map((item) => ({
+        ...item,
+        label: bands.find((band) => band.profileKey === item.key)?.levelName ?? item.key,
+      })) ?? null,
     band: band
       ? {
           levelName: band.levelName,

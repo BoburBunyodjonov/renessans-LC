@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { findBand, scoreAttempt, type AnswerKeyQuestion } from '@/server/services/test-scoring';
+import {
+  findBand,
+  scoreAttempt,
+  tallyProfile,
+  type AnswerKeyQuestion,
+} from '@/server/services/test-scoring';
 
 const key: AnswerKeyQuestion[] = [
   {
@@ -213,5 +218,96 @@ describe('scoreAttempt with typed answers', () => {
     expect(result.score).toBe(2);
     expect(result.maxScore).toBe(4);
     expect(result.questionCount).toBe(4);
+  });
+});
+
+describe('tallyProfile', () => {
+  const q = (id: string, keys: string[]): AnswerKeyQuestion => ({
+    id,
+    points: 1,
+    answerType: 'CHOICE',
+    acceptedAnswers: [],
+    options: keys.map((key, index) => ({
+      id: `${id}-${index}`,
+      isCorrect: false,
+      profileKey: key,
+    })),
+  });
+
+  const key = ['q1', 'q2', 'q3', 'q4'].map((id) => q(id, ['A', 'B', 'C']));
+  const order = ['A', 'B', 'C'];
+
+  it('counts each answer towards its option key and ranks them', () => {
+    const result = tallyProfile(
+      key,
+      [
+        { questionId: 'q1', optionId: 'q1-0' }, // A
+        { questionId: 'q2', optionId: 'q2-0' }, // A
+        { questionId: 'q3', optionId: 'q3-1' }, // B
+        { questionId: 'q4', optionId: 'q4-2' }, // C
+      ],
+      order,
+    );
+
+    expect(result.topKey).toBe('A');
+    expect(result.tally.map((item) => [item.key, item.count])).toEqual([
+      ['A', 2],
+      ['B', 1],
+      ['C', 1],
+    ]);
+    expect(result.answered).toBe(4);
+  });
+
+  it('turns counts into a share of the paper', () => {
+    // The printed sheet says "multiply by ten" for its ten questions; the same
+    // rule expressed as a percentage has to survive a shorter paper.
+    const result = tallyProfile(
+      key,
+      key.map((question) => ({ questionId: question.id, optionId: `${question.id}-0` })),
+      order,
+    );
+
+    expect(result.tally.find((item) => item.key === 'A')?.percent).toBe(100);
+    expect(result.tally.find((item) => item.key === 'B')?.percent).toBe(0);
+  });
+
+  it('breaks a tie by the order the paper lists the profiles', () => {
+    const result = tallyProfile(
+      key,
+      [
+        { questionId: 'q1', optionId: 'q1-1' }, // B
+        { questionId: 'q2', optionId: 'q2-2' }, // C
+      ],
+      order,
+    );
+
+    // B and C are level; B comes first on the paper.
+    expect(result.topKey).toBe('B');
+  });
+
+  it('has no result when nothing was answered', () => {
+    const result = tallyProfile(key, [], order);
+    expect(result.topKey).toBeNull();
+    expect(result.answered).toBe(0);
+  });
+
+  it('ignores an option that does not belong to its question', () => {
+    const result = tallyProfile(key, [{ questionId: 'q1', optionId: 'q2-0' }], order);
+    expect(result.answered).toBe(0);
+    expect(result.topKey).toBeNull();
+  });
+
+  it('counts a question only once', () => {
+    const result = tallyProfile(
+      key,
+      [
+        { questionId: 'q1', optionId: 'q1-0' },
+        { questionId: 'q1', optionId: 'q1-1' },
+      ],
+      order,
+    );
+
+    expect(result.answered).toBe(1);
+    expect(result.topKey).toBe('A');
   });
 });

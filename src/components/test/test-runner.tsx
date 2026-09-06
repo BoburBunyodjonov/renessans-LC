@@ -27,6 +27,8 @@ export type AttemptResultView = {
   maxScore: number;
   correctCount: number;
   questionCount: number;
+  /** Questionnaires only: every profile with its share, commonest first. */
+  profile: { key: string; label: string; count: number; percent: number }[] | null;
   band: {
     levelName: string;
     title: string;
@@ -330,7 +332,9 @@ export function TestRunner({
   }
 
   if (stage === 'result' && result) {
-    return <TestResult slug={slug} result={result} onRetake={startFresh} />;
+    return (
+      <TestResult slug={slug} result={result} followUps={runner.followUps} onRetake={startFresh} />
+    );
   }
 
   if (stage === 'gate') {

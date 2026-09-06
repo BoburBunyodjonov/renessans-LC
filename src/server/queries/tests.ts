@@ -22,6 +22,7 @@ const rawCategories = cachedQuery(
         imageUrl: true,
         icon: true,
         timeLimitSec: true,
+        resultMode: true,
         requireContact: true,
         allowBack: true,
         shuffle: true,
@@ -64,7 +65,7 @@ const rawBands = cachedQuery(
   async (slug: string) =>
     prisma.testLevelBand.findMany({
       where: { category: { slug } },
-      orderBy: { minScore: 'asc' },
+      orderBy: [{ order: 'asc' }, { minScore: 'asc' }],
       include: {
         course: {
           select: {
@@ -108,9 +109,14 @@ function toCard(row: RawCategory, locale: Locale): TestCategoryCardView {
   };
 }
 
+/**
+ * The placement papers offered on "choose your level". The questionnaires are
+ * deliberately left out: they are a follow-up shown once a paper is finished,
+ * not a third thing to pick from at the start.
+ */
 export async function getTestCategories(locale: Locale): Promise<TestCategoryCardView[]> {
   const rows = await rawCategories();
-  return rows.map((row) => toCard(row, locale));
+  return rows.filter((row) => row.resultMode === 'SCORE').map((row) => toCard(row, locale));
 }
 
 export async function getTestRunner(slug: string, locale: Locale): Promise<TestRunnerView | null> {
@@ -120,8 +126,24 @@ export async function getTestRunner(slug: string, locale: Locale): Promise<TestR
 
   const questions = await rawQuestions(slug);
 
+  // What to offer once this paper is finished: the questionnaires, which are
+  // data rather than a hard-coded pair of links, so publishing another one in
+  // the admin adds it here.
+  const followUps =
+    category.resultMode === 'SCORE'
+      ? categories
+          .filter((item) => item.resultMode === 'PROFILE' && item.slug !== slug)
+          .map((item) => ({
+            slug: item.slug,
+            title: loc(item.title, locale),
+            subtitle: locOrNull(item.subtitle, locale),
+          }))
+      : [];
+
   return {
     ...toCard(category, locale),
+    resultMode: category.resultMode,
+    followUps,
     shuffle: category.shuffle,
     questionCount: questions.length,
     maxScore: questions.reduce((total, question) => total + question.points, 0),
@@ -160,6 +182,7 @@ export async function getTestBands(slug: string, locale: Locale): Promise<TestBa
 
     return {
       id: row.id,
+      profileKey: row.profileKey,
       minScore: row.minScore,
       maxScore: row.maxScore,
       levelName: row.levelName,
@@ -180,7 +203,7 @@ export async function getAnswerKey(slug: string) {
       points: true,
       answerType: true,
       acceptedAnswers: true,
-      options: { select: { id: true, isCorrect: true } },
+      options: { select: { id: true, isCorrect: true, profileKey: true } },
     },
   });
 }

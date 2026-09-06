@@ -24,11 +24,10 @@ test.describe('placement test', () => {
     );
 
     await page.goto('/uz/choose-level');
-    await page
-      .getByRole('link', { name: /Davom etish/ })
-      .last()
-      .click();
-    await page.waitForURL(/\/uz\/tests\//);
+    // Target the paper by its slug: picking positionally broke the moment a
+    // third card appeared on this page.
+    await page.locator('a[href$="/tests/level-general"]').first().click();
+    await page.waitForURL(/\/uz\/tests\/level-general/);
 
     // The test never ships the answer key to the browser.
     const runnerHtml = await page.content();

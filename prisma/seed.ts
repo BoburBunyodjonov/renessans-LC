@@ -16,7 +16,12 @@ import {
 } from './seed-data/home';
 import { MATERIALS, MATERIAL_GROUPS } from './seed-data/materials';
 import { HIRING_STEPS, POSTS, VACANCIES } from './seed-data/careers';
-import { TEST_CATEGORIES } from './seed-data/tests';
+import {
+  TEST_CATEGORIES,
+  isChoiceQuestion,
+  isProfileQuestion,
+  isTextQuestion,
+} from './seed-data/tests';
 
 const prisma = new PrismaClient();
 
@@ -382,6 +387,7 @@ async function seedTests() {
       subtitle: json(category.subtitle),
       icon: category.icon,
       timeLimitSec: category.timeLimitSec,
+      resultMode: 'resultMode' in category ? category.resultMode : ('SCORE' as const),
       shuffle: category.shuffle,
       allowBack: category.allowBack,
       requireContact: category.requireContact,
@@ -404,19 +410,27 @@ async function seedTests() {
       const questionId = `${category.slug}-q${index + 1}`;
       questionIds.push(questionId);
 
-      // A question is either a choice with options or a written answer graded
-      // against a list of accepted spellings.
-      const isText = !Array.isArray(authored);
-      const prompt = isText ? authored.prompt : authored[0];
-      const options = isText ? [] : authored[1];
-      const correct = isText ? -1 : authored[2];
+      // Three shapes: a choice tuple, a written answer, or a profile question
+      // whose options each count towards a key rather than being right or wrong.
+      const isChoice = isChoiceQuestion(authored);
+      const isText = isTextQuestion(authored);
+      const isProfile = isProfileQuestion(authored);
+
+      const prompt = isChoice ? authored[0] : authored.prompt;
+      const options = isChoice
+        ? authored[1]
+        : isProfile
+          ? authored.options.map(([text]) => text)
+          : [];
+      const profileKeys = isProfile ? authored.options.map(([, key]) => key) : [];
+      const correct = isChoice ? authored[2] : -1;
 
       const question = {
         categoryId: saved.id,
         prompt,
         answerType: isText ? ('TEXT' as const) : ('CHOICE' as const),
         acceptedAnswers: isText ? authored.answers : [],
-        imageUrl: isText ? (authored.image ?? null) : (authored[3] ?? null),
+        imageUrl: isText ? (authored.image ?? null) : isChoice ? (authored[3] ?? null) : null,
         order: index + 1,
         difficulty: Math.min(5, Math.floor(index / 9) + 1),
       };
@@ -434,6 +448,7 @@ async function seedTests() {
           questionId,
           text,
           isCorrect: optionIndex === correct,
+          profileKey: profileKeys[optionIndex] ?? null,
           order: optionIndex + 1,
         };
         await prisma.testOption.upsert({
@@ -458,9 +473,13 @@ async function seedTests() {
     for (const [index, band] of category.bands.entries()) {
       const bandId = `${category.slug}-band${index + 1}`;
       bandIds.push(bandId);
-      const course = await prisma.course.findUnique({ where: { slug: band.courseSlug } });
+      // Questionnaire profiles recommend no course.
+      const course = band.courseSlug
+        ? await prisma.course.findUnique({ where: { slug: band.courseSlug } })
+        : null;
       const payload = {
         categoryId: saved.id,
+        profileKey: 'profileKey' in band ? (band.profileKey ?? null) : null,
         minScore: band.minScore,
         maxScore: band.maxScore,
         levelName: band.levelName,

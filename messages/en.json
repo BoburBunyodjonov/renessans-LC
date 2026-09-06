@@ -115,7 +115,10 @@
     "retake": "Take the test again",
     "shareText": "I scored {score}/{max} on the Renessans English School placement test!",
     "errorLoading": "The test could not be loaded",
-    "staleTest": "The test was updated. Reload the page and start again."
+    "staleTest": "The test was updated. Reload the page and start again.",
+    "followUpTitle": "Two more short tests",
+    "followUpIntro": "Find out how you learn best and what your temperament is — ten questions each, three minutes.",
+    "whatItMeans": "What this means"
   },
   "materials": {
     "title": "Free materials",
