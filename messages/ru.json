@@ -52,7 +52,8 @@
     "sectionTestimonials": "Отзывы клиентов!",
     "sectionMaterials": "Бесплатные материалы",
     "sectionFaq": "Часто задаваемые вопросы",
-    "sectionContact": "Свяжитесь с нами"
+    "sectionContact": "Свяжитесь с нами",
+    "studentResults": "Результаты наших учеников"
   },
   "forms": {
     "name": "Ваше имя",

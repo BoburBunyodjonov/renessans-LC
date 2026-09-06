@@ -93,11 +93,13 @@ export function TeachersSection({
   stories,
   section,
   fallbackTitle,
+  resultsLabel,
 }: {
   teachers: TeacherView[];
   stories: SuccessStoryView[];
   section?: HomeSectionView;
   fallbackTitle: string;
+  resultsLabel: string;
 }) {
   if (teachers.length === 0 && stories.length === 0) return null;
 
@@ -110,7 +112,10 @@ export function TeachersSection({
       />
 
       <Reveal>
-        {/* Snap-scroll carousel on mobile, grid from lg up. */}
+        {/* Two rails rather than one. They used to share a grid, which put short
+            result cards beside tall teacher cards: the row left a gap under the
+            results and the last card sat alone. Snap-scroll on mobile, a grid
+            from lg up. */}
         <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 md:-mx-8 md:px-8 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0">
           {teachers.map((teacher) => (
             <TeacherCard
@@ -119,12 +124,25 @@ export function TeachersSection({
               className="w-[16rem] snap-start md:w-[18rem] lg:w-auto"
             />
           ))}
-          {stories.map((story) => (
-            <div key={story.id} className="snap-start">
-              <SuccessCard story={story} />
-            </div>
-          ))}
         </div>
+
+        {stories.length > 0 ? (
+          <div className="mt-10">
+            <h3 className="mb-4 font-display text-lg font-extrabold text-ink-900 md:text-xl">
+              {resultsLabel}
+            </h3>
+            <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 md:-mx-8 md:px-8 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
+              {stories.map((story) => (
+                <div
+                  key={story.id}
+                  className="w-[16rem] shrink-0 snap-start md:w-[18rem] lg:w-auto"
+                >
+                  <SuccessCard story={story} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </Reveal>
     </Section>
   );

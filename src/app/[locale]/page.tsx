@@ -106,6 +106,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           stories={stories}
           section={section('teachers')}
           fallbackTitle={t('sectionTeachers')}
+          resultsLabel={t('studentResults')}
         />
       ),
     },
