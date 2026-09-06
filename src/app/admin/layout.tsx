@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { Toaster } from 'sonner';
-import { inter, poppins } from '@/lib/fonts';
-import { cn } from '@/lib/utils';
 import { getAdminLocale, getAdminMessages } from '@/i18n/admin';
 import { getBrandScale } from '@/server/queries/site';
 import { themeCss } from '@/lib/theme';
@@ -23,7 +21,7 @@ export default async function AdminRootLayout({ children }: { children: ReactNod
   const [messages, brand] = await Promise.all([getAdminMessages(locale), getBrandScale()]);
 
   return (
-    <html lang={locale} className={cn(inter.variable, poppins.variable)} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <script
           // Applies the stored theme before first paint to avoid a flash.

@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+/* Self-hosted Inter and Poppins; see src/lib/fonts.ts. */
+@import './fonts.css';
 
 /* Dark mode is admin-only and uses the `class` strategy. */
 @custom-variant dark (&:where(.dark, .dark *));

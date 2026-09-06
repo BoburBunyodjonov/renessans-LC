@@ -3,8 +3,6 @@ import { notFound } from 'next/navigation';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
-import { inter, poppins } from '@/lib/fonts';
-import { cn } from '@/lib/utils';
 import { getBrandScale, getNavigation, getSiteSettings } from '@/server/queries/site';
 import { getCourses } from '@/server/queries/courses';
 import { Header } from '@/components/shared/header';
@@ -15,6 +13,7 @@ import { DeferredChrome } from '@/components/shared/deferred-chrome';
 import { DraftBanner } from '@/components/shared/draft-banner';
 import type { Locale } from '@/types/i18n';
 import '../globals.css';
+import { FONT_PRELOADS } from '@/lib/fonts';
 
 /** Namespaces used by `'use client'` components (see the layout body). */
 const CLIENT_NAMESPACES = [
@@ -112,10 +111,13 @@ export default async function LocaleLayout({
   );
 
   return (
-    <html lang={locale} className={cn(inter.variable, poppins.variable)} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Marks the document as script-enabled so scroll-reveal elements may
             start hidden. Without JS they simply render. */}
+        {FONT_PRELOADS.map((href) => (
+          <link key={href} rel="preload" href={href} as="font" type="font/woff2" crossOrigin="" />
+        ))}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.dataset.js='1'" }} />
         {/* Brand palette chosen in the admin. Inline rather than a stylesheet
             so it lands before first paint and never flashes the old colour. */}

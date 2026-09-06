@@ -570,3 +570,25 @@ actually paints, and puts it back.
 Writing the tests first paid: they caught that `600` was being measured against white when the chip
 tint it sits on is the stricter constraint (4.19:1 for the shipped red), and that a pure-black pick
 produced identical `600` and `700`, leaving hover with nothing to show.
+
+## Self-hosted fonts (post-handover)
+
+`next/font/google` downloads Inter and Poppins while `next build` runs. That is invisible locally and
+fatal in a Docker build on a slow link: two production deploys built everything else and then died
+on `Failed to fetch \`Inter\` from Google Fonts`, the second with a socket timeout. A container on
+the same machine took ten minutes just to pull `node:22-alpine`, so the network — not the code — was
+the problem, but a deploy that only works on a good connection is not a deploy.
+
+The fonts now live in `public/fonts` with their `@font-face` rules in `src/app/fonts.css`. Rather
+than hand-writing those, `scripts/vendor-fonts.mjs` lifts exactly what `next/font` generated from a
+previous build: the same files, the same per-subset `unicode-range` splits so an Uzbek page still
+downloads only the Latin subsets rather than the Cyrillic one, and the metric-adjusted
+`Inter Fallback` / `Poppins Fallback` faces that keep the swap from shifting layout. The three
+subsets `next/font` used to preload are preloaded by the public layout, so the critical path is
+unchanged.
+
+Verified after the switch: zero requests to Google on both `/uz` and `/ru`, headings still render in
+Poppins and body in Inter with both fallback faces loaded, and Lighthouse desktop at
+100 / 100 / 100 performance, accessibility and best practices with LCP 0.8 s and CLS 0.035. (The SEO
+92 in that run is a localhost artefact: the canonical URL is baked to the real domain and cannot
+match `localhost:3111`.)
