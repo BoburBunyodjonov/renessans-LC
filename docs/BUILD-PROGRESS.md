@@ -602,10 +602,14 @@ from the school's PDF, and a check compares every keyed letter against the seed 
 the transcription. The bands follow the paper: 0–8 Beginner, 9–18 Elementary, 19–27 Pre-Intermediate,
 28–36 Intermediate, 37–45 Upper-Intermediate.
 
-**Kids — 35 written answers.** This one did not fit the schema at all: the paper asks a child to name
-a picture, translate a word, answer questions about a text and put words back in order. None of that
-is a choice between options, so `TestQuestion` gained an `answerType` and a list of `acceptedAnswers`,
-and the runner renders a text field for those questions.
+**Kids — 35 multiple-choice questions**, three options each, matching how the school runs it online.
+Part 2 uses the school's own options; the rest draw their distractors from the passage so a guess is
+not free.
+
+Written answers were built first and then replaced when the school showed how the paper is actually
+delivered. The capability stayed: `TestQuestion` carries an `answerType` and `acceptedAnswers`, the
+runner renders a text field for `TEXT` questions, and the admin can switch a question to written at
+any time. Nothing seeded uses it today.
 
 Grading them has to forgive what a human marker forgives. `src/lib/answer-match.ts` normalises case,
 trailing punctuation, collapsed whitespace and — the one that matters locally — the several

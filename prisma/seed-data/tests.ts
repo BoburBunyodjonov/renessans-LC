@@ -1,7 +1,7 @@
 import { L } from './common';
 
-/** [prompt, options, index of the correct option] */
-export type SeedChoiceQuestion = [string, string[], number];
+/** [prompt, options, index of the correct option, optional image] */
+export type SeedChoiceQuestion = [string, string[], number] | [string, string[], number, string];
 
 /** A written answer, graded against every spelling a marker would accept. */
 export type SeedTextQuestion = {
@@ -27,151 +27,164 @@ const MOLLY = [
   "abroad. I would like to go to Egypt, Japan and China. I'm going to learn Japanese next year.",
 ].join(' ');
 
-const reading = (question: string, answers: string[]): SeedTextQuestion => ({
-  prompt: `${MOLLY}\n\n${question}`,
-  answers,
-});
+const reading = (question: string, options: string[], correct: number): SeedChoiceQuestion => [
+  `${MOLLY}\n\n${question}`,
+  options,
+  correct,
+];
 
 /**
- * The Kids paper is written by hand, so every question here is typed rather
- * than chosen. `answers` lists the spellings that count as correct; a marker
- * forgives case and punctuation, and so does the grader.
- *
- * Part 1 needs its six pictures attached in the admin — the words cannot be
- * guessed from the prompt alone, which is the point of the exercise.
+ * The Kids paper, answered by choosing rather than writing. Part 2 keeps the
+ * school's own three options per word; the other parts follow the same shape,
+ * with distractors drawn from the passage so a guess is not free.
  */
 export const KIDS_QUESTIONS: SeedQuestion[] = [
-  // ---- Part 1: look at the picture, write a word ----
-  {
-    prompt: 'Look at the picture and write the word.',
-    answers: ['car'],
-    image: '/tests/kids/car.png',
-  },
-  {
-    prompt: 'Look at the picture and write the word.',
-    answers: ['swim', 'swimming'],
-    image: '/tests/kids/swim.png',
-  },
-  {
-    prompt: 'Look at the picture and write the word.',
-    answers: ['suitcase', 'a suitcase'],
-    image: '/tests/kids/suitcase.png',
-  },
-  {
-    prompt: 'Look at the picture and write the word.',
-    answers: ['newspaper', 'a newspaper'],
-    image: '/tests/kids/newspaper.png',
-  },
-  {
-    prompt: 'Look at the picture and write the word.',
-    answers: ['anchor', 'an anchor'],
-    image: '/tests/kids/anchor.png',
-  },
-  {
-    prompt: 'Look at the picture and write the word.',
-    answers: ['elbow', 'an elbow'],
-    image: '/tests/kids/elbow.png',
-  },
+  // ---- Part 1: look at the picture, choose the word ----
+  ['Look at the picture and choose the word.', ['Car', 'Bus', 'Bike'], 0, '/tests/kids/car.png'],
+  ['Look at the picture and choose the word.', ['Run', 'Swim', 'Jump'], 1, '/tests/kids/swim.png'],
+  [
+    'Look at the picture and choose the word.',
+    ['Basket', 'Box', 'Suitcase'],
+    2,
+    '/tests/kids/suitcase.png',
+  ],
+  [
+    'Look at the picture and choose the word.',
+    ['Newspaper', 'Book', 'Letter'],
+    0,
+    '/tests/kids/newspaper.png',
+  ],
+  [
+    'Look at the picture and choose the word.',
+    ['Hook', 'Bell', 'Anchor'],
+    2,
+    '/tests/kids/anchor.png',
+  ],
+  [
+    'Look at the picture and choose the word.',
+    ['Knee', 'Elbow', 'Shoulder'],
+    1,
+    '/tests/kids/elbow.png',
+  ],
 
-  // ---- Part 2: translate the word ----
-  {
-    prompt: 'Translate the word into Russian or Uzbek: Sit',
-    answers: ['сидеть', "o'tirmoq", "o'tirish"],
-  },
-  {
-    prompt: 'Translate the word into Russian or Uzbek: Cups',
-    answers: ['чашка', 'чашки', 'chashka', 'chashkalar'],
-  },
-  {
-    prompt: 'Translate the word into Russian or Uzbek: Drop',
-    answers: ['ронять', 'tushirib yubormoq', 'tushirmoq'],
-  },
-  { prompt: 'Translate the word into Russian or Uzbek: Meat', answers: ['мясо', "go'sht"] },
-  {
-    prompt: 'Translate the word into Russian or Uzbek: Audience',
-    answers: ['зрители', 'tomoshabinlar', 'tomoshabin'],
-  },
-  { prompt: 'Translate the word into Russian or Uzbek: Steam', answers: ['пар', "bug'", 'par'] },
+  // ---- Part 2: choose the translation (the school's own options) ----
+  ['Sit', ['Вниз / pastga', "Сидеть / o'tirmoq", 'Вставать / turmoq'], 1],
+  ['Cups', ['Кепка / kepka', 'Стакан / stakan', 'Чашка / chashka'], 2],
+  ['Drop', ['Уронить / tushirib yubormoq', "Поднимать / ko'tarmoq", "Ставить / qo'ymoq"], 0],
+  ['Meat', ['Встречать / uchrashmoq', "Мясо / go'sht", 'Мёд / asal'], 1],
+  ['Audience', ['Зрители / tomoshabinlar', 'Музыка / musiqa', 'Аудио / ovoz'], 0],
+  ['Steam', ['Команда / jamoa', "Украсть / o'g'irlamoq", "Пар / bug', par"], 2],
 
-  // ---- Part 3: read the text, answer the questions ----
-  reading("What's her name?", ['her name is molly', 'molly']),
-  reading('How old is she?', ['she is fourteen', 'fourteen', '14', 'she is 14']),
-  reading('What is her sister doing at the moment?', ['she is playing', 'playing']),
-  reading('What does her father do?', ['he is a pilot', 'a pilot', 'pilot']),
-  reading("What's her future plan?", [
-    'she is going to learn japanese',
-    'to learn japanese',
-    'learn japanese',
-  ]),
-  reading("What's her mother's job?", ['she is a model', 'a model', 'model']),
-  reading('What did her father do yesterday?', ['he went to turkey', 'went to turkey', 'turkey']),
-  reading('Does she have any pets?', ['yes she does', 'yes', 'yes, she does']),
-  reading('Which countries does she want to visit?', [
-    'egypt japan and china',
-    'egypt, japan and china',
-    'china japan',
-    'china, japan',
-  ]),
-  reading('How tall is her mother?', ['she is 180 cm tall', '180 cm', '180']),
-  reading('What can her brother do?', ['he can draw well', 'he can draw', 'draw']),
-  reading('Which countries has Molly been to?', [
-    'she has never been abroad',
-    'none',
-    'no countries',
-    'nowhere',
-  ]),
-  reading('Who is younger? Molly or her sister?', [
-    'her sister',
-    'sister',
-    'her sister is younger',
-  ]),
-  reading('How many people are there in her family?', [
-    'there are 5 people',
-    'five',
-    '5',
-    'there are five people',
-  ]),
-  reading('What does Molly like doing?', [
-    'swimming cooking and singing',
-    'swimming, cooking and singing',
-    'swimming cooking and skiing',
-    'swimming, cooking and skiing',
-  ]),
+  // ---- Part 3: read the text, choose the answer ----
+  reading("What's her name?", ['Molly', 'Sophie', 'Emma'], 0),
+  reading('How old is she?', ['Twelve', 'Fourteen', 'Sixteen'], 1),
+  reading(
+    'What is her sister doing at the moment?',
+    ['She is reading', 'She is sleeping', 'She is playing'],
+    2,
+  ),
+  reading('What does her father do?', ['He is a pilot', 'He is an artist', 'He is a driver'], 0),
+  reading(
+    "What's her future plan?",
+    [
+      'She is going to learn Chinese',
+      'She is going to learn Japanese',
+      'She is going to visit Egypt',
+    ],
+    1,
+  ),
+  reading("What's her mother's job?", ['She is a teacher', 'She is a doctor', 'She is a model'], 2),
+  reading(
+    'What did her father do yesterday?',
+    ['He went to Turkey', 'He went to America', 'He stayed at home'],
+    0,
+  ),
+  reading('Does she have any pets?', ["No, she doesn't", 'Yes, she does', 'Only a bird'], 1),
+  reading(
+    'Which countries does she want to visit?',
+    ['Turkey, America and Egypt', 'Japan, Korea and China', 'Egypt, Japan and China'],
+    2,
+  ),
+  reading('How tall is her mother?', ['180 cm', '160 cm', '175 cm'], 0),
+  reading(
+    'What can her brother do?',
+    ['He can sing well', 'He can draw well', 'He can swim well'],
+    1,
+  ),
+  reading(
+    'Which countries has Molly been to?',
+    ['Egypt and Japan', 'Turkey', 'She has never been abroad'],
+    2,
+  ),
+  reading('Who is younger? Molly or her sister?', ['Her sister', 'Molly', 'They are twins'], 0),
+  reading('How many people are there in her family?', ['Four', 'Five', 'Six'], 1),
+  reading(
+    'What does Molly like doing?',
+    ['Reading, singing and dancing', 'Playing dolls and drawing', 'Swimming, cooking and skiing'],
+    2,
+  ),
 
-  // ---- Part 4: put the words in the correct order ----
-  {
-    prompt: 'Put the words in the correct order:\nloudly / singing / she / is',
-    answers: ['she is singing loudly'],
-  },
-  {
-    prompt: 'Put the words in the correct order:\nbananas / I / like',
-    answers: ['i like bananas'],
-  },
-  {
-    prompt: 'Put the words in the correct order:\ndoes / do / evening / he / what / in / the',
-    answers: ['what does he do in the evening'],
-  },
-  {
-    prompt: 'Put the words in the correct order:\nalways / milk / my sister / drinks',
-    answers: ['my sister always drinks milk'],
-  },
-  {
-    prompt: 'Put the words in the correct order:\ndid / listen / not / to / I / music',
-    answers: ['i did not listen to music'],
-  },
-  {
-    prompt: 'Put the words in the correct order:\nis / he / play / to / football / going',
-    answers: ['he is going to play football'],
-  },
-  {
-    prompt:
-      'Put the words in the correct order:\nmy / sister / something / reading / interesting / was',
-    answers: ['my sister was reading something interesting'],
-  },
-  {
-    prompt: 'Put the words in the correct order:\nwill / in / car / the / I / not / put / it',
-    answers: ['i will not put it in the car'],
-  },
+  // ---- Part 4: choose the sentence in the correct order ----
+  [
+    'Choose the correct order:\nloudly / singing / she / is',
+    ['She is singing loudly.', 'She singing is loudly.', 'Singing she is loudly.'],
+    0,
+  ],
+  [
+    'Choose the correct order:\nbananas / I / like',
+    ['Like I bananas.', 'I like bananas.', 'Bananas like I.'],
+    1,
+  ],
+  [
+    'Choose the correct order:\ndoes / do / evening / he / what / in / the',
+    [
+      'What he does do in the evening?',
+      'Does what he do in the evening?',
+      'What does he do in the evening?',
+    ],
+    2,
+  ],
+  [
+    'Choose the correct order:\nalways / milk / my sister / drinks',
+    [
+      'My sister always drinks milk.',
+      'My sister drinks always milk.',
+      'Milk always drinks my sister.',
+    ],
+    0,
+  ],
+  [
+    'Choose the correct order:\ndid / listen / not / to / I / music',
+    ['I not did listen to music.', 'I did not listen to music.', 'Did I not listen music to.'],
+    1,
+  ],
+  [
+    'Choose the correct order:\nis / he / play / to / football / going',
+    [
+      'He is going play to football.',
+      'He going is to play football.',
+      'He is going to play football.',
+    ],
+    2,
+  ],
+  [
+    'Choose the correct order:\nmy / sister / something / reading / interesting / was',
+    [
+      'My sister was reading something interesting.',
+      'My sister reading was something interesting.',
+      'Something interesting my sister reading was.',
+    ],
+    0,
+  ],
+  [
+    'Choose the correct order:\nwill / in / car / the / I / not / put / it',
+    [
+      'I not will put it in the car.',
+      'I will not put it in the car.',
+      'I will put not it in the car.',
+    ],
+    1,
+  ],
 ];
 
 export const GENERAL_QUESTIONS: SeedQuestion[] = [

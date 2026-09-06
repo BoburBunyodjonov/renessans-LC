@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowLeft, ArrowRight, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Check, ArrowRight, Clock, Loader2 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { track } from '@/lib/analytics';
@@ -411,7 +411,7 @@ export function TestRunner({
               height={240}
               priority
               unoptimized
-              className="h-auto w-full max-w-[320px] rounded-xl border border-ink-300/50 bg-white object-contain p-3"
+              className="max-h-[180px] w-auto object-contain md:max-h-[220px]"
             />
           </div>
         ) : null}
@@ -461,13 +461,13 @@ export function TestRunner({
                     <span
                       aria-hidden
                       className={cn(
-                        'grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold',
+                        'mt-0.5 grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold transition-colors',
                         isSelected ? 'bg-brand-600 text-white' : 'bg-ink-100 text-ink-600',
                       )}
                     >
-                      {optionIndex + 1}
+                      {isSelected ? <Check className="size-4" /> : optionIndex + 1}
                     </span>
-                    {option.text}
+                    <span className="min-w-0 flex-1">{option.text}</span>
                   </button>
                 </li>
               );

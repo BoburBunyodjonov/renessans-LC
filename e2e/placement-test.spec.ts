@@ -81,12 +81,11 @@ test.describe('placement test', () => {
   });
 
   test('an interrupted run can be resumed', async ({ page }) => {
-    // The Kids paper is answered in writing rather than by choosing.
     await page.goto('/uz/tests/level-kids');
-    await page.waitForSelector('#answer');
+    await page.waitForSelector('button[aria-pressed]');
 
     for (let index = 0; index < 3; index += 1) {
-      await page.fill('#answer', 'car');
+      await page.locator('button[aria-pressed]').first().click();
       await page.getByRole('button', { name: /Keyingi/ }).click();
     }
 

@@ -416,7 +416,7 @@ async function seedTests() {
         prompt,
         answerType: isText ? ('TEXT' as const) : ('CHOICE' as const),
         acceptedAnswers: isText ? authored.answers : [],
-        imageUrl: isText ? (authored.image ?? null) : null,
+        imageUrl: isText ? (authored.image ?? null) : (authored[3] ?? null),
         order: index + 1,
         difficulty: Math.min(5, Math.floor(index / 9) + 1),
       };

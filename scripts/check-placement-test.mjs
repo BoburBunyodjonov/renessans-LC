@@ -7,7 +7,11 @@ import { chromium } from 'playwright';
  */
 const base = process.env.BASE_URL ?? 'http://localhost:3111';
 const slug = process.argv[2] ?? 'level-general';
-const phone = process.argv[3] ?? '+998 (91) 234-56-78';
+// A fresh number each run: leads are deduplicated by phone and a lead links to
+// only one attempt, so reusing a number makes the *second* run look broken.
+const randomPhone = () =>
+  `+998 (91) 234-${String(Math.floor(Math.random() * 90) + 10)}-${String(Math.floor(Math.random() * 90) + 10)}`;
+const phone = process.argv[3] ?? randomPhone();
 const correctRatio = Number(process.argv[4] ?? 1); // share of questions to answer correctly
 
 const { PrismaClient } = await import('@prisma/client');
@@ -19,7 +23,9 @@ const key = await prisma.testQuestion.findMany({
   select: {
     id: true,
     prompt: true,
-    options: { select: { id: true, isCorrect: true, order: true } },
+    // Ordered explicitly: the page renders options by `order`, so an unordered
+    // read here makes the "correct" index point at the wrong button.
+    options: { orderBy: { order: 'asc' }, select: { id: true, isCorrect: true, order: true } },
   },
 });
 const answerIndex = new Map(key.map((q) => [q.prompt, q.options.findIndex((o) => o.isCorrect)]));
