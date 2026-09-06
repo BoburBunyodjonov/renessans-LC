@@ -287,7 +287,9 @@
       "loadFailed": "Could not load the list",
       "uploadFailed": "Could not upload the file",
       "required": "Required field",
-      "requiredUz": "The Uzbek text is required"
+      "requiredUz": "The Uzbek text is required",
+      "stale": "The site was updated — reload the page and save again",
+      "reload": "Reload"
     },
     "login": {
       "brandSubtitle": "Admin panel",

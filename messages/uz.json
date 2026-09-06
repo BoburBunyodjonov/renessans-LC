@@ -287,7 +287,9 @@
       "loadFailed": "Ro‘yxatni yuklab bo‘lmadi",
       "uploadFailed": "Faylni yuklab bo‘lmadi",
       "required": "Majburiy maydon",
-      "requiredUz": "UZ matni majburiy"
+      "requiredUz": "UZ matni majburiy",
+      "stale": "Sayt yangilangan — sahifani yangilab, qaytadan saqlang",
+      "reload": "Yangilash"
     },
     "login": {
       "brandSubtitle": "Boshqaruv paneli",

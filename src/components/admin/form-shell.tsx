@@ -69,7 +69,14 @@ export function AdminFormShell({
       }
       return result;
     } catch (error) {
-      toast.error(t('errors.unknown'));
+      // A server action that throws rather than returning a result is almost
+      // always a page left open across a deploy: the action's id no longer
+      // exists on the server and the POST comes back 404. The edits are still
+      // in the form, so offer the reload rather than a dead end.
+      toast.error(t('errors.stale'), {
+        duration: Infinity,
+        action: { label: t('errors.reload'), onClick: () => window.location.reload() },
+      });
       console.error(error);
       return { ok: false as const, error: 'UNKNOWN_ERROR' };
     } finally {
