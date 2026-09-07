@@ -1,3 +1,4 @@
+import { afterResponse } from '@/lib/after';
 import { getTelegramChatIds } from '@/server/queries/site';
 
 export type NotificationKind = 'lead' | 'application' | 'contact' | 'test';
@@ -75,7 +76,5 @@ export async function sendTelegramMessage(
 
 /** Kicks off a notification without awaiting it. */
 export function notify(text: string, options?: { kind?: NotificationKind }): void {
-  void sendTelegramMessage(text, options).catch((error) => {
-    console.error('[telegram] notify error', error);
-  });
+  afterResponse(() => sendTelegramMessage(text, options));
 }

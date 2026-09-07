@@ -90,9 +90,9 @@ export async function sendOrder(config: EdutizimConfig, input: OrderInput): Prom
     return { ok: true, orderId: readOrderId(text) };
   } catch (error) {
     // A timeout or a DNS failure says nothing about the payload, so it is worth
-    // retrying later.
-    const message = error instanceof Error ? error.message : String(error);
-    return { ok: false, error: message.slice(0, 200), retryable: true };
+    // retrying later. undici reports every one of them as a bare "fetch failed"
+    // and hides the reason in `cause`, which is the only part worth reading.
+    return { ok: false, error: describe(error).slice(0, 200), retryable: true };
   } finally {
     clearTimeout(timer);
   }
@@ -123,4 +123,15 @@ function readOrderId(text: string): string {
     // Not JSON; fall through.
   }
   return '';
+}
+
+/** `fetch failed` with the reason undici tucked into `cause`. */
+function describe(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+  const cause = error.cause;
+  if (cause instanceof Error) {
+    const code = (cause as NodeJS.ErrnoException).code;
+    return `${error.message}: ${code ? `${code} ` : ''}${cause.message}`;
+  }
+  return error.message;
 }

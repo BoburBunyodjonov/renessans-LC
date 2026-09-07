@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { afterResponse } from '@/lib/after';
 import { notify, telegramLines } from '@/lib/telegram';
 import { absoluteUrl } from '@/lib/utils';
 import { loc } from '@/lib/localize';
@@ -148,7 +149,7 @@ export async function submitAttempt(
   // not fail the visitor's submission, and a failure leaves a row an admin can
   // resend rather than a lost enquiry.
   if (payload.name && payload.phone) {
-    void deliverAttemptToEdutizim(attempt.id);
+    afterResponse(() => deliverAttemptToEdutizim(attempt.id));
   }
 
   notify(
