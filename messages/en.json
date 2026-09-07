@@ -552,7 +552,7 @@
       "edutizimOrg": "Organisation (username)",
       "edutizimApiKey": "API key",
       "edutizimKeyStored": "A key is stored. Type a new one to replace it; otherwise it stays as it is.",
-      "edutizimKeyHint": "Comes from the “Lead Site Admittance” integration in EduTizim.",
+      "edutizimKeyHint": "EduTizim → Integrations → “Lead Site Admittance”. The key is not issued — you choose it there and enter the same value here.",
       "edutizimKeyClear": "Clear",
       "edutizimKeyCleared": "The key will be removed when you save.",
       "edutizimTest": "Test connection",

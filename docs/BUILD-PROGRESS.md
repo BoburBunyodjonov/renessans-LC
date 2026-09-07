@@ -742,6 +742,15 @@ the number printed on the school's own surveys page for the id orders are filed 
 lookups are `src/server/actions/edutizim.ts`, behind `manageSettings`. `pnpm check:edutizim` walks the
 panel and asserts, among other things, that the stored key appears nowhere in the delivered HTML.
 
+The key is not issued by EduTizim. Their "Lead Site Admittance" integration ships one empty `apiKey`
+field, and `authLead` compares the header against whatever is stored in it — so the school invents a
+value there and repeats it here. Their "External" integration has an identically named field that
+this endpoint never reads, which is an easy hour to lose.
+
+Worth knowing about their middleware: the key check is skipped entirely when the request carries an
+`Origin` on `edutizim.uz`/`edutizimdev.uz`, or when the organisation is `dostonbek`. Server-to-server
+calls send no `Origin`, so ours is always checked.
+
 Survey numbering starts wherever that organisation's counter is — the test org's six surveys are
 `s26`–`s31`, not `s1`. Probing low numbers to discover them finds nothing.
 Any of the three environment variables missing, or the setting switched off, means nothing is sent —

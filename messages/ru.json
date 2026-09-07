@@ -552,7 +552,7 @@
       "edutizimOrg": "Организация (username)",
       "edutizimApiKey": "API-ключ",
       "edutizimKeyStored": "Ключ сохранён. Чтобы заменить, введите новый; иначе он останется прежним.",
-      "edutizimKeyHint": "Берётся из интеграции «Lead Site Admittance» в EduTizim.",
+      "edutizimKeyHint": "EduTizim → Интеграции → «Lead Site Admittance». Ключ не выдаётся — вы задаёте его сами; впишите сюда то же значение.",
       "edutizimKeyClear": "Удалить",
       "edutizimKeyCleared": "При сохранении ключ будет удалён.",
       "edutizimTest": "Проверить подключение",

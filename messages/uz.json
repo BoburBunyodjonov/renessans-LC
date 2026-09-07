@@ -552,7 +552,7 @@
       "edutizimOrg": "Tashkilot (username)",
       "edutizimApiKey": "API kalit",
       "edutizimKeyStored": "Kalit saqlangan. O‘zgartirish uchun yangisini yozing, aks holda tegilmaydi.",
-      "edutizimKeyHint": "EduTizim‘da “Lead Site Admittance” integratsiyasidan olinadi.",
+      "edutizimKeyHint": "EduTizim → Integratsiyalar → “Lead Site Admittance”. Kalitni tizim bermaydi — o‘zingiz o‘ylab yozasiz; o‘sha qiymatni shu yerga ham qo‘ying.",
       "edutizimKeyClear": "O‘chirish",
       "edutizimKeyCleared": "Saqlashda kalit o‘chiriladi.",
       "edutizimTest": "Ulanishni tekshirish",
