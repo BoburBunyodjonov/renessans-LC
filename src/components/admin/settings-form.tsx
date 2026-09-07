@@ -33,6 +33,14 @@ type Values = {
   logoLightUrl: string;
   ogImageUrl: string;
   brandColor: string;
+  edutizim: {
+    enabled: boolean;
+    surveyId: string;
+    branchId: string;
+    scoreFieldId: string;
+    levelFieldId: string;
+    kindFieldId: string;
+  };
 };
 
 const SOCIAL_KEYS = ['telegram', 'instagram', 'youtube', 'facebook', 'tiktok', 'whatsapp'] as const;
@@ -95,6 +103,49 @@ export function SettingsForm({ initial }: { initial: Values }) {
         <BrandColorPicker
           value={values.brandColor}
           onChange={(next) => update('brandColor', next)}
+        />
+      </Panel>
+
+      <Panel className="flex flex-col gap-5">
+        <PanelTitle>{t('settings.edutizim')}</PanelTitle>
+        <p className="text-sm text-admin-muted">{t('settings.edutizimHint')}</p>
+
+        <label className="flex items-center gap-2.5 text-sm font-semibold text-admin-text">
+          <input
+            type="checkbox"
+            checked={values.edutizim.enabled}
+            onChange={(event) =>
+              update('edutizim', { ...values.edutizim, enabled: event.target.checked })
+            }
+            className="size-4 accent-brand-600"
+          />
+          {t('settings.edutizimEnabled')}
+        </label>
+
+        <Field
+          label={t('settings.edutizimSurveyId')}
+          value={values.edutizim.surveyId}
+          onChange={(value) => update('edutizim', { ...values.edutizim, surveyId: value })}
+        />
+        <Field
+          label={t('settings.edutizimBranchId')}
+          value={values.edutizim.branchId}
+          onChange={(value) => update('edutizim', { ...values.edutizim, branchId: value })}
+        />
+        <Field
+          label={t('settings.edutizimScoreField')}
+          value={values.edutizim.scoreFieldId}
+          onChange={(value) => update('edutizim', { ...values.edutizim, scoreFieldId: value })}
+        />
+        <Field
+          label={t('settings.edutizimLevelField')}
+          value={values.edutizim.levelFieldId}
+          onChange={(value) => update('edutizim', { ...values.edutizim, levelFieldId: value })}
+        />
+        <Field
+          label={t('settings.edutizimKindField')}
+          value={values.edutizim.kindFieldId}
+          onChange={(value) => update('edutizim', { ...values.edutizim, kindFieldId: value })}
         />
       </Panel>
 

@@ -432,7 +432,10 @@
       "level": "Level",
       "lead": "Lead",
       "open": "Open",
-      "empty": "No attempts yet"
+      "empty": "No attempts yet",
+      "edutizimSent": "Sent to EduTizim",
+      "edutizimResend": "Resend",
+      "edutizim": "EduTizim"
     },
     "tests": {
       "description": "Pick a track to edit its question bank and level bands.",
@@ -477,7 +480,10 @@
       "acceptedAnswersHint": "One per line. Case, punctuation and the different apostrophes are ignored when marking.",
       "addAnswer": "+ Add answer",
       "imageUrl": "Image URL",
-      "imageUrlHint": "For questions answered from a picture. Upload it under Media and paste the link here."
+      "imageUrlHint": "For questions answered from a picture. Upload it under Media and paste the link here.",
+      "edutizimCourseId": "EduTizim course ID",
+      "edutizimSubCourseId": "EduTizim level ID",
+      "edutizimHint": "Which EduTizim course and level a student on this band is filed under. Copy the ids from EduTizim; left blank, the order arrives with no course set."
     },
     "users": {
       "description": "Assign roles to staff. Roles are enforced on the server too.",
@@ -532,7 +538,15 @@
       "privacyText": "Text",
       "credit": "Footer credit",
       "creditText": "Text",
-      "creditUrl": "Link"
+      "creditUrl": "Link",
+      "edutizim": "EduTizim connection",
+      "edutizimHint": "A student who finishes a test arrives in EduTizim as an order. The API key lives on the server; this only says where to file it.",
+      "edutizimEnabled": "Enabled",
+      "edutizimSurveyId": "Survey ID",
+      "edutizimBranchId": "Branch ID",
+      "edutizimScoreField": "Score field ID",
+      "edutizimLevelField": "Level field ID",
+      "edutizimKindField": "Test kind field ID"
     },
     "audit": {
       "description": "{count} entries in total",

@@ -41,6 +41,19 @@ const settingsSchema = z.object({
   ogImageUrl: z.string().max(300).nullable().optional(),
   // Stored as `#rrggbb`; the rest of the palette is derived from it at render
   // time, so nothing here can produce an unreadable button.
+  // EduTizim: which survey and branch the site's test results are filed under,
+  // and the ids of the three student fields they are written into. The API key
+  // is a secret and lives in the environment, not here.
+  edutizim: z
+    .object({
+      enabled: z.boolean(),
+      surveyId: z.string().trim().max(60),
+      branchId: z.string().trim().max(60),
+      scoreFieldId: z.string().trim().max(60),
+      levelFieldId: z.string().trim().max(60),
+      kindFieldId: z.string().trim().max(60),
+    })
+    .optional(),
   brandColor: z
     .string()
     .max(9)
@@ -85,6 +98,7 @@ export async function saveSettings(input: SettingsInput): Promise<ActionResult> 
       ogImageUrl: value.ogImageUrl || null,
       // Null means "the shipped default", which is how the reset button works.
       brandColor: value.brandColor ? normalizeHex(value.brandColor) : null,
+      edutizim: value.edutizim ?? undefined,
     } satisfies Prisma.SiteSettingUncheckedUpdateInput;
 
     await prisma.siteSetting.upsert({

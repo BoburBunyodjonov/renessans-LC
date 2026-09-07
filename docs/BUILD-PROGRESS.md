@@ -703,3 +703,36 @@ Two measurements in this round were taken against a build made while the local d
 which quietly produced empty pages and meaningless numbers — including a "skeletons cost two
 Lighthouse points" result that vanished once the data was back. Anything measured here is worth
 re-checking against a page that actually has content on it.
+
+## EduTizim: test results become orders (post-handover)
+
+A student who finishes a placement test now arrives in the school's CRM as an order.
+
+**Nothing was invented on their side.** EduTizim already has a public intake for exactly this — the
+`LeadSite` integration — reached at `POST {base}/student/order` and authenticated on two headers,
+`organization` and `apikey`, rather than a token. It deduplicates the student by phone, files the
+order in the first kanban column, records it against the survey for analytics, and refuses a
+duplicate active order for the same branch, student and course. Its `StudentOrderDto` drops any
+field it does not declare _silently_, so the payload built here is exactly what it accepts.
+
+Reading their live data made the mapping obvious: their **English** course carries the sub-courses
+Beginner, Elementary, Pre-intermediate, Intermediate, IELTS and CEFR, and **English kids** carries
+Level 1–5 — which is very nearly our own band list. So a band carries the EduTizim course and level
+it files under, editable per band in the admin, and a moderator opens an order that already says
+which group the student belongs in. A band with no mapping still sends the order; it just arrives
+unplaced.
+
+**Delivery cannot lose an enquiry.** The attempt is stored first and delivery is a side errand: it
+is not awaited into the visitor's response and never throws. A failure writes the reason onto the
+attempt, the admin's attempts table shows it, and a resend button retries — pressing it twice is
+safe because an attempt that already carries an order id is skipped. Verified by stopping the
+receiving end mid-test: the visitor still saw their result, the attempt recorded `fetch failed`, and
+the resend button turned it into a delivered order.
+
+The API key is a secret and lives in the environment (`EDUTIZIM_BASE_URL`, `EDUTIZIM_ORG`,
+`EDUTIZIM_API_KEY`); the survey, branch and custom-field ids are ordinary settings the school edits.
+Any of the three environment variables missing, or the setting switched off, means nothing is sent —
+which is the state production is in until the school enables it.
+
+Rate limit worth remembering: EduTizim accepts **one order per five seconds**. One submission per
+finished test stays well inside it, but a bulk resend would not.

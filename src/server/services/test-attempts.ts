@@ -5,6 +5,7 @@ import { loc } from '@/lib/localize';
 import { getAnswerKey, getTestBands } from '@/server/queries/tests';
 import { createLead } from '@/server/services/leads';
 import { findBand, scoreAttempt, tallyProfile } from '@/server/services/test-scoring';
+import { deliverAttemptToEdutizim } from '@/server/services/edutizim-delivery';
 import type { TestSubmitPayload } from '@/lib/validations/test';
 import type { CourseCardView } from '@/types/content';
 import type { Locale } from '@/types/i18n';
@@ -142,6 +143,13 @@ export async function submitAttempt(
     },
     select: { id: true },
   });
+
+  // The attempt is safely stored by now, so delivery is a side errand: it must
+  // not fail the visitor's submission, and a failure leaves a row an admin can
+  // resend rather than a lost enquiry.
+  if (payload.name && payload.phone) {
+    void deliverAttemptToEdutizim(attempt.id);
+  }
 
   notify(
     `🎯 <b>Test yakunlandi</b>\n\n${telegramLines([

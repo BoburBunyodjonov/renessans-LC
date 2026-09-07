@@ -432,7 +432,10 @@
       "level": "Уровень",
       "lead": "Заявка",
       "open": "Открыть",
-      "empty": "Пока нет попыток"
+      "empty": "Пока нет попыток",
+      "edutizimSent": "Отправлено в EduTizim",
+      "edutizimResend": "Отправить снова",
+      "edutizim": "EduTizim"
     },
     "tests": {
       "description": "Выберите направление, чтобы изменить банк вопросов и границы уровней.",
@@ -477,7 +480,10 @@
       "acceptedAnswersHint": "По одному варианту в строке. Регистр, знаки препинания и разные апострофы не учитываются.",
       "addAnswer": "+ Добавить ответ",
       "imageUrl": "Ссылка на картинку",
-      "imageUrlHint": "Для заданий, где ответ пишут по картинке. Загрузите её в раздел «Медиа» и вставьте ссылку сюда."
+      "imageUrlHint": "Для заданий, где ответ пишут по картинке. Загрузите её в раздел «Медиа» и вставьте ссылку сюда.",
+      "edutizimCourseId": "ID курса в EduTizim",
+      "edutizimSubCourseId": "ID уровня в EduTizim",
+      "edutizimHint": "На какой курс и уровень в EduTizim записывается ученик с этим результатом. Скопируйте ID из EduTizim; если оставить пустым, заявка придёт без курса."
     },
     "users": {
       "description": "Назначьте роли сотрудникам. Роли проверяются и на сервере.",
@@ -532,7 +538,15 @@
       "privacyText": "Текст",
       "credit": "Подпись в футере",
       "creditText": "Текст",
-      "creditUrl": "Ссылка"
+      "creditUrl": "Ссылка",
+      "edutizim": "Связь с EduTizim",
+      "edutizimHint": "Ученик, прошедший тест, попадает в EduTizim как заявка. API-ключ хранится на сервере; здесь указывается только, куда записывать.",
+      "edutizimEnabled": "Включено",
+      "edutizimSurveyId": "ID анкеты (surveyId)",
+      "edutizimBranchId": "ID филиала (branchId)",
+      "edutizimScoreField": "ID поля «Балл»",
+      "edutizimLevelField": "ID поля «Уровень»",
+      "edutizimKindField": "ID поля «Тип теста»"
     },
     "audit": {
       "description": "Всего записей: {count}",

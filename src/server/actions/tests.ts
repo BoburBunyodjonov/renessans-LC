@@ -10,6 +10,7 @@ import {
   writeAudit,
   type ActionResult,
 } from '@/server/actions/helpers';
+import { deliverAttemptToEdutizim } from '@/server/services/edutizim-delivery';
 
 const optionSchema = z.object({
   id: z.string().optional(),
@@ -176,6 +177,11 @@ const bandSchema = z.object({
   title: z.object({ uz: z.string(), ru: z.string(), en: z.string() }),
   description: z.object({ uz: z.string(), ru: z.string(), en: z.string() }),
   courseId: z.string().nullable().optional(),
+  // Where a student on this band is filed in EduTizim. Free text rather than a
+  // picker: these are Mongo ids copied from that system, and validating their
+  // shape here would only guess at it.
+  edutizimCourseId: z.string().trim().max(60).nullable().optional(),
+  edutizimSubCourseId: z.string().trim().max(60).nullable().optional(),
 });
 
 export async function saveBand(
@@ -195,6 +201,8 @@ export async function saveBand(
       title: parsed.data.title,
       description: parsed.data.description,
       courseId: parsed.data.courseId || null,
+      edutizimCourseId: parsed.data.edutizimCourseId || null,
+      edutizimSubCourseId: parsed.data.edutizimSubCourseId || null,
     };
 
     if (bandId) {
@@ -358,4 +366,36 @@ function splitCsvLine(line: string): string[] {
 
   cells.push(current);
   return cells;
+}
+
+/**
+ * Sends one attempt to EduTizim again, by hand.
+ *
+ * Delivery is best-effort at submission time, so this is the way a person
+ * clears a backlog after an outage, or after fixing a wrong survey id. Pressing
+ * it twice is safe: an attempt that already carries an order id is skipped.
+ */
+export async function resendAttemptToEdutizim(
+  attemptId: string,
+): Promise<ActionResult<{ orderId: string | null; error: string | null }>> {
+  try {
+    await requireCapability('manageTests');
+    await deliverAttemptToEdutizim(attemptId);
+
+    const attempt = await prisma.testAttempt.findUnique({
+      where: { id: attemptId },
+      select: { edutizimOrderId: true, edutizimError: true },
+    });
+
+    revalidatePath('/admin/tests/attempts');
+    return {
+      ok: true,
+      data: {
+        orderId: attempt?.edutizimOrderId ?? null,
+        error: attempt?.edutizimError ?? null,
+      },
+    };
+  } catch (error) {
+    return actionError(error);
+  }
 }

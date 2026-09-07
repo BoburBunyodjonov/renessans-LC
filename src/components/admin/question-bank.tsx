@@ -41,6 +41,8 @@ type Band = {
   minScore: number;
   maxScore: number;
   levelName: string;
+  edutizimCourseId: string | null;
+  edutizimSubCourseId: string | null;
   title: Localized;
   description: Localized;
   courseId: string | null;
@@ -545,6 +547,8 @@ function BandEditor({
             onClick={() =>
               setDraft({
                 id: '',
+                edutizimCourseId: null,
+                edutizimSubCourseId: null,
                 minScore: 0,
                 maxScore: 10,
                 levelName: '',
@@ -676,6 +680,42 @@ function BandEditor({
             </select>
           </div>
 
+          {/* Where this band files a student in EduTizim. Ids are copied from
+              that system rather than picked from a list: this site has no
+              connection to browse them, and a wrong id simply arrives as an
+              unplaced order rather than losing the enquiry. */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="band-edu-course" className="text-admin-text">
+                {t('tests.edutizimCourseId')}
+              </Label>
+              <Input
+                id="band-edu-course"
+                value={draft.edutizimCourseId ?? ''}
+                onChange={(event) =>
+                  setDraft({ ...draft, edutizimCourseId: event.target.value || null })
+                }
+                placeholder="674817471cd113e973f7eb9a"
+                className={inputTheme}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="band-edu-sub" className="text-admin-text">
+                {t('tests.edutizimSubCourseId')}
+              </Label>
+              <Input
+                id="band-edu-sub"
+                value={draft.edutizimSubCourseId ?? ''}
+                onChange={(event) =>
+                  setDraft({ ...draft, edutizimSubCourseId: event.target.value || null })
+                }
+                placeholder="67481818bbcc6323a90d36f8"
+                className={inputTheme}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-admin-muted">{t('tests.edutizimHint')}</p>
+
           <div className="flex gap-2">
             <Button
               size="sm"
@@ -690,6 +730,8 @@ function BandEditor({
                       title: draft.title,
                       description: draft.description,
                       courseId: draft.courseId,
+                      edutizimCourseId: draft.edutizimCourseId,
+                      edutizimSubCourseId: draft.edutizimSubCourseId,
                     }),
                   t('common.saved'),
                 );

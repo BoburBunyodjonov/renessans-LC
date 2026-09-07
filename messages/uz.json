@@ -432,7 +432,10 @@
       "level": "Daraja",
       "lead": "Ariza",
       "open": "Ochish",
-      "empty": "Hozircha urinish yo‘q"
+      "empty": "Hozircha urinish yo‘q",
+      "edutizimSent": "EduTizim‘ga yuborildi",
+      "edutizimResend": "Qayta yuborish",
+      "edutizim": "EduTizim"
     },
     "tests": {
       "description": "Yo‘nalishni tanlab savollar bazasi va daraja chegaralarini tahrirlang.",
@@ -477,7 +480,10 @@
       "acceptedAnswersHint": "Har bir qatorga bitta variant. Katta-kichik harf, tinish belgilari va o' / oʻ / o‘ farqi hisobga olinmaydi.",
       "addAnswer": "+ Javob qo'shish",
       "imageUrl": "Rasm havolasi",
-      "imageUrlHint": "Rasmga qarab javob yoziladigan savollar uchun. Media bo'limiga yuklab, havolasini shu yerga qo'ying."
+      "imageUrlHint": "Rasmga qarab javob yoziladigan savollar uchun. Media bo'limiga yuklab, havolasini shu yerga qo'ying.",
+      "edutizimCourseId": "EduTizim kurs ID",
+      "edutizimSubCourseId": "EduTizim daraja ID",
+      "edutizimHint": "Bu darajaga tushgan o‘quvchi EduTizim‘da qaysi kurs va darajaga yoziladi. ID‘larni EduTizim‘dan nusxalab qo‘ying; bo‘sh qoldirilsa ariza kursi belgilanmagan holda boradi."
     },
     "users": {
       "description": "Xodimlarga rol biriktiring. Rollar server tomonida ham tekshiriladi.",
@@ -532,7 +538,15 @@
       "privacyText": "Matn",
       "credit": "Footer krediti",
       "creditText": "Matn",
-      "creditUrl": "Havola"
+      "creditUrl": "Havola",
+      "edutizim": "EduTizim bilan bog‘lanish",
+      "edutizimHint": "Test topshirgan o‘quvchi EduTizim‘ga ariza bo‘lib tushadi. API kaliti serverda saqlanadi; bu yerda faqat qayerga yozilishi ko‘rsatiladi.",
+      "edutizimEnabled": "Yoqilgan",
+      "edutizimSurveyId": "So‘rovnoma ID (surveyId)",
+      "edutizimBranchId": "Filial ID (branchId)",
+      "edutizimScoreField": "Ball maydoni ID",
+      "edutizimLevelField": "Daraja maydoni ID",
+      "edutizimKindField": "Test turi maydoni ID"
     },
     "audit": {
       "description": "Jami {count} ta yozuv",

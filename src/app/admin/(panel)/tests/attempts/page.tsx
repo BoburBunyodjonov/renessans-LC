@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ScoreHistogram } from '@/components/admin/dashboard-charts';
 import { currentUser } from '@/server/actions/helpers';
 import { can } from '@/lib/permissions';
+import { EdutizimStatus } from '@/components/admin/edutizim-status';
 
 export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
@@ -105,6 +106,7 @@ export default async function AttemptsPage({
                 <th className="px-3 py-2 text-start">{t('attempts.score')}</th>
                 <th className="px-3 py-2 text-start">{t('attempts.level')}</th>
                 <th className="px-3 py-2 text-start">{t('attempts.lead')}</th>
+                <th className="px-3 py-2 text-start">{t('attempts.edutizim')}</th>
               </tr>
             </thead>
             <tbody>
@@ -131,6 +133,14 @@ export default async function AttemptsPage({
                     ) : (
                       '—'
                     )}
+                  </td>
+                  <td className="px-3 py-2">
+                    <EdutizimStatus
+                      attemptId={attempt.id}
+                      orderId={attempt.edutizimOrderId}
+                      sentAt={attempt.edutizimSentAt?.toISOString() ?? null}
+                      error={attempt.edutizimError}
+                    />
                   </td>
                 </tr>
               ))}

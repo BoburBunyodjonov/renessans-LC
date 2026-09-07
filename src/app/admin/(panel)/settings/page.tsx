@@ -7,6 +7,7 @@ import { currentUser } from '@/server/actions/helpers';
 import { can } from '@/lib/permissions';
 import { asLocalized, asLocalizedList, type Localized } from '@/types/i18n';
 import { DEFAULT_BRAND } from '@/lib/theme';
+import { toConfig } from '@/lib/edutizim-payload';
 
 export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
@@ -60,6 +61,17 @@ export default async function SettingsPage() {
           logoLightUrl: settings?.logoLightUrl ?? '',
           ogImageUrl: settings?.ogImageUrl ?? '',
           brandColor: settings?.brandColor ?? DEFAULT_BRAND,
+          edutizim: (() => {
+            const config = toConfig(settings?.edutizim);
+            return {
+              enabled: config.enabled,
+              surveyId: config.surveyId ?? '',
+              branchId: config.branchId ?? '',
+              scoreFieldId: config.scoreFieldId ?? '',
+              levelFieldId: config.levelFieldId ?? '',
+              kindFieldId: config.kindFieldId ?? '',
+            };
+          })(),
         }}
       />
     </>

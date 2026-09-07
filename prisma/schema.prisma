@@ -89,6 +89,8 @@ model SiteSetting {
   // Single brand colour as `#rrggbb`; the palette is derived from it at render
   // time by src/lib/theme.ts. Null means the shipped default.
   brandColor       String?
+  // EduTizim: { enabled, surveyId, branchId, scoreFieldId, levelFieldId, kindFieldId }
+  edutizim         Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -531,46 +533,56 @@ model TestOption {
 }
 
 model TestLevelBand {
-  id          String       @id @default(cuid())
-  categoryId  String
-  category    TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  id                  String       @id @default(cuid())
+  categoryId          String
+  category            TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   // SCORE tests match on the range; PROFILE tests match on the key instead.
-  profileKey  String?
-  minScore    Int
-  maxScore    Int
-  levelName   String // Beginner / Elementary / ...
-  title       Json
-  description Json
-  courseId    String?
-  course      Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
-  order       Int          @default(0)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  profileKey          String?
+  // Where a student who lands on this band is enrolled in EduTizim. Both are
+  // Mongo ids from that system; null means the band sends no course, and the
+  // order arrives for a moderator to place by hand.
+  edutizimCourseId    String?
+  edutizimSubCourseId String?
+  minScore            Int
+  maxScore            Int
+  levelName           String // Beginner / Elementary / ...
+  title               Json
+  description         Json
+  courseId            String?
+  course              Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  order               Int          @default(0)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 
   @@index([categoryId, minScore, maxScore])
 }
 
 model TestAttempt {
-  id          String       @id @default(cuid())
-  categoryId  String
-  category    TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  name        String?
-  phone       String?
-  answers     Json // [{ questionId, optionId, isCorrect }]
+  id              String       @id @default(cuid())
+  categoryId      String
+  category        TestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name            String?
+  phone           String?
+  answers         Json // [{ questionId, optionId, isCorrect }]
   // PROFILE tests only: [{ key, count, percent }], commonest first.
-  profile     Json?
-  score       Int
-  maxScore    Int
-  bandId      String?
-  levelName   String?
-  durationSec Int?
-  locale      String       @default("uz")
-  utm         Json?
-  ipHash      String?
-  leadId      String?      @unique
-  lead        Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  profile         Json?
+  score           Int
+  maxScore        Int
+  bandId          String?
+  levelName       String?
+  durationSec     Int?
+  locale          String       @default("uz")
+  utm             Json?
+  ipHash          String?
+  // EduTizim delivery. `orderId` is what that system returned; an attempt with
+  // an error and no order id is one a person still needs to chase.
+  edutizimOrderId String?
+  edutizimSentAt  DateTime?
+  edutizimError   String?
+  leadId          String?      @unique
+  lead            Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@index([categoryId, createdAt])
   @@index([createdAt])

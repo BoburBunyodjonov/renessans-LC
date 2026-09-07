@@ -74,6 +74,8 @@ export default async function QuestionBankPage({ params }: { params: Promise<{ s
         }))}
         bands={category.bands.map((band) => ({
           id: band.id,
+          edutizimCourseId: band.edutizimCourseId,
+          edutizimSubCourseId: band.edutizimSubCourseId,
           minScore: band.minScore,
           maxScore: band.maxScore,
           levelName: band.levelName,
