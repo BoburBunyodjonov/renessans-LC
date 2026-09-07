@@ -8,6 +8,7 @@ import { Input, Label } from '@/components/ui/field';
 import { LocalizedEditor, LocalizedInput, LocalizedList } from '@/components/admin/localized-input';
 import { MediaPicker } from '@/components/admin/media-picker';
 import { BrandColorPicker } from '@/components/admin/brand-color-picker';
+import { EdutizimPanel, type EdutizimValues } from '@/components/admin/edutizim-panel';
 import { saveSettings, type SettingsInput } from '@/server/actions/settings';
 import { DEFAULT_LOCALE, type Localized } from '@/types/i18n';
 
@@ -33,14 +34,7 @@ type Values = {
   logoLightUrl: string;
   ogImageUrl: string;
   brandColor: string;
-  edutizim: {
-    enabled: boolean;
-    surveyId: string;
-    branchId: string;
-    scoreFieldId: string;
-    levelFieldId: string;
-    kindFieldId: string;
-  };
+  edutizim: EdutizimValues;
 };
 
 const SOCIAL_KEYS = ['telegram', 'instagram', 'youtube', 'facebook', 'tiktok', 'whatsapp'] as const;
@@ -53,7 +47,16 @@ const TELEGRAM_KEYS: [string, string][] = [
 
 const inputTheme = 'border-admin-border bg-admin-panel text-admin-text';
 
-export function SettingsForm({ initial }: { initial: Values }) {
+export function SettingsForm({
+  initial,
+  apiKeySet,
+  apiKeyHint,
+}: {
+  initial: Values;
+  /** Whether an EduTizim key is stored; the key itself never reaches the browser. */
+  apiKeySet: boolean;
+  apiKeyHint: string;
+}) {
   const t = useTranslations('admin');
   const [values, setValues] = useState<Values>(initial);
   const [dirty, setDirty] = useState(false);
@@ -106,48 +109,12 @@ export function SettingsForm({ initial }: { initial: Values }) {
         />
       </Panel>
 
-      <Panel className="flex flex-col gap-5">
-        <PanelTitle>{t('settings.edutizim')}</PanelTitle>
-        <p className="text-sm text-admin-muted">{t('settings.edutizimHint')}</p>
-
-        <label className="flex items-center gap-2.5 text-sm font-semibold text-admin-text">
-          <input
-            type="checkbox"
-            checked={values.edutizim.enabled}
-            onChange={(event) =>
-              update('edutizim', { ...values.edutizim, enabled: event.target.checked })
-            }
-            className="size-4 accent-brand-600"
-          />
-          {t('settings.edutizimEnabled')}
-        </label>
-
-        <Field
-          label={t('settings.edutizimSurveyId')}
-          value={values.edutizim.surveyId}
-          onChange={(value) => update('edutizim', { ...values.edutizim, surveyId: value })}
-        />
-        <Field
-          label={t('settings.edutizimBranchId')}
-          value={values.edutizim.branchId}
-          onChange={(value) => update('edutizim', { ...values.edutizim, branchId: value })}
-        />
-        <Field
-          label={t('settings.edutizimScoreField')}
-          value={values.edutizim.scoreFieldId}
-          onChange={(value) => update('edutizim', { ...values.edutizim, scoreFieldId: value })}
-        />
-        <Field
-          label={t('settings.edutizimLevelField')}
-          value={values.edutizim.levelFieldId}
-          onChange={(value) => update('edutizim', { ...values.edutizim, levelFieldId: value })}
-        />
-        <Field
-          label={t('settings.edutizimKindField')}
-          value={values.edutizim.kindFieldId}
-          onChange={(value) => update('edutizim', { ...values.edutizim, kindFieldId: value })}
-        />
-      </Panel>
+      <EdutizimPanel
+        value={values.edutizim}
+        onChange={(next) => update('edutizim', next)}
+        apiKeySet={apiKeySet}
+        apiKeyHint={apiKeyHint}
+      />
 
       <Panel className="flex flex-col gap-5">
         <PanelTitle>{t('settings.ctaAndLms')}</PanelTitle>

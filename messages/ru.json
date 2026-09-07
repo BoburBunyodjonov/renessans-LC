@@ -277,7 +277,8 @@
       "uploaded": "Загружено",
       "remove": "Убрать",
       "total": "Всего: {count}",
-      "emptyList": "Список пуст"
+      "emptyList": "Список пуст",
+      "loading": "Загрузка…"
     },
     "errors": {
       "session": "Сессия истекла — войдите заново",
@@ -481,9 +482,11 @@
       "addAnswer": "+ Добавить ответ",
       "imageUrl": "Ссылка на картинку",
       "imageUrlHint": "Для заданий, где ответ пишут по картинке. Загрузите её в раздел «Медиа» и вставьте ссылку сюда.",
-      "edutizimCourseId": "ID курса в EduTizim",
-      "edutizimSubCourseId": "ID уровня в EduTizim",
-      "edutizimHint": "На какой курс и уровень в EduTizim записывается ученик с этим результатом. Скопируйте ID из EduTizim; если оставить пустым, заявка придёт без курса."
+      "edutizimCourseId": "Курс в EduTizim",
+      "edutizimSubCourseId": "Уровень в EduTizim",
+      "edutizimHint": "На какой курс и уровень в EduTizim записывается ученик с этим результатом. Если оставить пустым, заявка придёт без курса.",
+      "edutizimOffline": "Не удалось получить список курсов — проверьте подключение в Настройках. Пока можно вписать ID вручную.",
+      "edutizimNoLevels": "Уровней нет"
     },
     "users": {
       "description": "Назначьте роли сотрудникам. Роли проверяются и на сервере.",
@@ -540,13 +543,30 @@
       "creditText": "Текст",
       "creditUrl": "Ссылка",
       "edutizim": "Связь с EduTizim",
-      "edutizimHint": "Ученик, прошедший тест, попадает в EduTizim как заявка. API-ключ хранится на сервере; здесь указывается только, куда записывать.",
+      "edutizimHint": "Ученик, прошедший тест, попадает в EduTizim как заявка. Центр вводит свою организацию и API-ключ здесь — ключ хранится в зашифрованном виде и никогда не возвращается в браузер.",
       "edutizimEnabled": "Включено",
-      "edutizimSurveyId": "ID анкеты (surveyId)",
-      "edutizimBranchId": "ID филиала (branchId)",
-      "edutizimScoreField": "ID поля «Балл»",
-      "edutizimLevelField": "ID поля «Уровень»",
-      "edutizimKindField": "ID поля «Тип теста»"
+      "edutizimScoreField": "Поле балла",
+      "edutizimLevelField": "Поле уровня",
+      "edutizimKindField": "Поле типа теста",
+      "edutizimBaseUrl": "Адрес EduTizim",
+      "edutizimOrg": "Организация (username)",
+      "edutizimApiKey": "API-ключ",
+      "edutizimKeyStored": "Ключ сохранён. Чтобы заменить, введите новый; иначе он останется прежним.",
+      "edutizimKeyHint": "Берётся из интеграции «Lead Site Admittance» в EduTizim.",
+      "edutizimKeyClear": "Удалить",
+      "edutizimKeyCleared": "При сохранении ключ будет удалён.",
+      "edutizimTest": "Проверить подключение",
+      "edutizimConnected": "Подключено — найдено филиалов: {count}.",
+      "edutizimIncomplete": "Заполните адрес, организацию и ключ.",
+      "edutizimSurveyNumber": "Номер опроса",
+      "edutizimSurveyResolve": "Определить",
+      "edutizimSurveyHint": "Номер со страницы «Маркетинг → Опросы» в EduTizim, например s26.",
+      "edutizimSurveyCurrent": "Текущий: {id}",
+      "edutizimSurveyFound": "Опрос найден: {id}",
+      "edutizimSurveyMissing": "Опрос с таким номером не найден.",
+      "edutizimBranch": "Филиал",
+      "edutizimPickAfterTest": "Сначала проверьте подключение",
+      "edutizimNoCustomFields": "Нет дополнительных полей"
     },
     "audit": {
       "description": "Всего записей: {count}",

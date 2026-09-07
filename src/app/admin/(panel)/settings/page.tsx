@@ -8,6 +8,8 @@ import { can } from '@/lib/permissions';
 import { asLocalized, asLocalizedList, type Localized } from '@/types/i18n';
 import { DEFAULT_BRAND } from '@/lib/theme';
 import { toConfig } from '@/lib/edutizim-payload';
+import { maskHint, open as openSecret } from '@/lib/secret-box';
+import { DEFAULT_BASE_URL } from '@/server/services/edutizim';
 
 export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
@@ -35,6 +37,11 @@ export default async function SettingsPage() {
     prisma.siteSetting.findUnique({ where: { id: 'singleton' } }),
   ]);
 
+  // The key is opened here only to show its last four characters back; the
+  // plain value never leaves the server.
+  const edutizim = toConfig(settings?.edutizim);
+  const storedKey = edutizim.apiKeySealed ? openSecret(edutizim.apiKeySealed) : null;
+
   return (
     <>
       <PageHeader title={t('nav.settings')} description={t('settings.description')} />
@@ -61,18 +68,23 @@ export default async function SettingsPage() {
           logoLightUrl: settings?.logoLightUrl ?? '',
           ogImageUrl: settings?.ogImageUrl ?? '',
           brandColor: settings?.brandColor ?? DEFAULT_BRAND,
-          edutizim: (() => {
-            const config = toConfig(settings?.edutizim);
-            return {
-              enabled: config.enabled,
-              surveyId: config.surveyId ?? '',
-              branchId: config.branchId ?? '',
-              scoreFieldId: config.scoreFieldId ?? '',
-              levelFieldId: config.levelFieldId ?? '',
-              kindFieldId: config.kindFieldId ?? '',
-            };
-          })(),
+          edutizim: {
+            enabled: edutizim.enabled,
+            baseUrl: edutizim.baseUrl ?? DEFAULT_BASE_URL,
+            organization: edutizim.organization ?? '',
+            // Write-only: the stored key is not sent, only whether there is one.
+            apiKey: '',
+            clearApiKey: false,
+            surveyNumber: edutizim.surveyNumber ?? '',
+            surveyId: edutizim.surveyId ?? '',
+            branchId: edutizim.branchId ?? '',
+            scoreFieldId: edutizim.scoreFieldId ?? '',
+            levelFieldId: edutizim.levelFieldId ?? '',
+            kindFieldId: edutizim.kindFieldId ?? '',
+          },
         }}
+        apiKeySet={storedKey !== null}
+        apiKeyHint={storedKey ? maskHint(storedKey) : ''}
       />
     </>
   );

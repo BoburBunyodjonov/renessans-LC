@@ -9,6 +9,10 @@ import {
 
 const CONFIG: EdutizimConfig = {
   enabled: true,
+  baseUrl: 'https://backend.edutizim.uz',
+  organization: 'renessans',
+  apiKeySealed: null,
+  surveyNumber: 's26',
   surveyId: '674817471cd113e973f7eb9a',
   branchId: '6747f9dd9949c8b2044cd3b9',
   scoreFieldId: 'score-field',
@@ -49,6 +53,21 @@ describe('toConfig', () => {
     for (const value of [null, undefined, 'text', 42, [], { enabled: 'yes' }]) {
       expect(toConfig(value).enabled).toBe(false);
     }
+  });
+
+  it('reads the connection the school typed into the panel', () => {
+    const config = toConfig({
+      enabled: true,
+      baseUrl: 'https://backend.edutizim.uz',
+      organization: 'husniddin',
+      apiKeySealed: 'v1.a.b.c',
+      surveyNumber: 's26',
+    });
+
+    expect(config.baseUrl).toBe('https://backend.edutizim.uz');
+    expect(config.organization).toBe('husniddin');
+    expect(config.apiKeySealed).toBe('v1.a.b.c');
+    expect(config.surveyNumber).toBe('s26');
   });
 
   it('treats blank strings as missing rather than empty ids', () => {

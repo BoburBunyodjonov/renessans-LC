@@ -729,8 +729,21 @@ safe because an attempt that already carries an order id is skipped. Verified by
 receiving end mid-test: the visitor still saw their result, the attempt recorded `fetch failed`, and
 the resend button turned it into a delivered order.
 
-The API key is a secret and lives in the environment (`EDUTIZIM_BASE_URL`, `EDUTIZIM_ORG`,
-`EDUTIZIM_API_KEY`); the survey, branch and custom-field ids are ordinary settings the school edits.
+**The school connects itself.** The address, organisation and key live in the settings row, entered
+in Admin → Settings; the environment variables of the same names are a fallback, read only when that
+is empty. The key is sealed with AES-256-GCM (`src/lib/secret-box.ts`, keyed off `AUTH_SECRET`) and
+never sent to the browser — the panel shows `••••a9c1` and treats a blank field as "unchanged", so
+clearing it takes its own button. Rotating `AUTH_SECRET` makes the stored key unreadable; it is one
+field, retyped.
+
+Nothing asks for a Mongo id any more. `/student/branches` doubles as the connection test, `/student/
+courses` fills the course and level drop-downs on a band, and `/student/details?survey=s26` exchanges
+the number printed on the school's own surveys page for the id orders are filed under. Those three
+lookups are `src/server/actions/edutizim.ts`, behind `manageSettings`. `pnpm check:edutizim` walks the
+panel and asserts, among other things, that the stored key appears nowhere in the delivered HTML.
+
+Survey numbering starts wherever that organisation's counter is — the test org's six surveys are
+`s26`–`s31`, not `s1`. Probing low numbers to discover them finds nothing.
 Any of the three environment variables missing, or the setting switched off, means nothing is sent —
 which is the state production is in until the school enables it.
 

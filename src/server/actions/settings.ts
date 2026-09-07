@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { sanitizeLocalizedHtml } from '@/lib/sanitize';
 import { normalizeHex } from '@/lib/theme';
+import { toConfig } from '@/lib/edutizim-payload';
+import { canSeal, seal } from '@/lib/secret-box';
 import {
   actionError,
   requireCapability,
@@ -17,6 +19,47 @@ import {
 import { ROLES } from '@/lib/permissions';
 
 const localized = z.object({ uz: z.string(), ru: z.string(), en: z.string() });
+
+/**
+ * Puts the connection into the shape the settings row holds.
+ *
+ * The key never travels back to the browser, so the form cannot send it back
+ * either: a blank field means "unchanged", and forgetting that would wipe the
+ * key every time somebody edited an unrelated setting. Clearing is therefore
+ * explicit, through its own flag.
+ */
+async function sealEdutizim(
+  value: NonNullable<z.infer<typeof settingsSchema>['edutizim']>,
+): Promise<Prisma.InputJsonObject> {
+  const existing = toConfig(
+    (
+      await prisma.siteSetting.findUnique({
+        where: { id: 'singleton' },
+        select: { edutizim: true },
+      })
+    )?.edutizim,
+  );
+
+  let apiKeySealed = existing.apiKeySealed;
+  if (value.clearApiKey) apiKeySealed = null;
+  else if (value.apiKey) {
+    if (!canSeal()) throw new Error('AUTH_SECRET_MISSING');
+    apiKeySealed = seal(value.apiKey);
+  }
+
+  return {
+    enabled: value.enabled,
+    baseUrl: value.baseUrl,
+    organization: value.organization,
+    apiKeySealed,
+    surveyNumber: value.surveyNumber,
+    surveyId: value.surveyId,
+    branchId: value.branchId,
+    scoreFieldId: value.scoreFieldId,
+    levelFieldId: value.levelFieldId,
+    kindFieldId: value.kindFieldId,
+  };
+}
 
 const settingsSchema = z.object({
   brandName: localized,
@@ -41,12 +84,18 @@ const settingsSchema = z.object({
   ogImageUrl: z.string().max(300).nullable().optional(),
   // Stored as `#rrggbb`; the rest of the palette is derived from it at render
   // time, so nothing here can produce an unreadable button.
-  // EduTizim: which survey and branch the site's test results are filed under,
-  // and the ids of the three student fields they are written into. The API key
-  // is a secret and lives in the environment, not here.
+  // EduTizim: the connection itself, plus which survey and branch the site's
+  // test results are filed under and the student fields they are written into.
+  // The key arrives in the clear and is sealed before it is stored; a blank one
+  // means the stored key stays, which is how the form avoids ever holding it.
   edutizim: z
     .object({
       enabled: z.boolean(),
+      baseUrl: z.string().trim().max(200),
+      organization: z.string().trim().max(100),
+      apiKey: z.string().trim().max(200),
+      clearApiKey: z.boolean().optional(),
+      surveyNumber: z.string().trim().max(20),
       surveyId: z.string().trim().max(60),
       branchId: z.string().trim().max(60),
       scoreFieldId: z.string().trim().max(60),
@@ -98,7 +147,7 @@ export async function saveSettings(input: SettingsInput): Promise<ActionResult> 
       ogImageUrl: value.ogImageUrl || null,
       // Null means "the shipped default", which is how the reset button works.
       brandColor: value.brandColor ? normalizeHex(value.brandColor) : null,
-      edutizim: value.edutizim ?? undefined,
+      edutizim: value.edutizim ? await sealEdutizim(value.edutizim) : undefined,
     } satisfies Prisma.SiteSettingUncheckedUpdateInput;
 
     await prisma.siteSetting.upsert({

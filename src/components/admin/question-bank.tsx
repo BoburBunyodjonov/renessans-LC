@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Check, Download, Loader2, Plus, Trash2, Upload } from 'lucide-react';
+import { EdutizimCoursePicker } from '@/components/admin/edutizim-course-picker';
 import { Panel, PanelTitle, StatusPill } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
 import { Input, Label, Textarea } from '@/components/ui/field';
@@ -680,41 +681,17 @@ function BandEditor({
             </select>
           </div>
 
-          {/* Where this band files a student in EduTizim. Ids are copied from
-              that system rather than picked from a list: this site has no
-              connection to browse them, and a wrong id simply arrives as an
-              unplaced order rather than losing the enquiry. */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="band-edu-course" className="text-admin-text">
-                {t('tests.edutizimCourseId')}
-              </Label>
-              <Input
-                id="band-edu-course"
-                value={draft.edutizimCourseId ?? ''}
-                onChange={(event) =>
-                  setDraft({ ...draft, edutizimCourseId: event.target.value || null })
-                }
-                placeholder="674817471cd113e973f7eb9a"
-                className={inputTheme}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="band-edu-sub" className="text-admin-text">
-                {t('tests.edutizimSubCourseId')}
-              </Label>
-              <Input
-                id="band-edu-sub"
-                value={draft.edutizimSubCourseId ?? ''}
-                onChange={(event) =>
-                  setDraft({ ...draft, edutizimSubCourseId: event.target.value || null })
-                }
-                placeholder="67481818bbcc6323a90d36f8"
-                className={inputTheme}
-              />
-            </div>
-          </div>
-          <p className="text-xs text-admin-muted">{t('tests.edutizimHint')}</p>
+          <EdutizimCoursePicker
+            courseId={draft.edutizimCourseId}
+            subCourseId={draft.edutizimSubCourseId}
+            onChange={(next) =>
+              setDraft({
+                ...draft,
+                edutizimCourseId: next.courseId,
+                edutizimSubCourseId: next.subCourseId,
+              })
+            }
+          />
 
           <div className="flex gap-2">
             <Button

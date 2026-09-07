@@ -277,7 +277,8 @@
       "uploaded": "Uploaded",
       "remove": "Remove",
       "total": "{count} total",
-      "emptyList": "The list is empty"
+      "emptyList": "The list is empty",
+      "loading": "Loading…"
     },
     "errors": {
       "session": "Session expired — sign in again",
@@ -481,9 +482,11 @@
       "addAnswer": "+ Add answer",
       "imageUrl": "Image URL",
       "imageUrlHint": "For questions answered from a picture. Upload it under Media and paste the link here.",
-      "edutizimCourseId": "EduTizim course ID",
-      "edutizimSubCourseId": "EduTizim level ID",
-      "edutizimHint": "Which EduTizim course and level a student on this band is filed under. Copy the ids from EduTizim; left blank, the order arrives with no course set."
+      "edutizimCourseId": "EduTizim course",
+      "edutizimSubCourseId": "EduTizim level",
+      "edutizimHint": "Which EduTizim course and level a student with this result is filed under. Left empty, the enquiry arrives without a course.",
+      "edutizimOffline": "Could not load the course list — check the connection in Settings. You can still type an id by hand.",
+      "edutizimNoLevels": "No levels"
     },
     "users": {
       "description": "Assign roles to staff. Roles are enforced on the server too.",
@@ -540,13 +543,30 @@
       "creditText": "Text",
       "creditUrl": "Link",
       "edutizim": "EduTizim connection",
-      "edutizimHint": "A student who finishes a test arrives in EduTizim as an order. The API key lives on the server; this only says where to file it.",
+      "edutizimHint": "A student who finishes a test arrives in EduTizim as an enquiry. The school enters its own organisation and API key here — the key is stored encrypted and never sent back to the browser.",
       "edutizimEnabled": "Enabled",
-      "edutizimSurveyId": "Survey ID",
-      "edutizimBranchId": "Branch ID",
-      "edutizimScoreField": "Score field ID",
-      "edutizimLevelField": "Level field ID",
-      "edutizimKindField": "Test kind field ID"
+      "edutizimScoreField": "Score field",
+      "edutizimLevelField": "Level field",
+      "edutizimKindField": "Test type field",
+      "edutizimBaseUrl": "EduTizim address",
+      "edutizimOrg": "Organisation (username)",
+      "edutizimApiKey": "API key",
+      "edutizimKeyStored": "A key is stored. Type a new one to replace it; otherwise it stays as it is.",
+      "edutizimKeyHint": "Comes from the “Lead Site Admittance” integration in EduTizim.",
+      "edutizimKeyClear": "Clear",
+      "edutizimKeyCleared": "The key will be removed when you save.",
+      "edutizimTest": "Test connection",
+      "edutizimConnected": "Connected — {count} branches found.",
+      "edutizimIncomplete": "Fill in the address, organisation and key.",
+      "edutizimSurveyNumber": "Survey number",
+      "edutizimSurveyResolve": "Resolve",
+      "edutizimSurveyHint": "The number on EduTizim’s “Marketing → Surveys” page, such as s26.",
+      "edutizimSurveyCurrent": "Current: {id}",
+      "edutizimSurveyFound": "Survey found: {id}",
+      "edutizimSurveyMissing": "No survey with that number.",
+      "edutizimBranch": "Branch",
+      "edutizimPickAfterTest": "Test the connection first",
+      "edutizimNoCustomFields": "No custom fields"
     },
     "audit": {
       "description": "{count} entries in total",

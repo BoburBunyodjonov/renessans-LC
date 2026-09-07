@@ -11,7 +11,15 @@
 
 export type EdutizimConfig = {
   enabled: boolean;
+  /** Where EduTizim lives. Their own installation may not be the public one. */
+  baseUrl: string | null;
+  /** The organisation's username — the tenant this site files students under. */
+  organization: string | null;
+  /** The LeadSite key, sealed; only the server can read it. */
+  apiKeySealed: string | null;
   surveyId: string | null;
+  /** The `s26` the school reads off their surveys page, kept so it can be shown back. */
+  surveyNumber: string | null;
   branchId: string | null;
   /** Custom field ids on the student card, created by the school in EduTizim. */
   scoreFieldId: string | null;
@@ -21,7 +29,11 @@ export type EdutizimConfig = {
 
 export const EMPTY_CONFIG: EdutizimConfig = {
   enabled: false,
+  baseUrl: null,
+  organization: null,
+  apiKeySealed: null,
   surveyId: null,
+  surveyNumber: null,
   branchId: null,
   scoreFieldId: null,
   levelFieldId: null,
@@ -39,7 +51,11 @@ export function toConfig(value: unknown): EdutizimConfig {
 
   return {
     enabled: record.enabled === true,
+    baseUrl: text('baseUrl'),
+    organization: text('organization'),
+    apiKeySealed: text('apiKeySealed'),
     surveyId: text('surveyId'),
+    surveyNumber: text('surveyNumber'),
     branchId: text('branchId'),
     scoreFieldId: text('scoreFieldId'),
     levelFieldId: text('levelFieldId'),

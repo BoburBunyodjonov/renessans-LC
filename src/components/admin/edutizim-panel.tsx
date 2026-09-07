@@ -1,0 +1,332 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
+import { Check, RefreshCw } from 'lucide-react';
+import { Panel, PanelTitle } from '@/components/admin/ui';
+import { Button } from '@/components/ui/button';
+import { Input, Label } from '@/components/ui/field';
+import {
+  resolveEdutizimSurvey,
+  testEdutizimConnection,
+} from '@/server/actions/edutizim';
+import type { EdutizimBranch } from '@/server/services/edutizim';
+
+/**
+ * Connecting the site to EduTizim, without anybody touching the server.
+ *
+ * The school reads one thing off their own EduTizim screens — the survey number
+ * their surveys page prints, `s26` and the like. Everything else is discovered:
+ * the key is proved against their branch list before it is saved, the branch is
+ * picked from that list, and the survey number is exchanged for the id an order
+ * is actually filed under. Nobody is asked to paste a Mongo id.
+ *
+ * The key itself is write-only here. What is stored was sealed on the server and
+ * is never sent back, so this shows a masked hint and treats a blank field as
+ * "leave it alone" — clearing it takes its own button.
+ */
+
+export type EdutizimValues = {
+  enabled: boolean;
+  baseUrl: string;
+  organization: string;
+  /** Only ever holds a freshly typed key on its way to the server. */
+  apiKey: string;
+  clearApiKey: boolean;
+  surveyNumber: string;
+  surveyId: string;
+  branchId: string;
+  scoreFieldId: string;
+  levelFieldId: string;
+  kindFieldId: string;
+};
+
+type CustomField = { _id: string; name: string };
+
+export function EdutizimPanel({
+  value,
+  onChange,
+  apiKeySet,
+  apiKeyHint,
+}: {
+  value: EdutizimValues;
+  onChange: (next: EdutizimValues) => void;
+  /** Whether a key is already stored — the field starts blank either way. */
+  apiKeySet: boolean;
+  apiKeyHint: string;
+}) {
+  const t = useTranslations('admin');
+  const [pending, startTransition] = useTransition();
+  const [branches, setBranches] = useState<EdutizimBranch[] | null>(null);
+  const [customFields, setCustomFields] = useState<CustomField[] | null>(null);
+  const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const set = <K extends keyof EdutizimValues>(key: K, next: EdutizimValues[K]) =>
+    onChange({ ...value, [key]: next });
+
+  /** What the lookups need: the typed key if there is one, else the stored one. */
+  const draft = () => ({
+    baseUrl: value.baseUrl,
+    organization: value.organization,
+    apiKey: value.apiKey || undefined,
+  });
+
+  function connect() {
+    startTransition(async () => {
+      const result = await testEdutizimConnection(draft());
+      if (!result.ok || !result.data) {
+        setBranches(null);
+        setStatus({ ok: false, text: describe(result.ok ? undefined : result.error) });
+        return;
+      }
+
+      setBranches(result.data);
+      setStatus({ ok: true, text: t('settings.edutizimConnected', { count: result.data.length }) });
+    });
+  }
+
+  function resolveSurvey() {
+    startTransition(async () => {
+      const result = await resolveEdutizimSurvey({ ...draft(), surveyNumber: value.surveyNumber });
+      if (!result.ok || !result.data) {
+        setStatus({ ok: false, text: describe(result.ok ? undefined : result.error) });
+        return;
+      }
+
+      const survey = result.data;
+      setCustomFields(survey.customFields);
+      onChange({
+        ...value,
+        surveyId: survey.surveyId,
+        // A survey tied to a branch decides the branch; overriding it would only
+        // produce an order EduTizim files somewhere else anyway.
+        branchId: survey.branchId ?? value.branchId,
+      });
+      setStatus({ ok: true, text: t('settings.edutizimSurveyFound', { id: survey.surveyId }) });
+    });
+  }
+
+  function describe(error: string | undefined): string {
+    if (error === 'EDUTIZIM_INCOMPLETE') return t('settings.edutizimIncomplete');
+    if (error === 'SURVEY_NOT_FOUND') return t('settings.edutizimSurveyMissing');
+    return error ?? t('errors.unknown');
+  }
+
+  return (
+    <Panel className="flex flex-col gap-5">
+      <PanelTitle>{t('settings.edutizim')}</PanelTitle>
+      <p className="text-sm text-admin-muted">{t('settings.edutizimHint')}</p>
+
+      <label className="flex items-center gap-2.5 text-sm font-semibold text-admin-text">
+        <input
+          type="checkbox"
+          checked={value.enabled}
+          onChange={(event) => set('enabled', event.target.checked)}
+          className="size-4 accent-brand-600"
+        />
+        {t('settings.edutizimEnabled')}
+      </label>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Text
+          id="edu-base"
+          label={t('settings.edutizimBaseUrl')}
+          value={value.baseUrl}
+          placeholder="https://backend.edutizim.uz"
+          onChange={(next) => set('baseUrl', next)}
+        />
+        <Text
+          id="edu-org"
+          label={t('settings.edutizimOrg')}
+          value={value.organization}
+          placeholder="markaz"
+          onChange={(next) => set('organization', next)}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="edu-key" className="text-admin-text">
+          {t('settings.edutizimApiKey')}
+        </Label>
+        <Input
+          id="edu-key"
+          type="password"
+          autoComplete="off"
+          value={value.apiKey}
+          placeholder={apiKeySet && !value.clearApiKey ? apiKeyHint : ''}
+          onChange={(event) => onChange({ ...value, apiKey: event.target.value, clearApiKey: false })}
+          className="border-admin-border bg-admin-panel text-admin-text"
+        />
+        <span className="text-xs text-admin-muted">
+          {value.clearApiKey
+            ? t('settings.edutizimKeyCleared')
+            : apiKeySet
+              ? t('settings.edutizimKeyStored')
+              : t('settings.edutizimKeyHint')}
+          {apiKeySet && !value.clearApiKey ? (
+            <button
+              type="button"
+              onClick={() => onChange({ ...value, apiKey: '', clearApiKey: true })}
+              className="ml-2 font-bold text-danger dark:text-admin-danger"
+            >
+              {t('settings.edutizimKeyClear')}
+            </button>
+          ) : null}
+        </span>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="button" size="sm" variant="dark" disabled={pending} onClick={connect}>
+          <RefreshCw className={pending ? 'animate-spin' : ''} />
+          {t('settings.edutizimTest')}
+        </Button>
+        {status ? (
+          <span
+            className={`text-sm font-semibold ${
+              status.ok ? 'text-success' : 'text-danger dark:text-admin-danger'
+            }`}
+          >
+            {status.ok ? <Check className="mr-1 inline size-4" /> : null}
+            {status.text}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="edu-survey" className="text-admin-text">
+          {t('settings.edutizimSurveyNumber')}
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id="edu-survey"
+            value={value.surveyNumber}
+            placeholder="s26"
+            onChange={(event) => set('surveyNumber', event.target.value)}
+            className="border-admin-border bg-admin-panel text-admin-text"
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={pending || !value.surveyNumber.trim()}
+            onClick={resolveSurvey}
+            className="shrink-0 border-admin-border text-admin-text hover:bg-admin-panel hover:text-admin-text"
+          >
+            {t('settings.edutizimSurveyResolve')}
+          </Button>
+        </div>
+        <span className="text-xs text-admin-muted">
+          {value.surveyId
+            ? t('settings.edutizimSurveyCurrent', { id: value.surveyId })
+            : t('settings.edutizimSurveyHint')}
+        </span>
+      </div>
+
+      {/* Until the connection is tested there is no list to choose from, so the
+          stored branch stays visible as the only option rather than vanishing. */}
+      <Choice
+        id="edu-branch"
+        label={t('settings.edutizimBranch')}
+        value={value.branchId}
+        options={branches ?? (value.branchId ? [{ _id: value.branchId, name: value.branchId }] : [])}
+        emptyLabel={t('settings.edutizimPickAfterTest')}
+        onChange={(next) => set('branchId', next)}
+      />
+
+      {/* Custom fields are optional in EduTizim: a survey without them still
+          receives the score, in the comment the moderator reads first. */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Choice
+          id="edu-score"
+          label={t('settings.edutizimScoreField')}
+          value={value.scoreFieldId}
+          options={customFields ?? []}
+          emptyLabel={t('settings.edutizimNoCustomFields')}
+          onChange={(next) => set('scoreFieldId', next)}
+        />
+        <Choice
+          id="edu-level"
+          label={t('settings.edutizimLevelField')}
+          value={value.levelFieldId}
+          options={customFields ?? []}
+          emptyLabel={t('settings.edutizimNoCustomFields')}
+          onChange={(next) => set('levelFieldId', next)}
+        />
+        <Choice
+          id="edu-kind"
+          label={t('settings.edutizimKindField')}
+          value={value.kindFieldId}
+          options={customFields ?? []}
+          emptyLabel={t('settings.edutizimNoCustomFields')}
+          onChange={(next) => set('kindFieldId', next)}
+        />
+      </div>
+    </Panel>
+  );
+}
+
+function Text({
+  id,
+  label,
+  value,
+  placeholder,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  placeholder?: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={id} className="text-admin-text">
+        {label}
+      </Label>
+      <Input
+        id={id}
+        value={value}
+        placeholder={placeholder}
+        onChange={(event) => onChange(event.target.value)}
+        className="border-admin-border bg-admin-panel text-admin-text"
+      />
+    </div>
+  );
+}
+
+function Choice({
+  id,
+  label,
+  value,
+  options,
+  emptyLabel,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  options: { _id: string; name: string }[];
+  emptyLabel: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={id} className="text-admin-text">
+        {label}
+      </Label>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-11 rounded-xl border border-admin-border bg-admin-panel px-3 text-sm text-admin-text"
+      >
+        <option value="">{options.length > 0 ? '—' : emptyLabel}</option>
+        {options.map((option) => (
+          <option key={option._id} value={option._id}>
+            {option.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}

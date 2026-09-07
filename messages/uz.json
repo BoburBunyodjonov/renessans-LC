@@ -277,7 +277,8 @@
       "uploaded": "Yuklandi",
       "remove": "Olib tashlash",
       "total": "Jami {count} ta",
-      "emptyList": "Ro‘yxat bo‘sh"
+      "emptyList": "Ro‘yxat bo‘sh",
+      "loading": "Yuklanmoqda…"
     },
     "errors": {
       "session": "Sessiya tugagan — qaytadan kiring",
@@ -481,9 +482,11 @@
       "addAnswer": "+ Javob qo'shish",
       "imageUrl": "Rasm havolasi",
       "imageUrlHint": "Rasmga qarab javob yoziladigan savollar uchun. Media bo'limiga yuklab, havolasini shu yerga qo'ying.",
-      "edutizimCourseId": "EduTizim kurs ID",
-      "edutizimSubCourseId": "EduTizim daraja ID",
-      "edutizimHint": "Bu darajaga tushgan o‘quvchi EduTizim‘da qaysi kurs va darajaga yoziladi. ID‘larni EduTizim‘dan nusxalab qo‘ying; bo‘sh qoldirilsa ariza kursi belgilanmagan holda boradi."
+      "edutizimCourseId": "EduTizim kursi",
+      "edutizimSubCourseId": "EduTizim darajasi",
+      "edutizimHint": "Bu darajaga tushgan o‘quvchi EduTizim‘da qaysi kurs va darajaga yoziladi. Bo‘sh qoldirilsa ariza kursi belgilanmagan holda boradi.",
+      "edutizimOffline": "Kurslar ro‘yxatini olib bo‘lmadi — ulanishni Sozlamalarda tekshiring. Shu holda ID‘ni qo‘lda yozsa ham bo‘ladi.",
+      "edutizimNoLevels": "Daraja yo‘q"
     },
     "users": {
       "description": "Xodimlarga rol biriktiring. Rollar server tomonida ham tekshiriladi.",
@@ -540,13 +543,30 @@
       "creditText": "Matn",
       "creditUrl": "Havola",
       "edutizim": "EduTizim bilan bog‘lanish",
-      "edutizimHint": "Test topshirgan o‘quvchi EduTizim‘ga ariza bo‘lib tushadi. API kaliti serverda saqlanadi; bu yerda faqat qayerga yozilishi ko‘rsatiladi.",
+      "edutizimHint": "Test topshirgan o‘quvchi EduTizim‘ga ariza bo‘lib tushadi. Markaz o‘z tashkiloti va API kalitini shu yerda kiritadi — kalit shifrlangan holda saqlanadi va hech qachon brauzerga qaytarilmaydi.",
       "edutizimEnabled": "Yoqilgan",
-      "edutizimSurveyId": "So‘rovnoma ID (surveyId)",
-      "edutizimBranchId": "Filial ID (branchId)",
-      "edutizimScoreField": "Ball maydoni ID",
-      "edutizimLevelField": "Daraja maydoni ID",
-      "edutizimKindField": "Test turi maydoni ID"
+      "edutizimScoreField": "Ball maydoni",
+      "edutizimLevelField": "Daraja maydoni",
+      "edutizimKindField": "Test turi maydoni",
+      "edutizimBaseUrl": "EduTizim manzili",
+      "edutizimOrg": "Tashkilot (username)",
+      "edutizimApiKey": "API kalit",
+      "edutizimKeyStored": "Kalit saqlangan. O‘zgartirish uchun yangisini yozing, aks holda tegilmaydi.",
+      "edutizimKeyHint": "EduTizim‘da “Lead Site Admittance” integratsiyasidan olinadi.",
+      "edutizimKeyClear": "O‘chirish",
+      "edutizimKeyCleared": "Saqlashda kalit o‘chiriladi.",
+      "edutizimTest": "Ulanishni tekshirish",
+      "edutizimConnected": "Ulandi — {count} ta filial topildi.",
+      "edutizimIncomplete": "Manzil, tashkilot va kalitni to‘ldiring.",
+      "edutizimSurveyNumber": "So‘rovnoma raqami",
+      "edutizimSurveyResolve": "Aniqlash",
+      "edutizimSurveyHint": "EduTizim‘dagi “Marketing → So‘rovnomalar” sahifasida turgan raqam, masalan s26.",
+      "edutizimSurveyCurrent": "Joriy: {id}",
+      "edutizimSurveyFound": "So‘rovnoma topildi: {id}",
+      "edutizimSurveyMissing": "Bunday raqamli so‘rovnoma topilmadi.",
+      "edutizimBranch": "Filial",
+      "edutizimPickAfterTest": "Avval ulanishni tekshiring",
+      "edutizimNoCustomFields": "Maxsus maydon yo‘q"
     },
     "audit": {
       "description": "Jami {count} ta yozuv",
