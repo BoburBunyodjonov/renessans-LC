@@ -544,7 +544,6 @@
       "creditUrl": "Ссылка",
       "edutizim": "Связь с EduTizim",
       "edutizimHint": "Ученик, прошедший тест, попадает в EduTizim как заявка. Центр вводит свою организацию и API-ключ здесь — ключ хранится в зашифрованном виде и никогда не возвращается в браузер.",
-      "edutizimEnabled": "Включено",
       "edutizimScoreField": "Поле балла",
       "edutizimLevelField": "Поле уровня",
       "edutizimKindField": "Поле типа теста",
@@ -570,7 +569,12 @@
       "edutizimKeyGenerate": "Создать",
       "edutizimKeyReveal": "Показать",
       "edutizimKeyHide": "Скрыть",
-      "edutizimKeyPasteThere": "Скопируйте этот ключ точно так же в EduTizim → Интеграции → «Lead Site Admittance». Если значения не совпадут, подключение не заработает. После сохранения ключ больше не показывается."
+      "edutizimKeyPasteThere": "Скопируйте этот ключ точно так же в EduTizim → Интеграции → «Lead Site Admittance». Если значения не совпадут, подключение не заработает. После сохранения ключ больше не показывается.",
+      "edutizimStatusIncomplete": "Не заполнено — результаты тестов в EduTizim не отправляются.",
+      "edutizimStatusOn": "Включено — ученик, прошедший тест, попадает в EduTizim как заявка.",
+      "edutizimStatusOff": "Приостановлено — настройки сохранены, но результаты не отправляются.",
+      "edutizimPause": "Приостановить",
+      "edutizimResume": "Включить"
     },
     "audit": {
       "description": "Всего записей: {count}",

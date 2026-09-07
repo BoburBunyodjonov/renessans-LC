@@ -544,7 +544,6 @@
       "creditUrl": "Link",
       "edutizim": "EduTizim connection",
       "edutizimHint": "A student who finishes a test arrives in EduTizim as an enquiry. The school enters its own organisation and API key here — the key is stored encrypted and never sent back to the browser.",
-      "edutizimEnabled": "Enabled",
       "edutizimScoreField": "Score field",
       "edutizimLevelField": "Level field",
       "edutizimKindField": "Test type field",
@@ -570,7 +569,12 @@
       "edutizimKeyGenerate": "Generate",
       "edutizimKeyReveal": "Show",
       "edutizimKeyHide": "Hide",
-      "edutizimKeyPasteThere": "Copy this key, exactly as it is, into EduTizim → Integrations → “Lead Site Admittance”. The connection only works when both sides hold the same value. It is not shown again after saving."
+      "edutizimKeyPasteThere": "Copy this key, exactly as it is, into EduTizim → Integrations → “Lead Site Admittance”. The connection only works when both sides hold the same value. It is not shown again after saving.",
+      "edutizimStatusIncomplete": "Not set up — test results are not sent to EduTizim.",
+      "edutizimStatusOn": "On — a student who finishes a test arrives in EduTizim as an enquiry.",
+      "edutizimStatusOff": "Paused — the settings are kept, but results are not sent.",
+      "edutizimPause": "Pause",
+      "edutizimResume": "Turn on"
     },
     "audit": {
       "description": "{count} entries in total",

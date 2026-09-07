@@ -68,6 +68,15 @@ export function EdutizimPanel({
   const set = <K extends keyof EdutizimValues>(key: K, next: EdutizimValues[K]) =>
     onChange({ ...value, [key]: next });
 
+  // Everything an order needs before one can be sent. Anything less and the
+  // switch below is not a choice, it is a wrong answer waiting to happen.
+  const complete = Boolean(
+    value.baseUrl.trim() &&
+      value.organization.trim() &&
+      (value.apiKey.trim() || (apiKeySet && !value.clearApiKey)) &&
+      value.surveyId.trim(),
+  );
+
   /** What the lookups need: the typed key if there is one, else the stored one. */
   const draft = () => ({
     baseUrl: value.baseUrl,
@@ -86,6 +95,10 @@ export function EdutizimPanel({
 
       setBranches(result.data);
       setStatus({ ok: true, text: t('settings.edutizimConnected', { count: result.data.length }) });
+      // Proving the connection is as close to "I want this on" as anything the
+      // school does here; leaving them a box to tick afterwards only produces
+      // a fully configured integration that quietly sends nothing.
+      if (value.surveyId) set('enabled', true);
     });
   }
 
@@ -101,6 +114,7 @@ export function EdutizimPanel({
       setCustomFields(survey.customFields);
       onChange({
         ...value,
+        enabled: true,
         surveyId: survey.surveyId,
         // A survey tied to a branch decides the branch; overriding it would only
         // produce an order EduTizim files somewhere else anyway.
@@ -120,16 +134,6 @@ export function EdutizimPanel({
     <Panel className="flex flex-col gap-5">
       <PanelTitle>{t('settings.edutizim')}</PanelTitle>
       <p className="text-sm text-admin-muted">{t('settings.edutizimHint')}</p>
-
-      <label className="flex items-center gap-2.5 text-sm font-semibold text-admin-text">
-        <input
-          type="checkbox"
-          checked={value.enabled}
-          onChange={(event) => set('enabled', event.target.checked)}
-          className="size-4 accent-brand-600"
-        />
-        {t('settings.edutizimEnabled')}
-      </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Text
@@ -281,6 +285,28 @@ export function EdutizimPanel({
         emptyLabel={t('settings.edutizimPickAfterTest')}
         onChange={(next) => set('branchId', next)}
       />
+
+      {/* Whether results are actually going anywhere. This used to be a
+          checkbox above the fields, which made "configured" and "switched on"
+          two separate things somebody had to get right in the correct order. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-admin-hover px-4 py-3">
+        <span className="text-sm text-admin-text">
+          {!complete
+            ? t('settings.edutizimStatusIncomplete')
+            : value.enabled
+              ? t('settings.edutizimStatusOn')
+              : t('settings.edutizimStatusOff')}
+        </span>
+        {complete ? (
+          <button
+            type="button"
+            onClick={() => set('enabled', !value.enabled)}
+            className="text-sm font-bold text-brand-600 dark:text-admin-accent"
+          >
+            {value.enabled ? t('settings.edutizimPause') : t('settings.edutizimResume')}
+          </button>
+        ) : null}
+      </div>
 
       {/* Custom fields are optional in EduTizim: a survey without them still
           receives the score, in the comment the moderator reads first. */}

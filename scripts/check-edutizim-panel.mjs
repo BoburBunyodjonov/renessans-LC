@@ -82,6 +82,17 @@ await page.waitForFunction(() => /So‘rovnoma topildi/.test(document.body.inner
 const resolved = await page.locator('text=/So‘rovnoma topildi/').first().innerText();
 say('survey number resolves to an id', /[0-9a-f]{24}/.test(resolved), resolved);
 
+// There is no separate "switch it on" step: a complete configuration says so,
+// and the only remaining control is a deliberate pause.
+const body = await page.locator('body').innerText();
+say('no enable checkbox to forget', (await page.locator('input[type=checkbox]').count()) === 0);
+say('completing the setup turns it on', /Yoqilgan —/.test(body));
+await page.getByRole('button', { name: /Vaqtincha to‘xtatish/ }).click();
+say(
+  'pausing is possible and says what it means',
+  /To‘xtatilgan —/.test(await page.locator('body').innerText()),
+);
+
 await browser.close();
 console.log(pass ? '\nPASS' : '\nFAIL');
 process.exit(pass ? 0 : 1);

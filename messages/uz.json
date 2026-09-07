@@ -544,7 +544,6 @@
       "creditUrl": "Havola",
       "edutizim": "EduTizim bilan bog‘lanish",
       "edutizimHint": "Test topshirgan o‘quvchi EduTizim‘ga ariza bo‘lib tushadi. Markaz o‘z tashkiloti va API kalitini shu yerda kiritadi — kalit shifrlangan holda saqlanadi va hech qachon brauzerga qaytarilmaydi.",
-      "edutizimEnabled": "Yoqilgan",
       "edutizimScoreField": "Ball maydoni",
       "edutizimLevelField": "Daraja maydoni",
       "edutizimKindField": "Test turi maydoni",
@@ -570,7 +569,12 @@
       "edutizimKeyGenerate": "Yaratish",
       "edutizimKeyReveal": "Ko‘rsatish",
       "edutizimKeyHide": "Yashirish",
-      "edutizimKeyPasteThere": "Shu kalitni EduTizim → Integratsiyalar → “Lead Site Admittance” ichiga ham xuddi shunday ko‘chiring. Ikki tomonda bir xil bo‘lmasa ulanish ishlamaydi. Saqlagandan keyin kalit qayta ko‘rsatilmaydi."
+      "edutizimKeyPasteThere": "Shu kalitni EduTizim → Integratsiyalar → “Lead Site Admittance” ichiga ham xuddi shunday ko‘chiring. Ikki tomonda bir xil bo‘lmasa ulanish ishlamaydi. Saqlagandan keyin kalit qayta ko‘rsatilmaydi.",
+      "edutizimStatusIncomplete": "To‘ldirilmagan — test natijalari EduTizim‘ga yuborilmaydi.",
+      "edutizimStatusOn": "Yoqilgan — test topshirgan o‘quvchi EduTizim‘ga ariza bo‘lib tushadi.",
+      "edutizimStatusOff": "To‘xtatilgan — sozlamalar saqlanib turibdi, lekin natijalar yuborilmaydi.",
+      "edutizimPause": "Vaqtincha to‘xtatish",
+      "edutizimResume": "Yoqish"
     },
     "audit": {
       "description": "Jami {count} ta yozuv",
