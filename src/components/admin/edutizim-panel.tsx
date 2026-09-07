@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, type ReactNode } from 'react';
+import { useEffect, useState, useTransition, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Copy, Eye, EyeOff, RefreshCw, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
@@ -83,6 +83,34 @@ export function EdutizimPanel({
     organization: value.organization,
     apiKey: value.apiKey || undefined,
   });
+
+  // On load, fetch the lists a saved configuration refers to. Without this the
+  // panel comes back after a save showing `6a229856b7c9c346d1843e0e` where the
+  // branch name was, which reads like something went wrong when nothing did.
+  // Silent on purpose: this is not the school asking to test anything, so a
+  // failure just leaves the ids showing, exactly as before.
+  useEffect(() => {
+    // The first render's values: what was saved, not what is being typed.
+    const stored = { baseUrl: value.baseUrl, organization: value.organization };
+    if (!apiKeySet || !stored.organization.trim()) return;
+    let live = true;
+
+    void testEdutizimConnection(stored).then((result) => {
+      if (live && result.ok && result.data) setBranches(result.data);
+    });
+
+    if (value.surveyNumber.trim()) {
+      void resolveEdutizimSurvey({ ...stored, surveyNumber: value.surveyNumber }).then((result) => {
+        if (live && result.ok && result.data) setCustomFields(result.data.customFields);
+      });
+    }
+
+    return () => {
+      live = false;
+    };
+    // Deliberately once, against what was saved rather than what is being typed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function connect() {
     startTransition(async () => {
@@ -275,13 +303,11 @@ export function EdutizimPanel({
         </span>
       </div>
 
-      {/* Until the connection is tested there is no list to choose from, so the
-          stored branch stays visible as the only option rather than vanishing. */}
       <Choice
         id="edu-branch"
         label={t('settings.edutizimBranch')}
         value={value.branchId}
-        options={branches ?? (value.branchId ? [{ _id: value.branchId, name: value.branchId }] : [])}
+        options={branches ?? []}
         emptyLabel={t('settings.edutizimPickAfterTest')}
         onChange={(next) => set('branchId', next)}
       />
@@ -423,6 +449,15 @@ function Choice({
   emptyLabel: string;
   onChange: (value: string) => void;
 }) {
+  // A saved id the list does not contain — EduTizim unreachable, or an entry
+  // deleted over there — stays selectable under its own id. A select whose
+  // value is not among its options renders blank, and saving that blank would
+  // quietly discard a setting nobody meant to change.
+  const shown =
+    value && !options.some((option) => option._id === value)
+      ? [...options, { _id: value, name: value }]
+      : options;
+
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id} className="text-admin-text">
@@ -434,8 +469,8 @@ function Choice({
         onChange={(event) => onChange(event.target.value)}
         className="h-11 rounded-xl border border-admin-border bg-admin-panel px-3 text-sm text-admin-text"
       >
-        <option value="">{options.length > 0 ? '—' : emptyLabel}</option>
-        {options.map((option) => (
+        <option value="">{shown.length > 0 ? '—' : emptyLabel}</option>
+        {shown.map((option) => (
           <option key={option._id} value={option._id}>
             {option.name}
           </option>

@@ -41,6 +41,19 @@ say('masked hint shown', /^••••/.test(hint ?? ''), hint ?? 'none');
 
 say('organisation prefilled', (await page.inputValue('#edu-org')) === 'husniddin');
 
+// A saved branch must come back as its name. It is stored as a Mongo id, and a
+// panel that reloads showing the id reads like the save went wrong.
+await page.waitForFunction(
+  () => {
+    const select = document.querySelector('#edu-branch');
+    const label = select?.selectedOptions?.[0]?.textContent ?? '';
+    return label.length > 0 && !/^[0-9a-f]{24}$/.test(label);
+  },
+  { timeout: 25_000 },
+);
+const branchLabel = await page.locator('#edu-branch option:checked').innerText();
+say('saved branch shows its name, not its id', !/^[0-9a-f]{24}$/.test(branchLabel), branchLabel);
+
 // A generated key has to be legible: it exists to be copied into EduTizim by
 // hand, and it is never shown again once saved.
 await page.getByRole('button', { name: /Yaratish/ }).click();
