@@ -574,7 +574,8 @@
       "edutizimStatusOn": "On — a student who finishes a test arrives in EduTizim as an enquiry.",
       "edutizimStatusOff": "Paused — the settings are kept, but results are not sent.",
       "edutizimPause": "Pause",
-      "edutizimResume": "Turn on"
+      "edutizimResume": "Turn on",
+      "edutizimFieldsHint": "Optional. Left empty, the score and level arrive in the enquiry’s comment — the first thing a moderator reads. To have them as their own columns, create a custom field on a student card in EduTizim, then open ⚙ on the survey list and switch that field on. It then appears in these lists."
     },
     "audit": {
       "description": "{count} entries in total",

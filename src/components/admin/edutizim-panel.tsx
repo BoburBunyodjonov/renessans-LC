@@ -309,7 +309,10 @@ export function EdutizimPanel({
       </div>
 
       {/* Custom fields are optional in EduTizim: a survey without them still
-          receives the score, in the comment the moderator reads first. */}
+          receives the score, in the comment the moderator reads first. Saying
+          where they come from beats leaving three empty drop-downs and no clue
+          which of the two systems is supposed to produce the options. */}
+      <p className="text-sm text-admin-muted">{t('settings.edutizimFieldsHint')}</p>
       <div className="grid gap-4 sm:grid-cols-3">
         <Choice
           id="edu-score"

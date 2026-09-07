@@ -574,7 +574,8 @@
       "edutizimStatusOn": "Yoqilgan — test topshirgan o‘quvchi EduTizim‘ga ariza bo‘lib tushadi.",
       "edutizimStatusOff": "To‘xtatilgan — sozlamalar saqlanib turibdi, lekin natijalar yuborilmaydi.",
       "edutizimPause": "Vaqtincha to‘xtatish",
-      "edutizimResume": "Yoqish"
+      "edutizimResume": "Yoqish",
+      "edutizimFieldsHint": "Ixtiyoriy. Bo‘sh qoldirilsa ball va daraja arizaning izohida keladi — moderator birinchi o‘qiydigan joyda. Alohida ustun bo‘lishini istasangiz, EduTizim‘da o‘quvchi kartasidan qo‘shimcha maydon yarating, so‘ng So‘rovnomalar ro‘yxatida ⚙ tugmasini bosib o‘sha maydonni yoqing. Shundan keyin bu yerda ro‘yxatda chiqadi."
     },
     "audit": {
       "description": "Jami {count} ta yozuv",
