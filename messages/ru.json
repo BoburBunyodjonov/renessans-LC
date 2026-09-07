@@ -552,7 +552,7 @@
       "edutizimOrg": "Организация (username)",
       "edutizimApiKey": "API-ключ",
       "edutizimKeyStored": "Ключ сохранён. Чтобы заменить, введите новый; иначе он останется прежним.",
-      "edutizimKeyHint": "EduTizim → Интеграции → «Lead Site Admittance». Ключ не выдаётся — вы задаёте его сами; впишите сюда то же значение.",
+      "edutizimKeyHint": "EduTizim ключ не выдаёт — нажмите «Создать», затем скопируйте его в EduTizim → Интеграции → «Lead Site Admittance». Либо впишите сюда уже заданный там ключ.",
       "edutizimKeyClear": "Удалить",
       "edutizimKeyCleared": "При сохранении ключ будет удалён.",
       "edutizimTest": "Проверить подключение",
@@ -566,7 +566,11 @@
       "edutizimSurveyMissing": "Опрос с таким номером не найден.",
       "edutizimBranch": "Филиал",
       "edutizimPickAfterTest": "Сначала проверьте подключение",
-      "edutizimNoCustomFields": "Нет дополнительных полей"
+      "edutizimNoCustomFields": "Нет дополнительных полей",
+      "edutizimKeyGenerate": "Создать",
+      "edutizimKeyReveal": "Показать",
+      "edutizimKeyHide": "Скрыть",
+      "edutizimKeyPasteThere": "Скопируйте этот ключ точно так же в EduTizim → Интеграции → «Lead Site Admittance». Если значения не совпадут, подключение не заработает. После сохранения ключ больше не показывается."
     },
     "audit": {
       "description": "Всего записей: {count}",

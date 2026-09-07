@@ -552,7 +552,7 @@
       "edutizimOrg": "Organisation (username)",
       "edutizimApiKey": "API key",
       "edutizimKeyStored": "A key is stored. Type a new one to replace it; otherwise it stays as it is.",
-      "edutizimKeyHint": "EduTizim → Integrations → “Lead Site Admittance”. The key is not issued — you choose it there and enter the same value here.",
+      "edutizimKeyHint": "EduTizim does not issue the key — press “Generate”, then copy it into EduTizim → Integrations → “Lead Site Admittance”. Or type in the key already set there.",
       "edutizimKeyClear": "Clear",
       "edutizimKeyCleared": "The key will be removed when you save.",
       "edutizimTest": "Test connection",
@@ -566,7 +566,11 @@
       "edutizimSurveyMissing": "No survey with that number.",
       "edutizimBranch": "Branch",
       "edutizimPickAfterTest": "Test the connection first",
-      "edutizimNoCustomFields": "No custom fields"
+      "edutizimNoCustomFields": "No custom fields",
+      "edutizimKeyGenerate": "Generate",
+      "edutizimKeyReveal": "Show",
+      "edutizimKeyHide": "Hide",
+      "edutizimKeyPasteThere": "Copy this key, exactly as it is, into EduTizim → Integrations → “Lead Site Admittance”. The connection only works when both sides hold the same value. It is not shown again after saving."
     },
     "audit": {
       "description": "{count} entries in total",

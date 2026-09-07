@@ -552,7 +552,7 @@
       "edutizimOrg": "Tashkilot (username)",
       "edutizimApiKey": "API kalit",
       "edutizimKeyStored": "Kalit saqlangan. O‘zgartirish uchun yangisini yozing, aks holda tegilmaydi.",
-      "edutizimKeyHint": "EduTizim → Integratsiyalar → “Lead Site Admittance”. Kalitni tizim bermaydi — o‘zingiz o‘ylab yozasiz; o‘sha qiymatni shu yerga ham qo‘ying.",
+      "edutizimKeyHint": "Kalitni EduTizim bermaydi — “Yaratish” tugmasini bosing, so‘ng uni EduTizim → Integratsiyalar → “Lead Site Admittance” ichiga ko‘chiring. Yoki u yerdagi mavjud kalitni shu yerga yozing.",
       "edutizimKeyClear": "O‘chirish",
       "edutizimKeyCleared": "Saqlashda kalit o‘chiriladi.",
       "edutizimTest": "Ulanishni tekshirish",
@@ -566,7 +566,11 @@
       "edutizimSurveyMissing": "Bunday raqamli so‘rovnoma topilmadi.",
       "edutizimBranch": "Filial",
       "edutizimPickAfterTest": "Avval ulanishni tekshiring",
-      "edutizimNoCustomFields": "Maxsus maydon yo‘q"
+      "edutizimNoCustomFields": "Maxsus maydon yo‘q",
+      "edutizimKeyGenerate": "Yaratish",
+      "edutizimKeyReveal": "Ko‘rsatish",
+      "edutizimKeyHide": "Yashirish",
+      "edutizimKeyPasteThere": "Shu kalitni EduTizim → Integratsiyalar → “Lead Site Admittance” ichiga ham xuddi shunday ko‘chiring. Ikki tomonda bir xil bo‘lmasa ulanish ishlamaydi. Saqlagandan keyin kalit qayta ko‘rsatilmaydi."
     },
     "audit": {
       "description": "Jami {count} ta yozuv",

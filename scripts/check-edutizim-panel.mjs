@@ -4,8 +4,9 @@ import { chromium } from 'playwright';
  * EduTizim connection panel acceptance check.
  *
  * The point of the panel is that a school connects itself: no server access, no
- * Mongo ids copied out of a URL. So this proves the three things that make that
- * true — the stored key is never in the page, "test connection" really reaches
+ * Mongo ids copied out of a URL. So this proves the four things that make that
+ * true — the stored key is never in the page, a fresh key can be generated and
+ * read back to be pasted into EduTizim, "test connection" really reaches
  * EduTizim and fills the branch list, and a survey number is exchanged for the
  * id an order is filed under.
  */
@@ -39,6 +40,26 @@ const hint = await page.getAttribute('#edu-key', 'placeholder');
 say('masked hint shown', /^••••/.test(hint ?? ''), hint ?? 'none');
 
 say('organisation prefilled', (await page.inputValue('#edu-org')) === 'husniddin');
+
+// A generated key has to be legible: it exists to be copied into EduTizim by
+// hand, and it is never shown again once saved.
+await page.getByRole('button', { name: /Yaratish/ }).click();
+const generated = await page.inputValue('#edu-key');
+say('generate produces a key', /^renessans-site-[0-9a-f]{40}$/.test(generated), generated);
+say('generated key is readable', (await page.getAttribute('#edu-key', 'type')) === 'text');
+say(
+  'the panel says to paste it into EduTizim',
+  (await page.locator('text=/Lead Site Admittance/').count()) > 0,
+);
+
+const second = await (async () => {
+  await page.getByRole('button', { name: /Yaratish/ }).click();
+  return page.inputValue('#edu-key');
+})();
+say('each key is different', second !== generated);
+
+// Back to the stored key, which is what the rest of the checks exercise.
+await page.reload({ waitUntil: 'networkidle' });
 
 // The connection test uses the stored key, since none was typed.
 await page.getByRole('button', { name: /Ulanishni tekshirish/ }).click();

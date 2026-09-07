@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, RefreshCw } from 'lucide-react';
+import { Check, Copy, Eye, EyeOff, RefreshCw, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 import { Panel, PanelTitle } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
 import { Input, Label } from '@/components/ui/field';
@@ -59,6 +60,9 @@ export function EdutizimPanel({
   const [pending, startTransition] = useTransition();
   const [branches, setBranches] = useState<EdutizimBranch[] | null>(null);
   const [customFields, setCustomFields] = useState<CustomField[] | null>(null);
+  // A key being typed or generated is shown in the clear on purpose: it has to
+  // be copied into EduTizim by hand, and it is gone from this page after saving.
+  const [revealed, setRevealed] = useState(false);
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
 
   const set = <K extends keyof EdutizimValues>(key: K, next: EdutizimValues[K]) =>
@@ -148,15 +152,52 @@ export function EdutizimPanel({
         <Label htmlFor="edu-key" className="text-admin-text">
           {t('settings.edutizimApiKey')}
         </Label>
-        <Input
-          id="edu-key"
-          type="password"
-          autoComplete="off"
-          value={value.apiKey}
-          placeholder={apiKeySet && !value.clearApiKey ? apiKeyHint : ''}
-          onChange={(event) => onChange({ ...value, apiKey: event.target.value, clearApiKey: false })}
-          className="border-admin-border bg-admin-panel text-admin-text"
-        />
+        <div className="flex gap-2">
+          <Input
+            id="edu-key"
+            type={revealed ? 'text' : 'password'}
+            autoComplete="off"
+            spellCheck={false}
+            value={value.apiKey}
+            placeholder={apiKeySet && !value.clearApiKey ? apiKeyHint : ''}
+            onChange={(event) =>
+              onChange({ ...value, apiKey: event.target.value, clearApiKey: false })
+            }
+            className="border-admin-border bg-admin-panel font-mono text-admin-text"
+          />
+          {value.apiKey ? (
+            <>
+              <IconButton
+                label={revealed ? t('settings.edutizimKeyHide') : t('settings.edutizimKeyReveal')}
+                onClick={() => setRevealed((current) => !current)}
+              >
+                {revealed ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </IconButton>
+              <IconButton
+                label={t('common.copyLink')}
+                onClick={() => {
+                  void navigator.clipboard.writeText(value.apiKey);
+                  toast.success(t('common.copied'));
+                }}
+              >
+                <Copy className="size-4" />
+              </IconButton>
+            </>
+          ) : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              onChange({ ...value, apiKey: generateKey(), clearApiKey: false });
+              setRevealed(true);
+            }}
+            className="shrink-0 border-admin-border text-admin-text hover:bg-admin-panel hover:text-admin-text"
+          >
+            <Sparkles className="size-4" />
+            {t('settings.edutizimKeyGenerate')}
+          </Button>
+        </div>
         <span className="text-xs text-admin-muted">
           {value.clearApiKey
             ? t('settings.edutizimKeyCleared')
@@ -173,6 +214,14 @@ export function EdutizimPanel({
             </button>
           ) : null}
         </span>
+        {/* A key is a shared secret: generating one here only does something
+            once the same text is in EduTizim's own integration. Saying so at the
+            moment the key appears is the only place anybody will read it. */}
+        {value.apiKey ? (
+          <p className="rounded-xl bg-brand-50 px-3 py-2 text-xs text-ink-700 dark:bg-admin-hover dark:text-admin-text">
+            {t('settings.edutizimKeyPasteThere')}
+          </p>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -262,6 +311,42 @@ export function EdutizimPanel({
         />
       </div>
     </Panel>
+  );
+}
+
+/**
+ * A fresh key, 160 bits of it, from the browser's CSPRNG.
+ *
+ * It is only ever compared against itself — EduTizim stores the same string and
+ * checks the header equals it — so the only property that matters is that
+ * nobody can guess it. The prefix is there so that whoever finds this string in
+ * a settings screen a year from now knows what it belongs to.
+ */
+function generateKey(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(20));
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return `renessans-site-${hex}`;
+}
+
+function IconButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      onClick={onClick}
+      className="grid size-11 shrink-0 place-items-center rounded-xl border border-admin-border text-admin-muted hover:bg-admin-hover hover:text-admin-text"
+    >
+      {children}
+    </button>
   );
 }
 
